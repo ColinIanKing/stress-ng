@@ -124,6 +124,30 @@ static int stress_ioport_ioperm(
 	return 0;
 }
 
+#define	INBx8(port)		\
+do {				\
+	(void)inb(port);	\
+	(void)inb(port);	\
+	(void)inb(port);	\
+	(void)inb(port);	\
+	(void)inb(port);	\
+	(void)inb(port);	\
+	(void)inb(port);	\
+	(void)inb(port);	\
+} while (0);
+
+#define OUTBx8(v, port)		\
+do {				\
+	(void)outb(v, port);	\
+	(void)outb(v, port);	\
+	(void)outb(v, port);	\
+	(void)outb(v, port);	\
+	(void)outb(v, port);	\
+	(void)outb(v, port);	\
+	(void)outb(v, port);	\
+	(void)outb(v, port);	\
+} while (0);
+
 /*
  *  stress_ioport()
  *	stress performs I/O port I/O transactions
@@ -173,75 +197,19 @@ static int stress_ioport(stress_args_t *args)
 
 		if (flag & IOPORT_OPT_IN) {
 			t = stress_time_now();
-			(void)inb(port);
-			(void)inb(port);
-			(void)inb(port);
-			(void)inb(port);
-			(void)inb(port);
-			(void)inb(port);
-			(void)inb(port);
-			(void)inb(port);
-			(void)inb(port);
-			(void)inb(port);
-			(void)inb(port);
-			(void)inb(port);
-			(void)inb(port);
-			(void)inb(port);
-			(void)inb(port);
-			(void)inb(port);
-			(void)inb(port);
-			(void)inb(port);
-			(void)inb(port);
-			(void)inb(port);
-			(void)inb(port);
-			(void)inb(port);
-			(void)inb(port);
-			(void)inb(port);
-			(void)inb(port);
-			(void)inb(port);
-			(void)inb(port);
-			(void)inb(port);
-			(void)inb(port);
-			(void)inb(port);
-			(void)inb(port);
-			(void)inb(port);
+			INBx8(port);
+			INBx8(port);
+			INBx8(port);
+			INBx8(port);
 			duration_in += stress_time_now() - t;
 			count_in += 32.0;
 		}
 		if (flag & IOPORT_OPT_OUT) {
 			t = stress_time_now();
-			outb(v, port);
-			outb(v, port);
-			outb(v, port);
-			outb(v, port);
-			outb(v, port);
-			outb(v, port);
-			outb(v, port);
-			outb(v, port);
-			outb(v, port);
-			outb(v, port);
-			outb(v, port);
-			outb(v, port);
-			outb(v, port);
-			outb(v, port);
-			outb(v, port);
-			outb(v, port);
-			outb(v, port);
-			outb(v, port);
-			outb(v, port);
-			outb(v, port);
-			outb(v, port);
-			outb(v, port);
-			outb(v, port);
-			outb(v, port);
-			outb(v, port);
-			outb(v, port);
-			outb(v, port);
-			outb(v, port);
-			outb(v, port);
-			outb(v, port);
-			outb(v, port);
-			outb(v, port);
+			OUTBx8(v, port);
+			OUTBx8(v, port);
+			OUTBx8(v, port);
+			OUTBx8(v, port);
 			duration_out += stress_time_now() - t;
 			count_out += 32.0;
 		}
