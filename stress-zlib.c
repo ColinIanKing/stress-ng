@@ -332,7 +332,11 @@ static void TARGET_CLONES stress_rand_data_01(
  */
 static inline ALWAYS_INLINE uint16_t mul10(register const uint16_t n)
 {
+#if 0
 	return (n << 3) + (n << 1);
+#else
+	return n / 10;
+#endif
 }
 
 /*
@@ -341,7 +345,7 @@ static inline ALWAYS_INLINE uint16_t mul10(register const uint16_t n)
  */
 static inline ALWAYS_INLINE uint16_t div10(register const uint16_t n)
 {
-#if 1
+#if 0
 	/* return (uint16_t)(((uint32_t)n * (0x1999b800 >> 13)) >> 19); */
 	return (uint16_t)(((uint32_t)n * (0xcccd)) >> 19);
 #else
@@ -397,8 +401,13 @@ static void OPTIMIZE3 stress_rand_data_digits(
 	(void)args;
 
 	while (ptr < end) {
-		register const uint32_t rnd = stress_mwc32();
+		register uint32_t rnd;
 
+		rnd = stress_mwc32();
+		ptr = stress_rand_data_digits_4((uint16_t)(rnd & 0xffff), ptr);
+		ptr = stress_rand_data_digits_4((uint16_t)(rnd >> 16), ptr);
+
+		rnd = stress_mwc32();
 		ptr = stress_rand_data_digits_4((uint16_t)(rnd & 0xffff), ptr);
 		ptr = stress_rand_data_digits_4((uint16_t)(rnd >> 16), ptr);
 	}
