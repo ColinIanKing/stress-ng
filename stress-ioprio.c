@@ -41,7 +41,8 @@ static const stress_help_t help[] = {
 
 #if defined(HAVE_IOPRIO_GET) &&	\
     defined(HAVE_IOPRIO_SET) && \
-    defined(HAVE_PWRITEV)
+    defined(HAVE_PWRITEV) &&	\
+    defined(HAVE_SYS_UIO_H)
 
 #define MAX_IOV		(4)
 #define BUF_SIZE	(32)
