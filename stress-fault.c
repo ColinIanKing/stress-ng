@@ -323,7 +323,7 @@ const stressor_info_t stress_fault_info = {
 	.stressor = stress_unimplemented,
 	.classifier = CLASS_INTERRUPT | CLASS_OS,
 	.help = help,
-	.unimplemented_reason = "built without siglongjmp support"
+	.unimplemented_reason = "built without siglongjmp() support"
 };
 
 #endif

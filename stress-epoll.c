@@ -54,6 +54,7 @@ static const stress_help_t help[] = {
     defined(HAVE_TIMER_CREATE) &&	\
     defined(HAVE_TIMER_DELETE) &&	\
     defined(HAVE_TIMER_SETTIME) &&	\
+    defined(HAVE_SIGLONGJMP) &&		\
     NEED_GLIBC(2,3,2)
 
 typedef void (stress_epoll_func_t)(
@@ -84,6 +85,7 @@ static const stress_opt_t opts[] = {
     defined(HAVE_TIMER_CREATE) &&	\
     defined(HAVE_TIMER_DELETE) &&	\
     defined(HAVE_TIMER_SETTIME) &&	\
+    defined(HAVE_SIGLONGJMP) &&		\
     NEED_GLIBC(2,3,2)
 
 static sigjmp_buf jmp_env;
@@ -1143,6 +1145,6 @@ const stressor_info_t stress_epoll_info = {
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
-	.unimplemented_reason = "built without sys/epoll.h or librt or timer support"
+	.unimplemented_reason = "built without siglongjmp(), sys/epoll.h, librt or timer support"
 };
 #endif

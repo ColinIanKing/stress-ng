@@ -49,7 +49,8 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-#if defined(__linux__)
+#if defined(__linux__) &&	\
+    defined(HAVE_SIGLONGJMP)
 static const char sys_memory_path[] = "/sys/devices/system/memory";
 
 static volatile bool do_jmp = false;
@@ -382,6 +383,6 @@ const stressor_info_t stress_memhotplug_info = {
 	.classifier = CLASS_OS,
 	.opts = opts,
 	.help = help,
-	.unimplemented_reason = "only supported on Linux"
+	.unimplemented_reason = "built without siglongjmp() and only supported on Linux"
 };
 #endif

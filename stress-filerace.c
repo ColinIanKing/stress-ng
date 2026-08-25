@@ -850,7 +850,8 @@ static void stress_filerace_fchdir(const int fd, const char *filename)
 	VOID_RET(int, chdir(cwdpath));
 }
 
-#if defined(MS_ASYNC) &&	\
+#if defined(HAVE_SIGLONGJMP) &&	\
+    defined(MS_ASYNC) &&	\
     defined(MS_SYNC) &&		\
     defined(HAVE_FALLOCATE) &&	\
     defined(FALLOC_FL_ZERO_RANGE)
@@ -1294,7 +1295,8 @@ static const stress_filerace_fops_t stress_filerace_fops[] = {
 #endif
 	stress_filerace_chdir,
 	stress_filerace_fchdir,
-#if defined(MS_ASYNC) &&	\
+#if defined(HAVE_SIGLONGJMP) &&	\
+    defined(MS_ASYNC) &&	\
     defined(MS_SYNC) &&		\
     defined(HAVE_FALLOCATE) &&	\
     defined(FALLOC_FL_ZERO_RANGE)

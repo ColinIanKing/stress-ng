@@ -489,6 +489,6 @@ const stressor_info_t stress_lockbus_info = {
 	.classifier = CLASS_CPU_CACHE | CLASS_MEMORY,
 	.opts = opts,
 	.help = help,
-	.unimplemented_reason = "built without gcc __atomic* lock builtins or siglongjmp support"
+	.unimplemented_reason = "built without gcc __atomic* lock builtins or siglongjmp() support"
 };
 #endif

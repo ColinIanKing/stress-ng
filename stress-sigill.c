@@ -361,7 +361,7 @@ const stressor_info_t stress_sigill_info = {
 const stressor_info_t stress_sigill_info = {
 	.stressor = stress_unimplemented,
 	.classifier = CLASS_SIGNAL | CLASS_OS,
-	.unimplemented_reason = "built without SIGILL support or illegal opcode function not implemented or siglongjmp not supported",
+	.unimplemented_reason = "built without SIGILL support or illegal opcode function not implemented or siglongjmp() not supported",
 	.help = help
 };
 

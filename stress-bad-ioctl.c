@@ -64,6 +64,7 @@ static const stress_opt_t opts[] = {
 };
 
 #if defined(HAVE_LIB_PTHREAD) &&	\
+    defined(HAVE_SIGLONGJMP) &&		\
     defined(__linux__) &&		\
     defined(_IOR)
 
@@ -826,6 +827,6 @@ const stressor_info_t stress_bad_ioctl_info = {
 	.classifier = CLASS_DEV | CLASS_OS | CLASS_PATHOLOGICAL,
 	.opts = opts,
 	.help = help,
-	.unimplemented_reason = "built without pthread and/or ioctl() _IOR macro or is not Linux"
+	.unimplemented_reason = "built without siglongjmp, pthread or ioctl() _IOR macro or is not Linux"
 };
 #endif

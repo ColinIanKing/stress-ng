@@ -1502,7 +1502,7 @@ const stressor_info_t stress_cache_info = {
 	.classifier = CLASS_CPU_CACHE,
 	.opts = opts,
 	.help = help,
-	.unimplemented_reason = "built without siglongjmp support"
+	.unimplemented_reason = "built without siglongjmp() support"
 };
 
 #endif

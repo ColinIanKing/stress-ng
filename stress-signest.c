@@ -460,7 +460,7 @@ const stressor_info_t stress_signest_info = {
 	.classifier = CLASS_SIGNAL | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
-	.unimplemented_reason = "built without siglongjmp support"
+	.unimplemented_reason = "built without siglongjmp() support"
 };
 
 #endif

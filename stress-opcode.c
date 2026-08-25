@@ -58,7 +58,8 @@ static const stress_help_t help[] = {
     defined(HAVE_SYS_PRCTL_H)
 
 #if defined(__NR_rt_sigreturn)	&&	\
-    defined(__NR_rt_sigprocmask)
+    defined(__NR_rt_sigprocmask) && 	\
+    defined(HAVE_SIGLONGJMP)
 #define STRESS_OPCODE_USE_SIGLONGJMP
 static bool jmp_env_set;
 static sigjmp_buf jmp_env;
@@ -508,7 +509,9 @@ static int stress_opcode(stress_args_t *args)
 			stress_proc_name_set(buf);
 		}
 
+#if defined(STRESS_OPCODE_USE_SIGLONGJMP)
 		jmp_env_set = false;
+#endif
 		pid = stress_retry_fork(args, 0);
 		if (pid < 0) {
 			if (UNLIKELY(!stress_continue(args)))

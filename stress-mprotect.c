@@ -29,7 +29,8 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		 NULL }
 };
 
-#if defined(HAVE_MPROTECT)
+#if defined(HAVE_MPROTECT) &&	\
+    defined(HAVE_SIGLONGJMP)
 
 typedef struct {
 	const int	flag;
@@ -298,6 +299,6 @@ const stressor_info_t stress_mprotect_info = {
 	.classifier = CLASS_VM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
-	.unimplemented_reason = "built without mprotect() system call"
+	.unimplemented_reason = "built without mprotect() or siglongjmp()"
 };
 #endif

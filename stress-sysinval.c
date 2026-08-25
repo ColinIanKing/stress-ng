@@ -34,6 +34,7 @@ static const stress_help_t help[] = {
 
 #if defined(HAVE_SYSCALL_H) &&	\
     defined(HAVE_SYSCALL) &&	\
+    defined(HAVE_SIGLONGJMP) &&	\
     !defined(__APPLE__) && 	\
     !defined(__gnu_hurd__)
 
@@ -4763,6 +4764,6 @@ const stressor_info_t stress_sysinval_info = {
 	.stressor = stress_unimplemented,
 	.classifier = CLASS_OS | CLASS_PATHOLOGICAL,
 	.help = help,
-	.unimplemented_reason = "built without syscall.h, syscall() or system is GNU/HURD or OS X"
+	.unimplemented_reason = "built without syscall.h, siglongjmp(), syscall() or system is GNU/HURD or OS X"
 };
 #endif

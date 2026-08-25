@@ -39,6 +39,8 @@ extern void stress_signal_ignore_handler(int sig);
 extern void stress_signal_catch_sigill(void);
 extern void stress_signal_catch_sigsegv(void);
 
+#if defined(HAVE_SIGLONGJMP)
+
 /*
  *  stress_signal_siglongjmp()
  *	perform siglongjmp, we use a macro because CYGWIN
@@ -67,5 +69,7 @@ do {							\
 	*(do_jmp) = false;				\
 	stress_signal_siglongjmp(signum, jmp_env, val);	\
 } while (0)
+
+#endif
 
 #endif

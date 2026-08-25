@@ -33,7 +33,8 @@ static const stress_help_t help[] = {
 };
 
 #if defined(HAVE_SCHED_GET_PRIORITY_MIN) &&	\
-    defined(HAVE_SCHED_SETSCHEDULER)
+    defined(HAVE_SCHED_SETSCHEDULER) &&		\
+    defined(HAVE_SIGLONGJMP)
 
 /*
  *  stress_softlockup_supported()
@@ -405,6 +406,6 @@ const stressor_info_t stress_softlockup_info = {
 	.classifier = CLASS_SCHEDULER,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
-	.unimplemented_reason = "built without sched_get_priority_min() or sched_setscheduler()"
+	.unimplemented_reason = "built without siglongjmp(), sched_get_priority_min() or sched_setscheduler()"
 };
 #endif

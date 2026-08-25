@@ -47,6 +47,7 @@ static const stress_opt_t opts[] = {
 #define PAGE_MULTIPLES	(8)
 
 #if defined(HAVE_MPROTECT) &&	\
+    defined(HAVE_SIGLONGJMP) &&	\
     !defined(__NetBSD__)
 
 static const int sigs[] = {
@@ -693,7 +694,7 @@ const stressor_info_t stress_far_branch_info = {
 #if defined(__NetBSD__)
 	.unimplemented_reason = "denied by NetBSD exploit mitigation features"
 #else
-	.unimplemented_reason = "built without mprotect() support or architecture not supported"
+	.unimplemented_reason = "built without siglongjmp(), mprotect() support or architecture not supported"
 #endif
 };
 #endif

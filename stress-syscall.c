@@ -475,8 +475,10 @@ static int syscall_errno;			/* errno from syscall */
 static mode_t syscall_umask_mask;		/* current umask */
 static syscall_shared_info_t *syscall_shared_info = NULL;
 static char *syscall_exec_prog;			/* stress-ng exec path */
+#if defined(HAVE_SIGLONGJMP)
 static sigjmp_buf jmp_env;			/* jmp_buf for sigsegv handler */
-static volatile bool do_jmp = false;		/* use jmp_buf if do_jmo is true */
+static volatile bool do_jmp = false;		/* use jmp_env if do_jmp is true */
+#endif
 
 #if (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H)) && \
     (defined(HAVE_FGETXATTR) ||		\
@@ -875,6 +877,7 @@ reap_child:
 }
 #endif
 
+#if defined(HAVE_SIGLONGJMP)
 static void MLOCKED_TEXT syscall_sigsegv_handler(int signum)
 {
 	const int saved_errno = errno;
@@ -885,6 +888,7 @@ static void MLOCKED_TEXT syscall_sigsegv_handler(int signum)
 
 	stress_signal_siglongjmp_flag(signum, jmp_env, 1, &do_jmp);
 }
+#endif
 
 static void MLOCKED_TEXT syscall_sigusr1_handler(int signum)
 {
@@ -8941,17 +8945,21 @@ static void stress_syscall_benchmark_calls(stress_args_t *args)
 		t2 = ~0ULL;
 		errno = 0;
 
+#if defined(HAVE_SIGLONGJMP)
 		ret = sigsetjmp(jmp_env, 1);
 		do_jmp = true;
 		if (ret) {
 			ss->segv = true;
 			continue;
 		}
+#endif
 
 		/* Do the system call test */
 		test_t1 = syscall_time_now();
 		ret = syscalls[j].syscall();
+#if defined(HAVE_SIGLONGJMP)
 		do_jmp = false;
+#endif
 		ss->syscall_errno = syscall_errno;
 		test_t2 = syscall_time_now();
 
@@ -9012,8 +9020,10 @@ static int stress_syscall(stress_args_t *args)
 	syscall_umask_mask = umask(0);
 	syscall_exec_prog = stress_proc_self_exe_get(exec_path, sizeof(exec_path));
 
+#if defined(HAVE_SIGLONGJMP)
 	if (stress_signal_handler(args->name, SIGSEGV, syscall_sigsegv_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
+#endif
 	if (stress_signal_handler(args->name, SIGUSR1, syscall_sigusr1_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 #if defined(SIGXFSZ)

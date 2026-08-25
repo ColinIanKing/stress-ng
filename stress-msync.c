@@ -26,7 +26,9 @@
 #define MAX_MSYNC_BYTES		(MAX_FILE_LIMIT)
 #define DEFAULT_MSYNC_BYTES	(256 * STRESS_MB)
 
-#if defined(HAVE_MSYNC)
+#if defined(HAVE_MSYNC) &&	\
+    defined(HAVE_SIGLONGJMP)
+
 static sigjmp_buf jmp_env;
 static uint64_t sigbus_count;
 #endif
@@ -43,7 +45,8 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-#if defined(HAVE_MSYNC)
+#if defined(HAVE_MSYNC) &&	\
+    defined(HAVE_SIGLONGJMP)
 /*
  *  stress_page_check()
  *	check if mmap'd data is sane, sz is a page size
@@ -346,6 +349,6 @@ const stressor_info_t stress_msync_info = {
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
-	.unimplemented_reason = "built without msync() system call support"
+	.unimplemented_reason = "built without msync() or siglongjmp()"
 };
 #endif

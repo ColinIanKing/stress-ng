@@ -43,7 +43,8 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-#if defined(HAVE_MADVISE)
+#if defined(HAVE_MADVISE) &&	\
+    defined(HAVE_SIGLONGJMP)
 
 #define NUM_MEM_RETRIES_MAX	(256)
 #define NUM_HWPOISON_MAX	(2)
@@ -666,6 +667,7 @@ const stressor_info_t stress_madvise_info = {
 	.stressor = stress_unimplemented,
 	.classifier = CLASS_VM | CLASS_OS,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without siglongjmp() or madvise()"
 };
 #endif

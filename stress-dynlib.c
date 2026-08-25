@@ -33,6 +33,7 @@ static const stress_help_t help[] = {
 };
 
 #if defined(HAVE_LIB_DL) &&	\
+    defined(HAVE_SIGLONGJMP) &&	\
     !defined(BUILD_STATIC)
 
 static sigjmp_buf jmp_env;
@@ -214,6 +215,6 @@ const stressor_info_t stress_dynlib_info = {
 	.stressor = stress_unimplemented,
 	.classifier = CLASS_OS,
 	.help = help,
-	.unimplemented_reason = "built without dynamic library libdl support"
+	.unimplemented_reason = "built without siglongjmp() or dynamic library libdl support"
 };
 #endif

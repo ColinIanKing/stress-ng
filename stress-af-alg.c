@@ -85,6 +85,7 @@ static const stress_opt_t opts[] = {
 
 #if defined(HAVE_LINUX_IF_ALG_H) &&	\
     defined(HAVE_LINUX_SOCKET_H) &&	\
+    defined(HAVE_SIGLONGJMP) &&		\
     defined(AF_ALG)
 
 static volatile bool do_jmp = true;
@@ -1634,6 +1635,6 @@ const stressor_info_t stress_af_alg_info = {
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
-	.unimplemented_reason = "built without linux/if_alg.h"
+	.unimplemented_reason = "built without siglongjmp() or linux/if_alg.h"
 };
 #endif

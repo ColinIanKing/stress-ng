@@ -26,7 +26,8 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-#if defined(__linux__)
+#if defined(__linux__) &&	\
+    defined(HAVE_SIGLONGJMP)
 
 #include <sys/ioctl.h>
 
@@ -456,7 +457,7 @@ const stressor_info_t stress_chattr_info = {
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
-	.unimplemented_reason = "built without Linux chattr() support"
+	.unimplemented_reason = "built without siglongjmp() or Linux chattr() support"
 };
 
 #endif

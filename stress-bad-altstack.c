@@ -47,6 +47,7 @@ static const stress_help_t help[] =
 #endif
 
 #if defined(HAVE_SIGALTSTACK) &&	\
+    defined(HAVE_SIGLONGJMP) &&		\
     defined(HAVE_MPROTECT) &&		\
     defined(PROT_NONE) &&		\
     defined(PROT_EXEC) &&		\
@@ -489,6 +490,6 @@ const stressor_info_t stress_bad_altstack_info = {
 	.classifier = CLASS_VM | CLASS_MEMORY | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
-	.unimplemented_reason = "built without sigaltstack() or mprotect()"
+	.unimplemented_reason = "built without siglongjmp(), sigaltstack() or mprotect()"
 };
 #endif

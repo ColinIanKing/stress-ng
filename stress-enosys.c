@@ -33,7 +33,8 @@ static const stress_help_t help[] = {
 };
 
 #if defined(HAVE_SYSCALL_H) &&	\
-    defined(HAVE_SYSCALL)
+    defined(HAVE_SYSCALL) &&	\
+    defined(HAVE_SIGLONGJMP)
 
 #define HASH_SYSCALL_SIZE	(1987)
 
@@ -4290,6 +4291,6 @@ const stressor_info_t stress_enosys_info = {
 	.stressor = stress_unimplemented,
 	.classifier = CLASS_OS,
 	.help = help,
-	.unimplemented_reason = "built without sys/syscall.h or syscall support"
+	.unimplemented_reason = "built without siglongjmp(), sys/syscall.h or syscall support"
 };
 #endif

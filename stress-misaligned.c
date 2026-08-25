@@ -1513,7 +1513,7 @@ const stressor_info_t stress_misaligned_info = {
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
-	.unimplemented_reason = "built without siglongjmp support"
+	.unimplemented_reason = "built without siglongjmp() support"
 };
 
 #endif

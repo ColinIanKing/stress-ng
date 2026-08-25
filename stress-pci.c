@@ -34,7 +34,8 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-#if defined(__linux__)
+#if defined(__linux__) &&	\
+    defined(HAVE_SIGLONGJMP)
 
 static sigjmp_buf jmp_env;
 
@@ -414,6 +415,6 @@ const stressor_info_t stress_pci_info = {
 	.classifier = CLASS_OS,
 	.opts = opts,
 	.help = help,
-	.unimplemented_reason = "only supported on Linux"
+	.unimplemented_reason = "built without siglongjmp() and only supported on Linux"
 };
 #endif
