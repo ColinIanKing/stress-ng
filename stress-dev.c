@@ -573,6 +573,7 @@ static void stress_dev_dm_linux(
 
 #if defined(RWF_NOWAIT) &&	\
     defined(O_DIRECT) &&	\
+    defined(HAVE_SYS_UIO_H) &&	\
     defined(HAVE_PREADV2)
 	{
 		/*
