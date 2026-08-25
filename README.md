@@ -644,6 +644,9 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
  * [null pointer reference in gfs2 when using chattr](https://bugs.launchpad.net/ubuntu/+source/linux/+bug/2148595)
  * [wifi: rtw89: phy: increase RF calibration timeouts for USB transport](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=5055188134c3cc755333fa19e5b8a0f3cb6fbb9a)
  * [Cygwin madvise(): aliased to posix_madvise() but the error handling should differ](https://cygwin.com/pipermail/cygwin/2026-July/259872.html)
+ * [mm/page_reporting: use system_freezable_wq to fix UAF during suspend](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=0b45f6927a14914ff685fe0e6f9d11232a1e03df)
+ * [s390/cpum_cf: Handle CPU hotplug via prepare/dead callbacks](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=337bd95507a16063687cfc286ea90de5cca48c37)
+
 
 ## Kernel improvements that used stress-ng
 
