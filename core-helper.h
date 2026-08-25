@@ -28,6 +28,12 @@
  */
 #define stress_warn_once()	stress_warn_once_hash(__FILE__, __LINE__)
 
+/*
+ *  stringification macros
+ */
+#define STRESS_XSTRINGIFY(s)	STRESS_STRINGIFY(s)
+#define STRESS_STRINGIFY(s)	#s
+
 typedef struct stress_load_average_info {
 	double min1;
 	double min5;

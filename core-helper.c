@@ -649,9 +649,6 @@ static char *stress_libc_version_get(void)
 #endif
 }
 
-#define XSTR(s) STR(s)
-#define STR(s) #s
-
 /*
  *  stress_buildinfo()
  *     info about compiler, built date and compilation flags
@@ -661,7 +658,7 @@ void stress_buildinfo(void)
 	if (g_opt_flags & OPT_FLAGS_BUILDINFO) {
 		pr_inf("compiler: %s\n", stress_compiler_get());
 #if defined(HAVE_SOURCE_DATE_EPOCH)
-		pr_inf("SOURCE_DATE_EPOCH: " XSTR(HAVE_SOURCE_DATE_EPOCH) "\n");
+		pr_inf("SOURCE_DATE_EPOCH: " STRESS_XSTRINGIFY(HAVE_SOURCE_DATE_EPOCH) "\n");
 #endif
 #if defined(HAVE_EXTRA_BUILDINFO)
 #if defined(HAVE_CFLAGS)
@@ -675,10 +672,10 @@ void stress_buildinfo(void)
 #endif
 #endif
 #if defined(__STDC_VERSION__)
-		pr_inf("STDC Version: " XSTR(__STDC_VERSION__) "\n");
+		pr_inf("STDC Version: " STRESS_XSTRINGIFY(__STDC_VERSION__) "\n");
 #endif
 #if defined(__STDC_HOSTED__)
-		pr_inf("STDC Hosted: " XSTR(__STDC_HOSTED__) "\n");
+		pr_inf("STDC Hosted: " STRESS_XSTRINGIFY(__STDC_HOSTED__) "\n");
 #endif
 #if defined(BUILD_STATIC)
 		pr_inf("build: static image\n");
@@ -700,7 +697,7 @@ void stress_yaml_buildinfo(FILE *yaml)
 	pr_yaml(yaml, "build-info:\n");
 	pr_yaml(yaml, "      compiler: '%s'\n", stress_compiler_get());
 #if defined(HAVE_SOURCE_DATE_EPOCH)
-	pr_yaml(yaml, "      source-date-epoch: " XSTR(HAVE_SOURCE_DATE_EPOCH) "\n");
+	pr_yaml(yaml, "      source-date-epoch: " STRESS_XSTRINGIFY(HAVE_SOURCE_DATE_EPOCH) "\n");
 #endif
 #if defined(HAVE_EXTRA_BUILDINFO)
 #if defined(HAVE_CFLAGS)
@@ -714,17 +711,13 @@ void stress_yaml_buildinfo(FILE *yaml)
 #endif
 #endif
 #if defined(__STDC_VERSION__)
-	pr_yaml(yaml, "      stdc-version: '" XSTR(__STDC_VERSION__) "'\n");
+	pr_yaml(yaml, "      stdc-version: '" STRESS_XSTRINGIFY(__STDC_VERSION__) "'\n");
 #endif
 #if defined(__STDC_HOSTED__)
-	pr_yaml(yaml, "      stdc-hosted: '" XSTR(__STDC_HOSTED__) "'\n");
+	pr_yaml(yaml, "      stdc-hosted: '" STRESS_XSTRINGIFY(__STDC_HOSTED__) "'\n");
 #endif
 	pr_yaml(yaml, "\n");
 }
-
-
-#undef XSTR
-#undef STR
 
 /*
  *  stress_runinfo()
@@ -894,9 +887,6 @@ unsigned int stress_cpu_get(void)
 #endif
 }
 
-#define XSTRINGIFY(s) STRINGIFY(s)
-#define STRINGIFY(s) #s
-
 /*
  *  stress_compiler_get()
  *	return compiler info
@@ -907,45 +897,45 @@ const char *stress_compiler_get(void)
       defined(__INTEL_COMPILER) &&	\
       defined(__INTEL_COMPILER_UPDATE) && \
       defined(__INTEL_COMPILER_BUILD_DATE)
-	static const char cc[] = "icc " XSTRINGIFY(__INTEL_COMPILER) "." XSTRINGIFY(__INTEL_COMPILER_UPDATE) " Build " XSTRINGIFY(__INTEL_COMPILER_BUILD_DATE) "";
+	static const char cc[] = "icc " STRESS_XSTRINGIFY(__INTEL_COMPILER) "." STRESS_XSTRINGIFY(__INTEL_COMPILER_UPDATE) " Build " STRESS_XSTRINGIFY(__INTEL_COMPILER_BUILD_DATE) "";
 #elif defined(HAVE_COMPILER_ICC) && 		\
       defined(__INTEL_COMPILER) &&	\
       defined(__INTEL_COMPILER_UPDATE)
-	static const char cc[] = "icc " XSTRINGIFY(__INTEL_COMPILER) "." XSTRINGIFY(__INTEL_COMPILER_UPDATE) "";
+	static const char cc[] = "icc " STRESS_XSTRINGIFY(__INTEL_COMPILER) "." STRESS_XSTRINGIFY(__INTEL_COMPILER_UPDATE) "";
 #elif defined(__INTEL_CLANG_COMPILER)
-	static const char cc[] = "icx " XSTRINGIFY(__INTEL_CLANG_COMPILER) "";
+	static const char cc[] = "icx " STRESS_XSTRINGIFY(__INTEL_CLANG_COMPILER) "";
 #elif defined(__INTEL_LLVM_COMPILER)
-	static const char cc[] = "icx " XSTRINGIFY(__INTEL_LLVM_COMPILER) "";
+	static const char cc[] = "icx " STRESS_XSTRINGIFY(__INTEL_LLVM_COMPILER) "";
 #elif defined(__TINYC__)
-	static const char cc[] = "tcc " XSTRINGIFY(__TINYC__) "";
+	static const char cc[] = "tcc " STRESS_XSTRINGIFY(__TINYC__) "";
 #elif defined(__PCC__) &&			\
        defined(__PCC_MINOR__)
-	static const char cc[] = "pcc " XSTRINGIFY(__PCC__) "." XSTRINGIFY(__PCC_MINOR__) "." XSTRINGIFY(__PCC_MINORMINOR__) "";
+	static const char cc[] = "pcc " STRESS_XSTRINGIFY(__PCC__) "." STRESS_XSTRINGIFY(__PCC_MINOR__) "." STRESS_XSTRINGIFY(__PCC_MINORMINOR__) "";
 #elif defined(__clang_major__) &&	\
       defined(__clang_minor__) &&	\
       defined(__clang_patchlevel__)
-	static const char cc[] = "clang " XSTRINGIFY(__clang_major__) "." XSTRINGIFY(__clang_minor__) "." XSTRINGIFY(__clang_patchlevel__) "";
+	static const char cc[] = "clang " STRESS_XSTRINGIFY(__clang_major__) "." STRESS_XSTRINGIFY(__clang_minor__) "." STRESS_XSTRINGIFY(__clang_patchlevel__) "";
 #elif defined(__clang_major__) &&	\
       defined(__clang_minor__)
-	static const char cc[] = "clang " XSTRINGIFY(__clang_major__) "." XSTRINGIFY(__clang_minor__) "";
+	static const char cc[] = "clang " STRESS_XSTRINGIFY(__clang_major__) "." STRESS_XSTRINGIFY(__clang_minor__) "";
 #elif defined(__GNUC__) &&		\
       defined(__GNUC_MINOR__) &&	\
       defined(__GNUC_PATCHLEVEL__) &&	\
       defined(HAVE_COMPILER_MUSL)
-	static const char cc[] = "musl-gcc " XSTRINGIFY(__GNUC__) "." XSTRINGIFY(__GNUC_MINOR__) "." XSTRINGIFY(__GNUC_PATCHLEVEL__) "";
+	static const char cc[] = "musl-gcc " STRESS_XSTRINGIFY(__GNUC__) "." STRESS_XSTRINGIFY(__GNUC_MINOR__) "." STRESS_XSTRINGIFY(__GNUC_PATCHLEVEL__) "";
 #elif defined(__GNUC__) &&		\
       defined(__GNUC_MINOR__) &&	\
       defined(HAVE_COMPILER_MUSL)
-	static const char cc[] = "musl-gcc " XSTRINGIFY(__GNUC__) "." XSTRINGIFY(__GNUC_MINOR__) "";
+	static const char cc[] = "musl-gcc " STRESS_XSTRINGIFY(__GNUC__) "." STRESS_XSTRINGIFY(__GNUC_MINOR__) "";
 #elif defined(__GNUC__) &&		\
       defined(__GNUC_MINOR__) &&	\
       defined(__GNUC_PATCHLEVEL__) &&	\
       defined(HAVE_COMPILER_GCC)
-	static const char cc[] = "gcc " XSTRINGIFY(__GNUC__) "." XSTRINGIFY(__GNUC_MINOR__) "." XSTRINGIFY(__GNUC_PATCHLEVEL__) "";
+	static const char cc[] = "gcc " STRESS_XSTRINGIFY(__GNUC__) "." STRESS_XSTRINGIFY(__GNUC_MINOR__) "." STRESS_XSTRINGIFY(__GNUC_PATCHLEVEL__) "";
 #elif defined(__GNUC__) &&		\
       defined(__GNUC_MINOR__) &&	\
       defined(HAVE_COMPILER_GCC)
-	static const char cc[] = "gcc " XSTRINGIFY(__GNUC__) "." XSTRINGIFY(__GNUC_MINOR__) "";
+	static const char cc[] = "gcc " STRESS_XSTRINGIFY(__GNUC__) "." STRESS_XSTRINGIFY(__GNUC_MINOR__) "";
 #else
 	static const char cc[] = "cc unknown";
 #endif

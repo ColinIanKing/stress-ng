@@ -48,14 +48,8 @@ typedef struct {
 	uint64_t regs[16];
 } smi_regs_t;
 
-/*
- *  Stringification macros
- */
-#define XSTRINGIFY(s) STRINGIFY(s)
-#define STRINGIFY(s) #s
-
 #define SAVE_REG(r, reg, idx)			\
-	__asm__ __volatile__("mov %%" XSTRINGIFY(reg) ", %0\n" : "+m" (r.regs[idx]))
+	__asm__ __volatile__("mov %%" STRESS_XSTRINGIFY(reg) ", %0\n" : "+m" (r.regs[idx]))
 
 static const char * const reg_names[] = {
 	"r8",	/* 0 */
