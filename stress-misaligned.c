@@ -37,10 +37,6 @@
 #define HAVE_MISALIGNED_NUMA	(1)
 #endif
 
-#define BITS_PER_BYTE           (8)
-#define NUMA_LONG_BITS          (sizeof(unsigned long int) * BITS_PER_BYTE)
-
-
 #define MISALIGN_LOOPS		(64)
 
 /* Disable atomic ops for SH4 as this breaks gcc on Debian sid */

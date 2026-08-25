@@ -40,9 +40,6 @@
 #define HAVE_MEMTHRASH_NUMA	(1)
 #endif
 
-#define BITS_PER_BYTE		(8)
-#define NUMA_LONG_BITS		(sizeof(unsigned long int) * BITS_PER_BYTE)
-
 static const stress_help_t help[] = {
 	{ NULL,	"memthrash N",		"start N workers thrashing a 16MB memory buffer" },
 	{ NULL,	"memthrash-method M",	"specify memthrash method M, default is all" },

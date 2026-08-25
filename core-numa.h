@@ -23,8 +23,8 @@
 #include <linux/mempolicy.h>
 #endif
 
-#define BITS_PER_BYTE		(8)
-#define NUMA_LONG_BITS		(sizeof(unsigned long int) * BITS_PER_BYTE)
+#define STRESS_BITS_PER_BYTE		(8)
+#define STRESS_NUMA_LONG_BITS		(sizeof(unsigned long int) * STRESS_BITS_PER_BYTE)
 
 /* numa mode mask */
 typedef struct stress_numa_mask {

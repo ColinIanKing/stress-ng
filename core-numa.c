@@ -205,10 +205,10 @@ stress_numa_mask_t *stress_numa_mask_alloc(void)
 	}
 
 	/* number of longs based on maximum number of nodes */
-	numa_mask->numa_elements = (numa_mask->max_nodes + NUMA_LONG_BITS - 1) / NUMA_LONG_BITS;
+	numa_mask->numa_elements = (numa_mask->max_nodes + STRESS_NUMA_LONG_BITS - 1) / STRESS_NUMA_LONG_BITS;
 	numa_mask->numa_elements = numa_mask->numa_elements ? numa_mask->numa_elements : 1;
 	/* size of mask in bytes */
-	numa_mask->mask_size = (size_t)(NUMA_LONG_BITS * numa_mask->numa_elements) / BITS_PER_BYTE;
+	numa_mask->mask_size = (size_t)(STRESS_NUMA_LONG_BITS * numa_mask->numa_elements) / STRESS_BITS_PER_BYTE;
 	/* allocated mask */
 	numa_mask->mask = (unsigned long int *)calloc(numa_mask->mask_size, 1);
 	if (UNLIKELY(!numa_mask->mask)) {
