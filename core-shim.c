@@ -151,7 +151,7 @@ extern int setdomainname(const char *name, size_t len);
  *	the sysnr argument and all following 1..N syscall
  *	arguments.  Returns -1 and sets errno to ENOSYS
  */
-static inline long int shim_enosys(long sysnr, ...)
+long int shim_enosys(long sysnr, ...)
 {
 	(void)sysnr;
 	errno = ENOSYS;

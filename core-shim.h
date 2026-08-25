@@ -567,6 +567,8 @@ typedef struct shim_ns_id_req {
 	uint64_t user_ns_id;
 } shim_ns_id_req_t;
 
+extern long int shim_enosys(long sysnr, ...);
+
 /*
  *  shim_unconstify_ptr()
  *      some older system calls require non-const void *
