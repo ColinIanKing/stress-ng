@@ -40,7 +40,8 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		 NULL }
 };
 
-#if defined(HAVE_PROCESS_VM_READV) &&	\
+#if defined(HAVE_SYS_UIO_H) &&		\
+    defined(HAVE_PROCESS_VM_READV) &&	\
     defined(HAVE_PROCESS_VM_WRITEV) &&	\
     defined(HAVE_CLONE) &&		\
     defined(CLONE_VM)
@@ -69,7 +70,8 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-#if defined(HAVE_PROCESS_VM_READV) &&	\
+#if defined(HAVE_SYS_UIO_H) &&		\
+    defined(HAVE_PROCESS_VM_READV) &&	\
     defined(HAVE_PROCESS_VM_WRITEV) &&	\
     defined(HAVE_CLONE) &&		\
     defined(CLONE_VM)
