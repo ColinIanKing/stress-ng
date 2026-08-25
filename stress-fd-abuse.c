@@ -1611,7 +1611,8 @@ static void stress_fd_pwrite(const stress_fd_t *fd)
 }
 #endif
 
-#if defined(HAVE_READV)
+#if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_READV)
 static void stress_fd_readv(const stress_fd_t *fd)
 {
 	if (fd->flags & FD_FLAG_READ) {
