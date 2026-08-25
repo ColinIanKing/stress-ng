@@ -19,9 +19,9 @@
  */
 #include "stress-ng.h"
 
-#define MIN_SKIPLIST_SIZE	(1 * KB)
-#define MAX_SKIPLIST_SIZE	(4 * MB)
-#define DEFAULT_SKIPLIST_SIZE	(1 * KB)
+#define MIN_SKIPLIST_SIZE	(1 * STRESS_KB)
+#define MAX_SKIPLIST_SIZE	(4 * STRESS_MB)
+#define DEFAULT_SKIPLIST_SIZE	(1 * STRESS_KB)
 
 typedef struct skip_node {
 	uint32_t value;

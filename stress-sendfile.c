@@ -25,9 +25,9 @@
 UNEXPECTED
 #endif
 
-#define MIN_SENDFILE_SIZE	(1 * KB)
-#define MAX_SENDFILE_SIZE	(1 * GB)
-#define DEFAULT_SENDFILE_SIZE	(4 * MB)
+#define MIN_SENDFILE_SIZE	(1 * STRESS_KB)
+#define MAX_SENDFILE_SIZE	(1 * STRESS_GB)
+#define DEFAULT_SENDFILE_SIZE	(4 * STRESS_MB)
 
 static const stress_help_t help[] = {
 	{ NULL,	"sendfile N",	   "start N workers exercising sendfile" },
@@ -203,7 +203,7 @@ sendfile_ok:
 
 	rate = (duration > 0.0) ? bytes / duration : 0.0;
 	stress_metrics_set(args, "MB per sec sent to /dev/null",
-		rate / (double)MB, STRESS_METRIC_HARMONIC_MEAN);
+		rate / (double)STRESS_MB, STRESS_METRIC_HARMONIC_MEAN);
 
 close_out:
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);

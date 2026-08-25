@@ -312,7 +312,7 @@ static int stress_chroot_test6(chroot_shared_data_t *data)
  */
 static int stress_chroot_test7(chroot_shared_data_t *data)
 {
-	const size_t path_len = 256 * KB;
+	const size_t path_len = 256 * STRESS_KB;
 	int ret1;
 	int ret2;
 	int errno1;

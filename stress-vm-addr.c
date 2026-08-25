@@ -28,8 +28,8 @@
 #include "core-signal.h"
 #include "core-target-clones.h"
 
-#define MIN_VM_ADDR_BYTES	(8 * MB)
-#define MAX_VM_ADDR_BYTES	(64 * MB)
+#define MIN_VM_ADDR_BYTES	(8 * STRESS_MB)
+#define MAX_VM_ADDR_BYTES	(64 * STRESS_MB)
 
 #define NO_MEM_RETRIES_MAX	(100)
 

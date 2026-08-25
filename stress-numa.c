@@ -29,9 +29,9 @@
 #include <linux/mempolicy.h>
 #endif
 
-#define MIN_NUMA_MMAP_BYTES	(1 * MB)
+#define MIN_NUMA_MMAP_BYTES	(1 * STRESS_MB)
 #define MAX_NUMA_MMAP_BYTES	(MAX_MEM_LIMIT)
-#define DEFAULT_NUMA_MMAP_BYTES	(4 * MB)
+#define DEFAULT_NUMA_MMAP_BYTES	(4 * STRESS_MB)
 
 static const stress_help_t help[] = {
 	{ NULL,	"numa N",		"start N workers stressing NUMA interfaces" },

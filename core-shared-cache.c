@@ -24,7 +24,7 @@
 #include "core-numa.h"
 #include "core-shared-cache.h"
 
-#define MEM_CACHE_SIZE	(2 * MB)
+#define MEM_CACHE_SIZE	(2 * STRESS_MB)
 
 /*
  *  stress_shared_cache_alloc()

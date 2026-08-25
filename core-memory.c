@@ -306,7 +306,7 @@ bool stress_memory_low_check(const size_t requested)
 			}
 		}
 		/* Not enough for allocation and slop? */
-		if (info.freemem < ((4 * MB) + requested)) {
+		if (info.freemem < ((4 * STRESS_MB) + requested)) {
 			low_memory = true;
 			goto update;
 		}
@@ -316,7 +316,7 @@ bool stress_memory_low_check(const size_t requested)
 			goto update;
 		}
 		/* Any swap enabled with free memory we are too low? */
-		if ((info.totalswap > 0) && (info.freeswap + info.freemem < (requested + (2 * MB)))) {
+		if ((info.totalswap > 0) && (info.freeswap + info.freemem < (requested + (2 * STRESS_MB)))) {
 			low_memory = true;
 			goto update;
 		}

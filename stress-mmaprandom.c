@@ -82,7 +82,7 @@
 
 #define MWC_RND_ELEMENT(array)		array[stress_mwc8modn(SIZEOF_ARRAY(array))]
 
-#define CLONE_STACK_SIZE		(8 * KB)
+#define CLONE_STACK_SIZE		(8 * STRESS_KB)
 
 #define FD_FILE				(0)
 #define FD_MEMFD			(1)
@@ -1773,7 +1773,7 @@ static void stress_mmaprandom_clone(mr_ctxt_t *ctxt, const int idx)
 
 		if (stress_memory_usage_by_pid_get(getpid(), &total, &resident, &shared) < 0) {
 			/* Can't get memory, random guess at 128MB */
-			total = 128 * MB;
+			total = 128 * STRESS_MB;
 		}
 		if (stress_memory_low_check(total))
 			return;
@@ -1810,7 +1810,7 @@ static void stress_mmaprandom_fork(mr_ctxt_t *ctxt, const int idx)
 
 		if (stress_memory_usage_by_pid_get(getpid(), &total, &resident, &shared) < 0) {
 			/* Can't get memory, random guess at 128MB */
-			total = 128 * MB;
+			total = 128 * STRESS_MB;
 		}
 		if (stress_memory_low_check(total))
 			return;

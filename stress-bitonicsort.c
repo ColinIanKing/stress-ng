@@ -23,9 +23,9 @@
 #include "core-signal.h"
 #include "core-sort.h"
 
-#define MIN_BITONICSORT_SIZE		(1 * KB)
-#define MAX_BITONICSORT_SIZE		(4 * MB)
-#define DEFAULT_BITONICSORT_SIZE	(256 * KB)
+#define MIN_BITONICSORT_SIZE		(1 * STRESS_KB)
+#define MAX_BITONICSORT_SIZE		(4 * STRESS_MB)
+#define DEFAULT_BITONICSORT_SIZE	(256 * STRESS_KB)
 
 #if defined(HAVE_SIGLONGJMP)
 static volatile bool do_jmp = true;

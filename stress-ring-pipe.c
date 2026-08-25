@@ -274,7 +274,7 @@ finish:
 		rate, STRESS_METRIC_HARMONIC_MEAN);
 	rate = (duration > 0.0) ? (double)bytes / duration : 0.0;
 	stress_metrics_set(args, "MB per sec data pipe write",
-		rate / (double)MB, STRESS_METRIC_HARMONIC_MEAN);
+		rate / (double)STRESS_MB, STRESS_METRIC_HARMONIC_MEAN);
 
 err_deinit:
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);

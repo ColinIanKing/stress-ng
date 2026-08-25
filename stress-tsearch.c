@@ -24,9 +24,9 @@
 #include <search.h>
 #endif
 
-#define MIN_TSEARCH_SIZE	(1 * KB)
-#define MAX_TSEARCH_SIZE	(64 * MB)
-#define DEFAULT_TSEARCH_SIZE	(64 * KB)
+#define MIN_TSEARCH_SIZE	(1 * STRESS_KB)
+#define MAX_TSEARCH_SIZE	(64 * STRESS_MB)
+#define DEFAULT_TSEARCH_SIZE	(64 * STRESS_KB)
 
 static const stress_help_t help[] = {
 	{ NULL,	"tsearch N",		"start N workers that exercise a tree search" },

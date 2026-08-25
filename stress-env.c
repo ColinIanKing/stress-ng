@@ -50,7 +50,7 @@ static int stress_env_child(stress_args_t *args, void *context)
 	uint32_t seed_w;
 	uint32_t seed_z;
 	size_t arg_max;
-	const size_t arg_huge = 16 * MB;
+	const size_t arg_huge = 16 * STRESS_MB;
 	char *value;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 	int rc = EXIT_SUCCESS;

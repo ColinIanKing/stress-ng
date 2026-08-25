@@ -24,8 +24,8 @@
 #include "core-out-of-memory.h"
 
 #define MIN_PAGES			(3)	/* Min number to move */
-#define DEFAULT_PAGE_MOVE_BYTES		(4 * MB)
-#define MIN_PAGE_MOVE_BYTES		(64 * KB)
+#define DEFAULT_PAGE_MOVE_BYTES		(4 * STRESS_MB)
+#define MIN_PAGE_MOVE_BYTES		(64 * STRESS_KB)
 #define MAX_PAGE_MOVE_BYTES		(MAX_MEM_LIMIT)
 
 #define PAGE0				(0x1)

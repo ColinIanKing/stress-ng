@@ -332,7 +332,7 @@ int shim_posix_fallocate(int fd, off_t offset, off_t len)
     !defined(__FreeBSD__) &&		\
     defined(EINVAL) &&			\
     defined(EOPNOTSUPP)
-	const off_t chunk_len = (off_t)(1 * MB);
+	const off_t chunk_len = (off_t)(1 * STRESS_MB);
 	static bool emulate = false;
 
 	if (emulate) {

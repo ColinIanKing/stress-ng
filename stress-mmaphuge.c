@@ -87,20 +87,20 @@ typedef struct {
 static const stress_mmaphuge_setting_t stress_mmaphuge_settings[] =
 {
 #if defined(MAP_HUGE_2MB)
-	{ MAP_HUGETLB | MAP_HUGE_2MB,	2 * MB },
+	{ MAP_HUGETLB | MAP_HUGE_2MB,	2 * STRESS_MB },
 #endif
 #if defined(MAP_HUGE_1GB)
-	{ MAP_HUGETLB | MAP_HUGE_1GB,	1 * GB },
+	{ MAP_HUGETLB | MAP_HUGE_1GB,	1 * STRESS_GB },
 #endif
 #if defined(MAP_HUGE_512MB)
-	{ MAP_HUGETLB | MAP_HUGE_512MB,	512 * MB },
+	{ MAP_HUGETLB | MAP_HUGE_512MB,	512 * STRESS_MB },
 #endif
-	{ MAP_HUGETLB, 1 * GB },
-	{ MAP_HUGETLB, 16 * MB },	/* ppc64 */
-	{ MAP_HUGETLB, 2 * MB },
-	{ 0, 1 * GB },			/* for THP */
-	{ 0, 16 * MB },			/* for THP */
-	{ 0, 2 * MB },			/* for THP */
+	{ MAP_HUGETLB, 1 * STRESS_GB },
+	{ MAP_HUGETLB, 16 * STRESS_MB },/* ppc64 */
+	{ MAP_HUGETLB, 2 * STRESS_MB },
+	{ 0, 1 * STRESS_GB },		/* for THP */
+	{ 0, 16 * STRESS_MB },		/* for THP */
+	{ 0, 2 * STRESS_MB },		/* for THP */
 };
 
 static int stress_mmaphuge_child(stress_args_t *args, void *v_context)
@@ -278,7 +278,7 @@ static int stress_mmaphuge(stress_args_t *args)
 	context->numa_mask = NULL;
 	context->numa_nodes = NULL;
 #endif
-	context->sz = 16 * MB;
+	context->sz = 16 * STRESS_MB;
 	context->fd = -1;
 	context->mmaphuge_mmaps = MAX_MMAP_BUFS;
 	if (!stress_setting_get("mmaphuge-mmaps", &context->mmaphuge_mmaps)) {
@@ -346,7 +346,7 @@ static int stress_mmaphuge(stress_args_t *args)
 			else
 				rc = stress_exit_status(errno);
 			pr_fail("%s: fallocate of %zu MB failed, errno=%d (%s)\n",
-				args->name, (size_t)(context->sz / MB), errno, strerror(errno));
+				args->name, (size_t)(context->sz / STRESS_MB), errno, strerror(errno));
 			(void)close(context->fd);
 			(void)stress_fs_temp_dir_rm_args(args);
 			free(context->bufs);

@@ -39,10 +39,10 @@
 #define MR_WR			(0x0002)
 #define MR_RW			(MR_RD | MR_WR)
 
-#define MIN_MEMRATE_BYTES       (4 * KB)
+#define MIN_MEMRATE_BYTES       (4 * STRESS_KB)
 #define MAX_MEMRATE_BYTES       (MAX_MEM_LIMIT)
-#define DEFAULT_MEMRATE_BYTES   (256 * MB)
-#define STRESS_MEMRATE_PF_OFFSET (2 * KB)
+#define DEFAULT_MEMRATE_BYTES   (256 * STRESS_MB)
+#define STRESS_MEMRATE_PF_OFFSET (2 * STRESS_KB)
 
 #define STRESS_PTR_MINIMUM(a, b)	STRESS_MINIMUM((uintptr_t)a, (uintptr_t)b)
 
@@ -184,7 +184,7 @@ static uint64_t TARGET_CLONES OPTIMIZE3 stress_memrate_read##size(		\
 		ptr += 16;					\
 	}							\
 	*valid = true;						\
-	return ((uintptr_t)ptr - (uintptr_t)start) / KB;	\
+	return ((uintptr_t)ptr - (uintptr_t)start) / STRESS_KB;	\
 }
 
 #define STRESS_MEMRATE_READ_RATE(size, type, prefetch)		\
@@ -203,7 +203,7 @@ static uint64_t TARGET_CLONES OPTIMIZE3 stress_memrate_read_rate##size(		\
 	double t1;						\
 	double total_dur = 0.0;					\
 	const double dur = (double)loop_size / 			\
-		(MB * (double)context->memrate_rd_mbs);		\
+		(STRESS_MB * (double)context->memrate_rd_mbs);	\
 								\
 	t1 = stress_time_now();					\
 	for (ptr = start; ptr < end;) {				\
@@ -265,7 +265,7 @@ static uint64_t TARGET_CLONES OPTIMIZE3 stress_memrate_read_rate##size(		\
 		}						\
 	}							\
 	*valid = true;						\
-	return ((uintptr_t)ptr - (uintptr_t)start) / KB;	\
+	return ((uintptr_t)ptr - (uintptr_t)start) / STRESS_KB;	\
 }
 
 #define STRESS_MEMRATE_READ_OP(size, type, op, read_op, check)	\
@@ -319,7 +319,7 @@ static uint64_t TARGET_CLONES OPTIMIZE3 stress_memrate_read_##read_op##size(		\
 		ptr += 16;					\
 	}							\
 	*valid = true;						\
-	return ((uintptr_t)ptr - (uintptr_t)start) / KB;	\
+	return ((uintptr_t)ptr - (uintptr_t)start) / STRESS_KB;	\
 }
 
 #define STRESS_MEMRATE_READ_RATE_OP(size, type, op, read_op, check)	\
@@ -338,7 +338,7 @@ static uint64_t TARGET_CLONES OPTIMIZE3 stress_memrate_read_rate_##read_op##size
 	double t1;						\
 	double total_dur = 0.0;					\
 	const double dur = (double)loop_size / 			\
-		(MB * (double)context->memrate_rd_mbs);		\
+		(STRESS_MB * (double)context->memrate_rd_mbs);	\
 								\
 	if (!check()) {						\
 		*valid = false;					\
@@ -404,7 +404,7 @@ static uint64_t TARGET_CLONES OPTIMIZE3 stress_memrate_read_rate_##read_op##size
 		}						\
 	}							\
 	*valid = true;						\
-	return ((uintptr_t)ptr - (uintptr_t)start) / KB;	\
+	return ((uintptr_t)ptr - (uintptr_t)start) / STRESS_KB;	\
 }
 
 #define no_prefetch(ptr, arg1, arg2)
@@ -455,7 +455,7 @@ static uint64_t stress_memrate_memset(
 	(void)shim_memset(context->start, 0xaa, size);
 
 	*valid = true;
-	return (uint64_t)size / KB;
+	return (uint64_t)size / STRESS_KB;
 }
 
 static uint64_t OPTIMIZE3 stress_memrate_memset_rate(
@@ -465,13 +465,13 @@ static uint64_t OPTIMIZE3 stress_memrate_memset_rate(
 	uint8_t *start ALIGNED(4096) = (uint8_t *)context->start;
 	uint8_t *end ALIGNED(4096) = (uint8_t *)context->end;
 	const size_t size = end - start;
-	const size_t chunk_size = (size > MB) ? MB : size;
+	const size_t chunk_size = (size > STRESS_MB) ? STRESS_MB : size;
 	register uint8_t *ptr;
 	double t1;
 	double t2;
 	double total_dur = 0.0;
 	double dur_remainder;
-	const double dur = (double)chunk_size / (MB * (double)context->memrate_wr_mbs);
+	const double dur = (double)chunk_size / (STRESS_MB * (double)context->memrate_wr_mbs);
 
 	t1 = stress_time_now();
 	for (ptr = start; (ptr + chunk_size) < end; ptr += chunk_size) {
@@ -513,7 +513,7 @@ static uint64_t OPTIMIZE3 stress_memrate_memset_rate(
 	}
 
 	*valid = true;
-	return ((uintptr_t)ptr - (uintptr_t)start) / KB;
+	return ((uintptr_t)ptr - (uintptr_t)start) / STRESS_KB;
 }
 
 #define STRESS_MEMRATE_WRITE(size, type)			\
@@ -552,7 +552,7 @@ static uint64_t TARGET_CLONES OPTIMIZE3	stress_memrate_write##size(	\
 		ptr[15] = v;					\
 	}							\
 	*valid = true;						\
-	return ((uintptr_t)ptr - (uintptr_t)start) / KB;	\
+	return ((uintptr_t)ptr - (uintptr_t)start) / STRESS_KB;	\
 }
 
 #define STRESS_MEMRATE_WRITE_RATE(size, type)			\
@@ -569,7 +569,7 @@ static uint64_t TARGET_CLONES OPTIMIZE3 stress_memrate_write_rate##size(	\
 	double t1;						\
 	double total_dur = 0.0;					\
 	const double dur = (double)loop_size / 			\
-		(MB * (double)context->memrate_wr_mbs);		\
+		(STRESS_MB * (double)context->memrate_wr_mbs);	\
 	register type v;					\
 	register type *ptr;					\
 								\
@@ -622,7 +622,7 @@ static uint64_t TARGET_CLONES OPTIMIZE3 stress_memrate_write_rate##size(	\
 		}						\
 	}							\
 	*valid = true;						\
-	return ((uintptr_t)ptr - (uintptr_t)start) / KB;	\
+	return ((uintptr_t)ptr - (uintptr_t)start) / STRESS_KB;	\
 }
 
 #define STRESS_MEMRATE_WRITE_OP(size, type, op, write_op, check)	\
@@ -669,7 +669,7 @@ static uint64_t OPTIMIZE3 stress_memrate_write_ ## write_op ## size (	\
 		op(vptr + 15, v);				\
 	}							\
 	*valid = true;						\
-	return ((uintptr_t)ptr - (uintptr_t)start) / KB;	\
+	return ((uintptr_t)ptr - (uintptr_t)start) / STRESS_KB;	\
 }
 
 #define STRESS_MEMRATE_WRITE_OP_RATE(size, type, op, write_op, check)	\
@@ -686,7 +686,7 @@ static uint64_t OPTIMIZE3 stress_memrate_write_ ## write_op ## _rate ## size( \
 	double t1;						\
 	double total_dur = 0.0;					\
 	const double dur = (double)loop_size / 			\
-		(MB * (double)context->memrate_wr_mbs);		\
+		(STRESS_MB * (double)context->memrate_wr_mbs);	\
 	register type v;					\
 	register type *ptr;					\
 								\
@@ -747,7 +747,7 @@ static uint64_t OPTIMIZE3 stress_memrate_write_ ## write_op ## _rate ## size( \
 		}						\
 	}							\
 	*valid = true;						\
-	return ((uintptr_t)ptr - (uintptr_t)start) / KB;	\
+	return ((uintptr_t)ptr - (uintptr_t)start) / STRESS_KB;	\
 }
 
 #if (defined(HAVE_ASM_X86_REP_STOSQ) ||		\
@@ -764,7 +764,7 @@ static inline uint64_t OPTIMIZE3 stress_memrate_stos(
 	uint8_t *start ALIGNED(4096) = (uint8_t *)context->start;
 	uint8_t *end ALIGNED(4096) = (uint8_t *)context->end;
 	const size_t size = end - start;
-	const size_t chunk_size = (size > MB) ? MB : size;
+	const size_t chunk_size = (size > STRESS_MB) ? STRESS_MB : size;
 	uint32_t loops = (uint32_t)(chunk_size / wr_size);
 	register uint8_t *ptr;
 
@@ -779,7 +779,7 @@ static inline uint64_t OPTIMIZE3 stress_memrate_stos(
 	}
 
 	*valid = true;
-	return ((uintptr_t)ptr - (uintptr_t)start) / KB;
+	return ((uintptr_t)ptr - (uintptr_t)start) / STRESS_KB;
 }
 
 static inline uint64_t OPTIMIZE3 stress_memrate_stos_rate(
@@ -791,14 +791,14 @@ static inline uint64_t OPTIMIZE3 stress_memrate_stos_rate(
 	uint8_t *start ALIGNED(4096) = (uint8_t *)context->start;
 	uint8_t *end ALIGNED(4096) = (uint8_t *)context->end;
 	const size_t size = end - start;
-	const size_t chunk_size = (size > MB) ? MB : size;
+	const size_t chunk_size = (size > STRESS_MB) ? STRESS_MB : size;
 	uint32_t loops = (uint32_t)(chunk_size / wr_size);
 	register uint8_t *ptr;
 	double t1;
 	double t2;
 	double total_dur = 0.0;
 	double dur_remainder;
-	const double dur = (double)chunk_size / (MB * (double)context->memrate_wr_mbs);
+	const double dur = (double)chunk_size / (STRESS_MB * (double)context->memrate_wr_mbs);
 
 	t1 = stress_time_now();
 	for (ptr = start; (ptr + chunk_size) < end; ptr += chunk_size) {
@@ -842,7 +842,7 @@ static inline uint64_t OPTIMIZE3 stress_memrate_stos_rate(
 	}
 
 	*valid = true;
-	return ((uintptr_t)ptr - (uintptr_t)start) / KB;
+	return ((uintptr_t)ptr - (uintptr_t)start) / STRESS_KB;
 }
 #endif
 
@@ -1314,7 +1314,7 @@ static int stress_memrate(stress_args_t *args)
 		pr_inf("%s: cache flushing %s\n", args->name,
 			context->memrate_flush ? "enabled" :
 			"disabled, cache flushing can be enabled with --memrate-flush option");
-		if ((context->memrate_bytes > MB) && (context->memrate_bytes & MB))
+		if ((context->memrate_bytes > STRESS_MB) && (context->memrate_bytes & STRESS_MB))
 			pr_inf("%s: for optimal speed, use multiples of 1 MB for --memrate-bytes\n", args->name);
 	}
 
@@ -1338,7 +1338,7 @@ static int stress_memrate(stress_args_t *args)
 			continue;
 		if (context->memrate_stats[i].duration > 0.0) {
 			char tmp[32];
-			const double rate = context->memrate_stats[i].kbytes / (context->memrate_stats[i].duration * KB);
+			const double rate = context->memrate_stats[i].kbytes / (context->memrate_stats[i].duration * STRESS_KB);
 			int e;
 			double f;
 

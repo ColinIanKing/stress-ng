@@ -23,15 +23,15 @@
 #include "core-out-of-memory.h"
 #include "core-resources.h"
 
-#define MIN_MEM_FREE		((size_t)(16 * MB))
+#define MIN_MEM_FREE		((size_t)(16 * STRESS_MB))
 
-#define DEFAULT_FORKHEAVY_PROCS		(4096)
+#define DEFAULT_FORKHEAVY_PROCS		(4 * STRESS_KB)
 #define MIN_FORKHEAVY_PROCS		(1)
-#define MAX_FORKHEAVY_PROCS		(65536)
+#define MAX_FORKHEAVY_PROCS		(64 * STRESS_KB)
 
-#define DEFAULT_FORKHEAVY_ALLOCS	(16384)
+#define DEFAULT_FORKHEAVY_ALLOCS	(16 * STRESS_KB)
 #define MIN_FORKHEAVY_ALLOCS		(1)
-#define MAX_FORKHEAVY_ALLOCS		(1024 * 1024)
+#define MAX_FORKHEAVY_ALLOCS		(1 * STRESS_MB)
 
 typedef struct stress_forkheavy_args {
 	stress_args_t *args;

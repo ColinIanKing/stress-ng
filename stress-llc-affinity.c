@@ -29,8 +29,8 @@
 
 #include <sched.h>
 
-#define MIN_LLC_SIZE	(4 * KB)
-#define MAX_LLC_SIZE	(4 * GB)
+#define MIN_LLC_SIZE	(4 * STRESS_KB)
+#define MAX_LLC_SIZE	(4 * STRESS_GB)
 
 static const stress_help_t help[] = {
 	{ NULL,	"llc-affinity N",	"start N workers exercising low level cache over all CPUs" },
@@ -612,11 +612,11 @@ static int stress_llc_affinity(stress_args_t *args)
 
 	duration = stress_time_now() - t_start;
 
-	writes /= (double)MB;
+	writes /= (double)STRESS_MB;
 	rate = write_duration > 0.0 ? (double)writes / write_duration : 0.0;
 	stress_metrics_set(args, "MB per sec memory write rate",
 		rate, STRESS_METRIC_HARMONIC_MEAN);
-	reads /= (double)MB;
+	reads /= (double)STRESS_MB;
 	rate = read_duration > 0.0 ? (double)reads / read_duration : 0.0;
 	stress_metrics_set(args, "MB per sec memory read rate",
 		rate, STRESS_METRIC_HARMONIC_MEAN);

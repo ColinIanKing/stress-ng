@@ -294,7 +294,7 @@ static void NORETURN MLOCKED_TEXT stress_pci_handler(int signum)
 static void stress_pci_rate(const stress_metrics_t *metrics, char *str, const size_t len)
 {
 	if (metrics->duration > 0.0)
-		(void)snprintf(str, len, "%8.2f", (metrics->count / metrics->duration) / MB);
+		(void)snprintf(str, len, "%8.2f", (metrics->count / metrics->duration) / STRESS_MB);
 	else
 		(void)snprintf(str, len, "%8s", "untested");
 }

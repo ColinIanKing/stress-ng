@@ -331,7 +331,7 @@ static int stress_race_sched_child(stress_args_t *args, void *context)
 
 	do {
 		const bool low_mem_reap = ((g_opt_flags & OPT_FLAGS_OOM_AVOID) &&
-					   stress_memory_low_check((size_t)(1 * MB)));
+					   stress_memory_low_check((size_t)(1 * STRESS_MB)));
 		const uint8_t rnd = stress_mwc8();
 
 		cpu_idx = stress_call_race_sched_method_idx(cpu_idx, method_index);

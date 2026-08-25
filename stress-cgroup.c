@@ -359,7 +359,7 @@ static void stress_cgroup_new_group(stress_args_t *args, const char *realpathnam
 		stress_make_it_fail_set();
 		do {
 			void *ptr;
-			const size_t sz = MB;
+			const size_t sz = STRESS_MB;
 
 			ptr = mmap(NULL, sz, PROT_READ | PROT_WRITE,
 					MAP_ANONYMOUS | MAP_SHARED, -1, 0);

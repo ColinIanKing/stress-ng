@@ -3569,7 +3569,7 @@ static int stress_ovpn_tunnel(stress_args_t *args)
 	 */
 	for (i = 0; i < OVPN_CTR_BYTES_MAX; i++) {
 		mbs[i] = (duration > 0.0) ?
-			(double)ovpn_bytes[i] / (double)MB / duration : 0.0;
+			(double)ovpn_bytes[i] / (double)STRESS_MB / duration : 0.0;
 		stress_metrics_set(args, ovpn_ctr_desc[i], mbs[i],
 			STRESS_METRIC_TOTAL);
 	}

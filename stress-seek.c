@@ -19,9 +19,9 @@
  */
 #include "stress-ng.h"
 
-#define MIN_SEEK_SIZE		(1 * MB)
+#define MIN_SEEK_SIZE		(1 * STRESS_MB)
 #define MAX_SEEK_SIZE		(MAX_FILE_LIMIT)
-#define DEFAULT_SEEK_SIZE	(16 * MB)
+#define DEFAULT_SEEK_SIZE	(16 * STRESS_MB)
 
 static double duration;
 static double count;

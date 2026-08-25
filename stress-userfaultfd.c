@@ -40,9 +40,9 @@
 UNEXPECTED
 #endif
 
-#define MIN_USERFAULT_BYTES	(4 * KB)
+#define MIN_USERFAULT_BYTES	(4 * STRESS_KB)
 #define MAX_USERFAULT_BYTES	(MAX_MEM_LIMIT)
-#define DEFAULT_USERFAULT_BYTES	(256 * MB)
+#define DEFAULT_USERFAULT_BYTES	(256 * STRESS_MB)
 
 static const stress_help_t help[] = {
 	{ NULL,	"userfaultfd N",	"start N page faulting workers with userspace handling" },

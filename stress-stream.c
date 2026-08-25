@@ -42,9 +42,9 @@
 
 #include <math.h>
 
-#define MIN_STREAM_L3_SIZE	(4 * KB)
+#define MIN_STREAM_L3_SIZE	(4 * STRESS_KB)
 #define MAX_STREAM_L3_SIZE	(MAX_MEM_LIMIT)
-#define DEFAULT_STREAM_L3_SIZE	(4 * MB)
+#define DEFAULT_STREAM_L3_SIZE	(4 * STRESS_MB)
 
 #if defined(HAVE_NT_STORE_DOUBLE)
 #define NT_STORE(dst, src)		stress_nt_store_double(&dst, src)
@@ -931,7 +931,7 @@ static inline void *stress_stream_mmap(
 
 static inline uint64_t get_stream_L3_size(stress_args_t *args)
 {
-	uint64_t cache_size = 2 * MB;
+	uint64_t cache_size = 2 * STRESS_MB;
 	stress_cpu_cache_cpus_t *cpu_caches;
 	const stress_cpu_cache_t *cache = NULL;
 	uint16_t max_cache_level;
@@ -1339,8 +1339,8 @@ case_stream_index_1:
 	} while (stress_continue(args));
 
 	if (dt >= 4.5) {
-		const double mb_rd_rate = (rd_bytes / (double)MB) / dt;
-		const double mb_wr_rate = (wr_bytes / (double)MB) / dt;
+		const double mb_rd_rate = (rd_bytes / (double)STRESS_MB) / dt;
+		const double mb_wr_rate = (wr_bytes / (double)STRESS_MB) / dt;
 		const double fp_rate = (fp_ops / 1000000.0) / dt;
 
 		pr_inf("%s: memory rate: %.2f MB read/sec, %.2f MB write/sec, %.2f double precision Mflop/sec"

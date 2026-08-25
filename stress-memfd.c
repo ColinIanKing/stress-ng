@@ -29,8 +29,8 @@
 #include <linux/memfd.h>
 #endif
 
-#define MIN_MEMFD_BYTES		(2 * MB)
-#define DEFAULT_MEMFD_BYTES	(256 * MB)
+#define MIN_MEMFD_BYTES		(2 * STRESS_MB)
+#define DEFAULT_MEMFD_BYTES	(256 * STRESS_MB)
 
 #define MIN_MEMFD_FDS		(8)
 #define MAX_MEMFD_FDS		(4096)

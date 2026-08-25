@@ -275,7 +275,7 @@ static int stress_zero(stress_args_t *args)
 	(void)munmap(wr_buffer, page_size);
 	(void)munmap(rd_buffer, page_size);
 
-	rate = (duration > 0.0) ? ((double)bytes / duration) / (double)MB : 0.0;
+	rate = (duration > 0.0) ? ((double)bytes / duration) / (double)STRESS_MB : 0.0;
 	stress_metrics_set(args, "MB per sec /dev/zero read rate",
 		rate, STRESS_METRIC_HARMONIC_MEAN);
 

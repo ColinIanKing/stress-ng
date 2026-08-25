@@ -31,15 +31,15 @@
 #include <utime.h>
 #endif
 
-#define MIN_HDD_BYTES		(1 * MB)
+#define MIN_HDD_BYTES		(1 * STRESS_MB)
 #define MAX_HDD_BYTES		(MAX_FILE_LIMIT)
-#define DEFAULT_HDD_BYTES	(1 * GB)
+#define DEFAULT_HDD_BYTES	(1 * STRESS_GB)
 
 #define MIN_HDD_WRITE_SIZE	(1)
-#define MAX_HDD_WRITE_SIZE	(4 * MB)
-#define DEFAULT_HDD_WRITE_SIZE	(64 * 1024)
+#define MAX_HDD_WRITE_SIZE	(4 * STRESS_MB)
+#define DEFAULT_HDD_WRITE_SIZE	(64 * STRESS_KB)
 
-#define BUF_ALIGNMENT		(4096)
+#define BUF_ALIGNMENT		(4 * STRESS_KB)
 #define HDD_IO_VEC_MAX		(16)		/* Must be power of 2 */
 
 #define MIN_HDD_SLEEP		(0)
@@ -1147,17 +1147,17 @@ finish:
 
 	rate = (hdd_read_duration > 0.0) ? hdd_read_bytes / hdd_read_duration : 0.0;
 	stress_metrics_set(args, "MB/sec read rate",
-		rate / (double)MB, STRESS_METRIC_HARMONIC_MEAN);
+		rate / (double)STRESS_MB, STRESS_METRIC_HARMONIC_MEAN);
 	rate = (hdd_write_duration > 0.0) ? hdd_write_bytes / hdd_write_duration : 0.0;
 	stress_metrics_set(args, "MB/sec write rate",
-		rate / (double)MB, STRESS_METRIC_HARMONIC_MEAN);
+		rate / (double)STRESS_MB, STRESS_METRIC_HARMONIC_MEAN);
 
 	hdd_rdwr_duration = hdd_read_duration + hdd_write_duration;
 	hdd_rdwr_bytes = hdd_read_bytes + hdd_write_bytes;
 
 	rate = (hdd_rdwr_duration > 0.0) ? hdd_rdwr_bytes / hdd_rdwr_duration : 0.0;
 	stress_metrics_set(args, "MB/sec read/write combined rate",
-		rate / (double)MB, STRESS_METRIC_HARMONIC_MEAN);
+		rate / (double)STRESS_MB, STRESS_METRIC_HARMONIC_MEAN);
 
 	stress_metrics_set(args, "max extents per file",
 		(double)max_extents, STRESS_METRIC_GEOMETRIC_MEAN);

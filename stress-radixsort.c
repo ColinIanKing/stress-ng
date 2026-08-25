@@ -22,9 +22,9 @@
 #include "core-cpu-cache.h"
 #include "core-signal.h"
 
-#define MIN_RADIXSORT_SIZE	(1 * KB)
-#define MAX_RADIXSORT_SIZE	(4 * MB)
-#define DEFAULT_RADIXSORT_SIZE	(256 * KB)
+#define MIN_RADIXSORT_SIZE	(1 * STRESS_KB)
+#define MAX_RADIXSORT_SIZE	(4 * STRESS_MB)
+#define DEFAULT_RADIXSORT_SIZE	(256 * STRESS_KB)
 
 static const stress_help_t help[] = {
 	{ NULL,	"radixsort N",		"start N workers radix sorting random strings" },

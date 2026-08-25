@@ -34,9 +34,9 @@ typedef struct {
 	const bsearch_func_t bsearch_func;
 } stress_bsearch_method_t;
 
-#define MIN_BSEARCH_SIZE	(1 * KB)
-#define MAX_BSEARCH_SIZE	(64 * MB)
-#define DEFAULT_BSEARCH_SIZE	(64 * KB)
+#define MIN_BSEARCH_SIZE	(1 * STRESS_KB)
+#define MAX_BSEARCH_SIZE	(64 * STRESS_MB)
+#define DEFAULT_BSEARCH_SIZE	(64 * STRESS_KB)
 
 static const stress_help_t help[] = {
 	{ NULL,	"bsearch N",	  	"start N workers that exercise a binary search" },

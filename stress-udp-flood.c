@@ -200,7 +200,7 @@ static int OPTIMIZE3 stress_udp_flood(stress_args_t *args)
 
 	duration = stress_time_now() - t;
 
-	rate = (duration > 0.0) ? (bytes / duration) / (double)MB : 0.0;
+	rate = (duration > 0.0) ? (bytes / duration) / (double)STRESS_MB : 0.0;
 	stress_metrics_set(args, "MB per sec sendto rate", rate, STRESS_METRIC_HARMONIC_MEAN);
 	rate = (duration > 0.0) ? ((double)stress_bogo_get(args) / duration) : 0.0;
 	stress_metrics_set(args, "sendto calls per sec", rate, STRESS_METRIC_HARMONIC_MEAN);

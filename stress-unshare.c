@@ -139,7 +139,7 @@ static inline bool enough_memory(void)
 	stress_memory_info_t info;
 
 	stress_memory_info_get(&info);
-	return (info.freemem == 0) ? true : info.freemem > (8 * MB);
+	return (info.freemem == 0) ? true : info.freemem > (8 * STRESS_MB);
 }
 
 /*

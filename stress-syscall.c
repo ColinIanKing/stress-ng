@@ -6284,7 +6284,7 @@ static int syscall_new_shm_sysv(key_t *key)
 	for (i = 0; i < 65536; i++) {
 		int ret;
 
-		ret = shmget(*key, 1 * MB, IPC_CREAT | S_IRUSR | S_IWUSR);
+		ret = shmget(*key, 1 * STRESS_MB, IPC_CREAT | S_IRUSR | S_IWUSR);
 		if (ret != -1) {
 			saved_key = *key;
 			return ret;

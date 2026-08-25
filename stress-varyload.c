@@ -450,7 +450,7 @@ static int stress_varyload(stress_args_t *args)
 	size_t varyload_type_idx = STRESS_VARYLOAD_TYPE_DEFAULT;
 	size_t varyload_sched = 0;		/* undefined */
 	size_t varyload_method_idx = 0;		/* all */
-	const size_t buffer_len = MB;
+	const size_t buffer_len = STRESS_MB;
 	uint32_t i;
 	int varyload_method;
 	int varyload_type;

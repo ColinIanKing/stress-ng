@@ -131,7 +131,7 @@ static void OPTIMIZE3 stress_softlockup_rep_stosb(void)
 	if (softlockup_buffer == MAP_FAILED)
 		return;
 
-	stress_softlockup_stosb(softlockup_buffer, MB);
+	stress_softlockup_stosb(softlockup_buffer, STRESS_MB);
 }
 #else
 static void stress_softlockup_rep_stosb(void)
@@ -272,10 +272,10 @@ static int stress_softlockup(stress_args_t *args)
 	loop_count = stress_softlockup_loop_count();
 
 #if defined(HAVE_X86_REP_STOSB)
-	softlockup_buffer = (uint8_t *)mmap(NULL, MB, PROT_READ | PROT_WRITE,
+	softlockup_buffer = (uint8_t *)mmap(NULL, STRESS_MB, PROT_READ | PROT_WRITE,
 					MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (softlockup_buffer != MAP_FAILED)
-		stress_memory_anon_name_set(softlockup_buffer, MB, "x86-rep-stosb-data");
+		stress_memory_anon_name_set(softlockup_buffer, STRESS_MB, "x86-rep-stosb-data");
 #endif
 
 	s_pids = stress_sync_s_pids_mmap((size_t)cpus_online);
@@ -366,7 +366,7 @@ finish:
 
 #if defined(HAVE_X86_REP_STOSB)
 	if (softlockup_buffer != MAP_FAILED)
-		(void)munmap((void *)softlockup_buffer, MB);
+		(void)munmap((void *)softlockup_buffer, STRESS_MB);
 #endif
 
 	(void)stress_sync_s_pids_munmap(s_pids, (size_t)cpus_online);

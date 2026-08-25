@@ -36,9 +36,9 @@ typedef struct {
 } ENTRY;
 #endif
 
-#define MIN_HSEARCH_SIZE	(1 * KB)
-#define MAX_HSEARCH_SIZE	(64 * MB)
-#define DEFAULT_HSEARCH_SIZE	(8 * KB)
+#define MIN_HSEARCH_SIZE	(1 * STRESS_KB)
+#define MAX_HSEARCH_SIZE	(64 * STRESS_MB)
+#define DEFAULT_HSEARCH_SIZE	(8 * STRESS_KB)
 
 typedef int (*hcreate_func_t)(size_t nel);
 typedef ENTRY *(*hsearch_func_t)(ENTRY item, ACTION action);

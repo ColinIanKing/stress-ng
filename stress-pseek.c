@@ -24,13 +24,13 @@
 #include "core-pthread.h"
 #include "core-target-clones.h"
 
-#define MIN_PSEEKIO_BYTES	(1 * MB)
+#define MIN_PSEEKIO_BYTES	(1 * STRESS_MB)
 #define MAX_PSEEKIO_BYTES	(MAX_FILE_LIMIT)
-#define DEFAULT_PSEEKIO_BYTES	(1 * GB)
+#define DEFAULT_PSEEKIO_BYTES	(1 * STRESS_GB)
 
 #define MIN_PSEEKIO_IO_SIZE	(1)
-#define MAX_PSEEKIO_IO_SIZE	(1 * MB)
-#define DEFAULT_PSEEKIO_IO_SIZE	(1024)
+#define MAX_PSEEKIO_IO_SIZE	(1 * STRESS_MB)
+#define DEFAULT_PSEEKIO_IO_SIZE	(1 * STRESS_KB)
 
 #define MIN_PSEEKIO_PROCS	(2)
 #define MAX_PSEEKIO_PROCS	(16)
@@ -528,10 +528,10 @@ static int stress_pseek(stress_args_t *args)
 
 	rate = (total_writes_duration > 0.0) ? total_writes / total_writes_duration : 0.0;
 	stress_metrics_set(args, "MB/sec write rate",
-		rate / (double)MB, STRESS_METRIC_HARMONIC_MEAN);
+		rate / (double)STRESS_MB, STRESS_METRIC_HARMONIC_MEAN);
 	rate = (total_reads_duration > 0.0) ? total_reads / total_reads_duration : 0.0;
 	stress_metrics_set(args, "MB/sec read rate",
-		rate / (double)MB, STRESS_METRIC_HARMONIC_MEAN);
+		rate / (double)STRESS_MB, STRESS_METRIC_HARMONIC_MEAN);
 
 	(void)close(info.fd);
 tidy_unlink:

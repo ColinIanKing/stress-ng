@@ -24,8 +24,8 @@
 #include "core-numa.h"
 #include "core-out-of-memory.h"
 
-#define DEFAULT_MREMAP_BYTES	(256 * MB)
-#define MIN_MREMAP_BYTES	(4 * KB)
+#define DEFAULT_MREMAP_BYTES	(256 * STRESS_MB)
+#define MIN_MREMAP_BYTES	(4 * STRESS_KB)
 #define MAX_MREMAP_BYTES	(MAX_MEM_LIMIT)
 
 static const stress_help_t help[] = {

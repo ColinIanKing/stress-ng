@@ -38,7 +38,7 @@ static const stress_help_t help[] = {
 };
 
 #define	MIN_BLKSZ	((int)512)
-#define	MAX_BLKSZ	((int)(128 * KB))
+#define	MAX_BLKSZ	((int)(128 * STRESS_KB))
 
 #if defined(HAVE_SYS_SYSMACROS_H) &&	\
     defined(BLKGETSIZE) && 		\
@@ -492,7 +492,7 @@ static int stress_rawdev(stress_args_t *args)
 
 		if (duration > 0.0) {
 			char str[50];
-			const double rate = (metrics[i].count / duration) / (double)MB;
+			const double rate = (metrics[i].count / duration) / (double)STRESS_MB;
 
 			(void)snprintf(str, sizeof(str), "MB per sec read rate (%s)", rawdev_methods[i].name);
 			stress_metrics_set(args, str,

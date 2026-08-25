@@ -835,7 +835,7 @@ static int stress_pipe(stress_args_t *args)
 		total_bytes += (double)pipe_writes[i].bytes;
 	}
 
-	rate = (total_duration > 0.0) ? (total_bytes / total_duration) / (double)MB : 0.0;
+	rate = (total_duration > 0.0) ? (total_bytes / total_duration) / (double)STRESS_MB : 0.0;
 	stress_metrics_set(args, "MB per sec pipe write rate", rate, STRESS_METRIC_HARMONIC_MEAN);
 
 	(void)munmap((void *)buf_wr, buf_wr_size);

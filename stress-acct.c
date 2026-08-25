@@ -31,7 +31,7 @@
 #define ACCT_VERSION	(3)
 #endif
 
-#define MAX_ACCT_FILESIZE	((off_t)(16 * MB))
+#define MAX_ACCT_FILESIZE	((off_t)(16 * STRESS_MB))
 
 static const stress_help_t help[] = {
 	{ NULL,	"acct N",		"start N workers exercising process accounting" },

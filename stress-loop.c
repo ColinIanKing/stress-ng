@@ -29,9 +29,9 @@
 #include <linux/loop.h>
 #endif
 
-#define MIN_LOOP_BYTES		(1 * MB)
-#define MAX_LOOP_BYTES		(1 * GB)
-#define DEFAULT_LOOP_BYTES	(2 * MB)
+#define MIN_LOOP_BYTES		(1 * STRESS_MB)
+#define MAX_LOOP_BYTES		(1 * STRESS_GB)
+#define DEFAULT_LOOP_BYTES	(2 * STRESS_MB)
 
 static const stress_help_t help[] = {
 	{ NULL,	"loop N",	"start N workers exercising loopback devices" },

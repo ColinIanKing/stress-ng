@@ -22,9 +22,9 @@
 #include "core-shim.h"
 #include "core-sort.h"
 
-#define MIN_FIBSEARCH_SIZE	(1 * KB)
-#define MAX_FIBSEARCH_SIZE	(64 * MB)
-#define DEFAULT_FIBSEARCH_SIZE	(64 * KB)
+#define MIN_FIBSEARCH_SIZE	(1 * STRESS_KB)
+#define MAX_FIBSEARCH_SIZE	(64 * STRESS_MB)
+#define DEFAULT_FIBSEARCH_SIZE	(64 * STRESS_KB)
 
 static const stress_help_t help[] = {
 	{ NULL,	"fibsearch N",	  	"start N workers that exercise a Fibonacci search" },

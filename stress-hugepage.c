@@ -125,62 +125,62 @@ static const stress_hugepage_size_t hugepage_sizes[] = {
 	/* HUGE_* options */
 #if defined(MAP_HUGE_2MB)
 	/* preferred option */
-	{ MAP_HUGETLB | MAP_HUGE_2MB, 2 * MB },
+	{ MAP_HUGETLB | MAP_HUGE_2MB, 2 * STRESS_MB },
 #endif
 #if defined(MAP_HUGE_8MB)
-	{ MAP_HUGETLB | MAP_HUGE_8MB, 8 * MB },
+	{ MAP_HUGETLB | MAP_HUGE_8MB, 8 * STRESS_MB },
 #endif
 #if defined(MAP_HUGE_16MB)
-	{ MAP_HUGETLB | MAP_HUGE_16MB, 16 * MB },
+	{ MAP_HUGETLB | MAP_HUGE_16MB, 16 * STRESS_MB },
 #endif
 #if defined(MAP_HUGE_32MB)
-	{ MAP_HUGETLB | MAP_HUGE_32MB, 32 * MB },
+	{ MAP_HUGETLB | MAP_HUGE_32MB, 32 * STRESS_MB },
 #endif
 #if defined(MAP_HUGE_256MB)
-	{ MAP_HUGETLB | MAP_HUGE_256MB, 256 * MB },
+	{ MAP_HUGETLB | MAP_HUGE_256MB, 256 * STRESS_MB },
 #endif
 #if defined(MAP_HUGE_512MB)
-	{ MAP_HUGETLB | MAP_HUGE_512MB, 512 * MB },
+	{ MAP_HUGETLB | MAP_HUGE_512MB, 512 * STRESS_MB },
 #endif
 #if defined(MAP_HUGE_1MB)
-	{ MAP_HUGETLB | MAP_HUGE_1MB, 1 * MB },
+	{ MAP_HUGETLB | MAP_HUGE_1MB, 1 * STRESS_MB },
 #endif
 #if defined(MAP_HUGE_512K)
-	{ MAP_HUGETLB | MAP_HUGE_512K, 512 * KB },
+	{ MAP_HUGETLB | MAP_HUGE_512K, 512 * STRESS_KB },
 #endif
 #if defined(MAP_HUGE_64K)
-	{ MAP_HUGETLB | MAP_HUGE_64K, 64 * KB },
+	{ MAP_HUGETLB | MAP_HUGE_64K, 64 * STRESS_KB },
 #endif
 #if defined(MAP_HUGE_16K)
-	{ MAP_HUGETLB | MAP_HUGE_16K, 16 * KB },
+	{ MAP_HUGETLB | MAP_HUGE_16K, 16 * STRESS_KB },
 #endif
 #if MAX_MEM_LIMIT > MAX_32
 #if defined(MAP_HUGE_1GB)
-	{ MAP_HUGETLB | MAP_HUGE_1GB, 1 * GB },
+	{ MAP_HUGETLB | MAP_HUGE_1GB, 1 * STRESS_GB },
 #endif
 #if defined(MAP_HUGE_2GB)
-	{ MAP_HUGETLB | MAP_HUGE_2GB, 2 * GB },
+	{ MAP_HUGETLB | MAP_HUGE_2GB, 2 * STRESS_GB },
 #endif
 #if defined(MAP_HUGE_16GB)
 	/* least preferred option */
-	{ MAP_HUGETLB | MAP_HUGE_16GB, 16 * GB },
+	{ MAP_HUGETLB | MAP_HUGE_16GB, 16 * STRESS_GB },
 #endif
 #endif
 	/* MAP_HUGETLB only options */
-	{ MAP_HUGETLB, 2 * MB },
-	{ MAP_HUGETLB, 8 * MB },
-	{ MAP_HUGETLB, 16 * MB },
-	{ MAP_HUGETLB, 32 * MB },
-	{ MAP_HUGETLB, 256 * MB },
-	{ MAP_HUGETLB, 512 * MB },
-	{ MAP_HUGETLB, 1 * MB },
-	{ MAP_HUGETLB, 512 * KB },
-	{ MAP_HUGETLB, 64 * KB },
-	{ MAP_HUGETLB, 16 * KB },
+	{ MAP_HUGETLB, 2 * STRESS_MB },
+	{ MAP_HUGETLB, 8 * STRESS_MB },
+	{ MAP_HUGETLB, 16 * STRESS_MB },
+	{ MAP_HUGETLB, 32 * STRESS_MB },
+	{ MAP_HUGETLB, 256 * STRESS_MB },
+	{ MAP_HUGETLB, 512 * STRESS_MB },
+	{ MAP_HUGETLB, 1 * STRESS_MB },
+	{ MAP_HUGETLB, 512 * STRESS_KB },
+	{ MAP_HUGETLB, 64 * STRESS_KB },
+	{ MAP_HUGETLB, 16 * STRESS_KB },
 #if (MAX_MEM_LIMIT > MAX_32)
-	{ MAP_HUGETLB, 1 * GB },
-	{ MAP_HUGETLB, 2 * GB },
-	{ MAP_HUGETLB, 16 * GB },
+	{ MAP_HUGETLB, 1 * STRESS_GB },
+	{ MAP_HUGETLB, 2 * STRESS_GB },
+	{ MAP_HUGETLB, 16 * STRESS_GB },
 #endif
 
 	/*
@@ -191,29 +191,29 @@ static const stress_hugepage_size_t hugepage_sizes[] = {
 	 */
 #if (defined(STRESS_ARCH_ARM) && defined(__aarch64__)) ||	\
     defined(STRESS_ARCH_X86_64)
-	{ 0, 2 * MB },
+	{ 0, 2 * STRESS_MB },
 #elif defined(STRESS_ARCH_X86_32)
-	{ 0, 4 * MB },
+	{ 0, 4 * STRESS_MB },
 	/* or PAE mode */
-	{ 0, 2 * MB },
+	{ 0, 2 * STRESS_MB },
 #elif defined(STRESS_ARCH_PPC64)
-	{ 0, 16 * MB },
+	{ 0, 16 * STRESS_MB },
 #else
-	{ 0, 2 * MB },
+	{ 0, 2 * STRESS_MB },
 #endif
-	{ 0, 8 * MB },
-	{ 0, 16 * MB },
-	{ 0, 32 * MB },
-	{ 0, 256 * MB },
-	{ 0, 512 * MB },
-	{ 0, 1 * MB },
-	{ 0, 512 * KB },
-	{ 0, 64 * KB },
-	{ 0, 16 * KB },
+	{ 0, 8 * STRESS_MB },
+	{ 0, 16 * STRESS_MB },
+	{ 0, 32 * STRESS_MB },
+	{ 0, 256 * STRESS_MB },
+	{ 0, 512 * STRESS_MB },
+	{ 0, 1 * STRESS_MB },
+	{ 0, 512 * STRESS_KB },
+	{ 0, 64 * STRESS_KB },
+	{ 0, 16 * STRESS_KB },
 #if (MAX_MEM_LIMIT > MAX_32)
-	{ 0, 1 * GB },
-	{ 0, 2 * GB },
-	{ 0, 16 * GB },
+	{ 0, 1 * STRESS_GB },
+	{ 0, 2 * STRESS_GB },
+	{ 0, 16 * STRESS_GB },
 #endif
 };
 

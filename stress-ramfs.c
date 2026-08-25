@@ -29,8 +29,8 @@
 #include <sys/mount.h>
 #endif
 
-#define MIN_RAMFS_SIZE	(1 * MB)
-#define MAX_RAMFS_SIZE	(2 * GB)
+#define MIN_RAMFS_SIZE	(1 * STRESS_MB)
+#define MAX_RAMFS_SIZE	(2 * STRESS_GB)
 
 static const stress_help_t help[] = {
 	{ NULL,	"ramfs N",	 "start N workers exercising ramfs mounts" },
@@ -267,7 +267,7 @@ static int stress_ramfs_fs_ops(
 static int stress_ramfs_child(stress_args_t *args)
 {
 	char pathname[PATH_MAX], realpathname[PATH_MAX];
-	uint64_t ramfs_size = 2 * MB;
+	uint64_t ramfs_size = 2 * STRESS_MB;
 	bool ramfs_fill = false;
 	int i = 0;
 	int rc = EXIT_SUCCESS;

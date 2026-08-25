@@ -247,7 +247,7 @@ finish:
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_daemon_bloat, "daemon-bloat", TYPE_ID_SIZE_T_BYTES, 4096, 64 * MB, NULL },
+	{ OPT_daemon_bloat, "daemon-bloat", TYPE_ID_SIZE_T_BYTES, 4 * STRESS_KB, 64 * STRESS_MB, NULL },
 	{ OPT_daemon_wait,  "daemon-wait",  TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };

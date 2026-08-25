@@ -29,9 +29,9 @@
 UNEXPECTED
 #endif
 
-#define MIN_VM_RW_BYTES		(4 * KB)
+#define MIN_VM_RW_BYTES		(4 * STRESS_KB)
 #define MAX_VM_RW_BYTES		(MAX_MEM_LIMIT)
-#define DEFAULT_VM_RW_BYTES	(16 * MB)
+#define DEFAULT_VM_RW_BYTES	(16 * STRESS_MB)
 
 static const stress_help_t help[] = {
 	{ NULL,	"vm-rw N",	 "start N vm read/write process_vm* copy workers" },
@@ -47,7 +47,7 @@ static const stress_help_t help[] = {
     defined(CLONE_VM)
 
 #define STACK_SIZE	(64 * 1024)
-#define CHUNK_SIZE	(1 * GB)
+#define CHUNK_SIZE	(1 * STRESS_GB)
 
 typedef struct {
 	stress_args_t *args;

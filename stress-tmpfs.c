@@ -73,7 +73,7 @@ static const stress_opt_t opts[] = {
 #if !defined(TMPFS_MAGIC)
 #define TMPFS_MAGIC		(0x01021994)
 #endif
-#define MAX_TMPFS_SIZE		(512 * MB)
+#define MAX_TMPFS_SIZE		(512 * STRESS_MB)
 
 /* Misc randomly chosen mmap flags */
 static const int mmap_flags[] = {

@@ -22,9 +22,9 @@
 #include "core-prime.h"
 #include "core-mmap.h"
 
-#define MIN_VM_SPLICE_BYTES	(4 * KB)
-#define MAX_VM_SPLICE_BYTES	(64 * MB)
-#define DEFAULT_VM_SPLICE_BYTES	(64 * KB)
+#define MIN_VM_SPLICE_BYTES	(4 * STRESS_KB)
+#define MAX_VM_SPLICE_BYTES	(64 * STRESS_MB)
+#define DEFAULT_VM_SPLICE_BYTES	(64 * STRESS_KB)
 
 static const stress_help_t help[] = {
 	{ NULL,	"vm-splice N",		"start N workers reading/writing using vmsplice" },
@@ -196,7 +196,7 @@ static int stress_vm_splice(stress_args_t *args)
 
 	rate = (duration > 0.0) ? bytes / duration : 0.0;
 	stress_metrics_set(args, "MB per sec vm-splice rate",
-		rate / (double)MB, STRESS_METRIC_HARMONIC_MEAN);
+		rate / (double)STRESS_MB, STRESS_METRIC_HARMONIC_MEAN);
 	rate = (duration > 0.0) ? vm_splices / duration : 0.0;
 	stress_metrics_set(args, "vm-splice calls per sec",
 		rate, STRESS_METRIC_HARMONIC_MEAN);

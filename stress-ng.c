@@ -830,16 +830,16 @@ static void MLOCKED_TEXT stress_stats_handler(int signum)
 	if ((memory_info.totalmem > 0) || (memory_info.freeswap > 0)) {
 		ret = snprintf(hdr, sizeof(buffer) - len,
 			"Mem Free: %zu MB, Mem Total: %zu MB\n",
-			memory_info.freemem / (size_t)MB,
-			memory_info.totalmem / (size_t)MB);
+			memory_info.freemem / (size_t)STRESS_MB,
+			memory_info.totalmem / (size_t)STRESS_MB);
 		if (ret > 0)
 			VOID_RET(ssize_t, write(fd, buffer, len + ret));
 	}
 	if ((memory_info.freeswap > 0) || (memory_info.totalswap > 0)) {
 		ret = snprintf(hdr, sizeof(buffer) - len,
 			"Swap Free: %zu MB, Swap Total: %zu MB\n",
-			memory_info.freeswap / (size_t)MB,
-			memory_info.totalswap / (size_t)MB);
+			memory_info.freeswap / (size_t)STRESS_MB,
+			memory_info.totalswap / (size_t)STRESS_MB);
 		if (ret > 0)
 			VOID_RET(ssize_t, write(fd, buffer, len + ret));
 	}
@@ -2943,12 +2943,12 @@ void stress_system_memory_info_log(void)
 			"buffer %.2f, "
 			"swap %.2f, "
 			"free swap %.2f\n",
-			(double)(info.totalram * info.mem_unit) / MB,
-			(double)(info.freeram * info.mem_unit) / MB,
-			(double)(info.sharedram * info.mem_unit) / MB,
-			(double)(info.bufferram * info.mem_unit) / MB,
-			(double)(info.totalswap * info.mem_unit) / MB,
-			(double)(info.freeswap * info.mem_unit) / MB);
+			(double)(info.totalram * info.mem_unit) / STRESS_MB,
+			(double)(info.freeram * info.mem_unit) / STRESS_MB,
+			(double)(info.sharedram * info.mem_unit) / STRESS_MB,
+			(double)(info.bufferram * info.mem_unit) / STRESS_MB,
+			(double)(info.totalswap * info.mem_unit) / STRESS_MB,
+			(double)(info.freeswap * info.mem_unit) / STRESS_MB);
 	}
 #endif
 }
@@ -3980,7 +3980,7 @@ static const stress_opt_t main_opts[] = {
 	{ OPT_backoff,          "backoff",          TYPE_ID_INT64, 0, 10000000, NULL },
 	{ OPT_buddystat,        "buddystat",        TYPE_ID_INT32_TIME, 1, 3600, NULL },
 	{ OPT_cache_level,      "cache-level",      TYPE_ID_INT16, 1, 5, NULL },
-	{ OPT_cache_size,       "cache-size",       TYPE_ID_UINT64_BYTES_VM, 1 * KB, 4 * GB, NULL },
+	{ OPT_cache_size,       "cache-size",       TYPE_ID_UINT64_BYTES_VM, 1 * STRESS_KB, 4 * STRESS_GB, NULL },
 	{ OPT_cache_ways,       "cache-ways",       TYPE_ID_UINT32, 1, 1024, NULL },
 	{ OPT_class,            "class",            TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_compact_memory,   "compact-memory",   TYPE_ID_BOOL, 0, 1, NULL },
@@ -3993,9 +3993,9 @@ static const stress_opt_t main_opts[] = {
 	{ OPT_ionice_level,     "ionice-level",     TYPE_ID_INT32, 0, 7, NULL },
 	{ OPT_iostat,           "iostat",           TYPE_ID_INT32_TIME, 1, 3600, NULL },
 	{ OPT_job,	        "job",              TYPE_ID_STR, 0, 0, NULL },
-	{ OPT_limit_as,         "limit-as",         TYPE_ID_UINT64_BYTES, 1 * MB, RLIM_INFINITY, NULL },
-	{ OPT_limit_data,       "limit-data",       TYPE_ID_UINT64_BYTES, 1 * MB, RLIM_INFINITY, NULL },
-	{ OPT_limit_stack,      "limit-stack",      TYPE_ID_UINT64_BYTES, 1 * MB, RLIM_INFINITY, NULL },
+	{ OPT_limit_as,         "limit-as",         TYPE_ID_UINT64_BYTES, 1 * STRESS_MB, RLIM_INFINITY, NULL },
+	{ OPT_limit_data,       "limit-data",       TYPE_ID_UINT64_BYTES, 1 * STRESS_MB, RLIM_INFINITY, NULL },
+	{ OPT_limit_stack,      "limit-stack",      TYPE_ID_UINT64_BYTES, 1 * STRESS_MB, RLIM_INFINITY, NULL },
 	{ OPT_log_file,         "log-file",         TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_max_fd,           "max-fd",           TYPE_ID_CALLBACK, 16, 0xffffffffffffffffULL, stress_fs_max_fd },
 	{ OPT_mbind,            "mbind",            TYPE_ID_STR, 0, 0, NULL },

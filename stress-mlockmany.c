@@ -132,12 +132,12 @@ static int stress_mlockmany_child(stress_args_t *args, void *context)
 #if defined(RLIMIT_MEMLOCK)
 	ret = getrlimit(RLIMIT_MEMLOCK, &rlim);
 	if (ret < 0) {
-		mlock_size = 8 * MB;
+		mlock_size = 8 * STRESS_MB;
 	} else {
 		mlock_size = rlim.rlim_cur;
 	}
 #else
-	mlock_size = args->page_size * 1024;
+	mlock_size = args->page_size * STRESS_KB;
 #endif
 
 	stress_proc_state_set(args->name, STRESS_STATE_SYNC_WAIT);

@@ -1006,12 +1006,12 @@ char *stress_uint64_to_str(
 	} stress_size_info_t;
 
 	static const stress_size_info_t size_info[] = {
-		{ EB, "E" },
-		{ PB, "P" },
-		{ TB, "T" },
-		{ GB, "G" },
-		{ MB, "M" },
-		{ KB, "K" },
+		{ STRESS_EB, "E" },
+		{ STRESS_PB, "P" },
+		{ STRESS_TB, "T" },
+		{ STRESS_GB, "G" },
+		{ STRESS_MB, "M" },
+		{ STRESS_KB, "K" },
 	};
 	size_t i;
 	const char *suffix = "";

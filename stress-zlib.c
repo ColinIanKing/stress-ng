@@ -48,7 +48,7 @@ static const stress_help_t help[] = {
 
 #include "zlib.h"
 
-#define DATA_SIZE_64K 	(KB * 64)	/* Must be a multiple of 64 bytes */
+#define DATA_SIZE_64K 	(STRESS_KB * 64)	/* Must be a multiple of 64 bytes */
 #define DATA_SIZE DATA_SIZE_64K
 
 #define ZLIB_MIN_COMPRESSION	(0)
@@ -1750,11 +1750,11 @@ finish:
 	ratio = (bytes_in > 0) ? 100.0 * (double)bytes_out / (double)bytes_in : 0.0;
 	stress_metrics_set(args, "% compression ratio",
 		ratio, STRESS_METRIC_GEOMETRIC_MEAN);
-	rate = (duration > 0.0) ? ((double)bytes_in / duration) / MB : 0.0;
+	rate = (duration > 0.0) ? ((double)bytes_in / duration) / STRESS_MB : 0.0;
 	stress_metrics_set(args, "MB/sec compression rate",
 		rate, STRESS_METRIC_HARMONIC_MEAN);
 	stress_metrics_set(args, "MB compressed",
-		(double)bytes_in / MB, STRESS_METRIC_HARMONIC_MEAN);
+		(double)bytes_in / STRESS_MB, STRESS_METRIC_HARMONIC_MEAN);
 
 	ret = EXIT_SUCCESS;
 zlib_checksum_error:

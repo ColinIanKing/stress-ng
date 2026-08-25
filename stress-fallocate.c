@@ -19,9 +19,9 @@
  */
 #include "stress-ng.h"
 
-#define MIN_FALLOCATE_BYTES	(1 * MB)
+#define MIN_FALLOCATE_BYTES	(1 * STRESS_MB)
 #define MAX_FALLOCATE_BYTES	(MAX_FILE_LIMIT)
-#define DEFAULT_FALLOCATE_BYTES	(1 * GB)
+#define DEFAULT_FALLOCATE_BYTES	(1 * STRESS_GB)
 
 static const stress_help_t help[] = {
 	{ NULL,	"fallocate N",		"start N workers fallocating 16MB files" },
@@ -254,7 +254,7 @@ static int stress_fallocate(stress_args_t *args)
 				const size_t j = stress_mwc32modn((uint32_t)SIZEOF_ARRAY(modes));
 				const off_t offset = (off_t)stress_mwc64modn((uint64_t)fallocate_bytes) & ~0xfff;
 
-				if (shim_fallocate(fd, modes[j], offset, 64 * KB) == 0)
+				if (shim_fallocate(fd, modes[j], offset, 64 * STRESS_KB) == 0)
 					(void)shim_fsync(fd);
 				if (UNLIKELY(!stress_continue_flag()))
 					break;
@@ -263,7 +263,7 @@ static int stress_fallocate(stress_args_t *args)
 			for (i = 0; i < mode_count; i++) {
 				const off_t offset = (off_t)stress_mwc64modn((uint64_t)fallocate_bytes) & ~0xfff;
 
-				if (shim_fallocate(fd, mode_perms[i], offset, 4 * KB) == 0)
+				if (shim_fallocate(fd, mode_perms[i], offset, 4 * STRESS_KB) == 0)
 					(void)shim_fsync(fd);
 				if (UNLIKELY(!stress_continue_flag()))
 					break;

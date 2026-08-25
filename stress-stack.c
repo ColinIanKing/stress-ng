@@ -26,7 +26,7 @@
 #include "core-pragma.h"
 #include "core-put.h"
 
-#define STRESS_DATA_SIZE	(256 * KB)
+#define STRESS_DATA_SIZE	(256 * STRESS_KB)
 
 /*
  *  stress_stack_check sanity check list
@@ -119,7 +119,7 @@ static bool OPTIMIZE3 stress_stack_alloc(
 		if (mlock_sz < 0)
 			mlock_sz = -mlock_sz;
 
-		if (mlock_sz > (last_size + 8 * (ssize_t)MB)) {
+		if (mlock_sz > (last_size + 8 * (ssize_t)STRESS_MB)) {
 			int ret;
 
 			ptr &= ~(page_size - 1);

@@ -512,7 +512,7 @@ void stress_ftrace_start(void)
 
 #if defined(HAVE_SETVBUF)
 	/* try to use 1 MB buffer */
-	(void)setvbuf(fp, NULL, _IOFBF, MB);
+	(void)setvbuf(fp, NULL, _IOFBF, STRESS_MB);
 #endif
 
 	tracing_run = true;

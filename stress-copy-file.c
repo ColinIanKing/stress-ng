@@ -21,15 +21,15 @@
 #include "core-builtin.h"
 #include "core-mmap.h"
 
-#define MIN_COPY_FILE_BYTES		(128 * MB)
+#define MIN_COPY_FILE_BYTES		(128 * STRESS_MB)
 #define MAX_COPY_FILE_BYTES		(MAX_FILE_LIMIT)
-#define DEFAULT_COPY_FILE_BYTES		(256 * MB)
+#define DEFAULT_COPY_FILE_BYTES		(256 * STRESS_MB)
 
-#define MIN_COPY_FILE_IO_BYTES		(4 * KB)
-#define MAX_COPY_FILE_IO_BYTES		(1 * MB)
-#define DEFAULT_COPY_FILE_IO_BYTES	(128 * KB)
+#define MIN_COPY_FILE_IO_BYTES		(4 * STRESS_KB)
+#define MAX_COPY_FILE_IO_BYTES		(1 * STRESS_MB)
+#define DEFAULT_COPY_FILE_IO_BYTES	(128 * STRESS_KB)
 
-#define COPY_FILE_MAX_BUF_SIZE		(4096)
+#define COPY_FILE_MAX_BUF_SIZE		(4 * STRESS_KB)
 
 static const stress_help_t help[] = {
 	{ NULL,	"copy-file N",		"start N workers that copy file data" },
@@ -360,7 +360,7 @@ static int stress_copy_file(stress_args_t *args)
 
 	rate = (duration > 0.0) ? bytes / duration : 0.0;
 	stress_metrics_set(args, "MB per sec copy rate",
-		rate / (double)MB, STRESS_METRIC_HARMONIC_MEAN);
+		rate / (double)STRESS_MB, STRESS_METRIC_HARMONIC_MEAN);
 
 tidy_out:
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);

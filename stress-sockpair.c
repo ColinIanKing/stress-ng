@@ -348,7 +348,7 @@ abort:
 tidy:
 		rate = (duration > 0.0) ? bytes / duration : 0.0;
 		stress_metrics_set(args, "MB written per sec",
-			rate / (double)MB, STRESS_METRIC_HARMONIC_MEAN);
+			rate / (double)STRESS_MB, STRESS_METRIC_HARMONIC_MEAN);
 
 		if (low_memory_count > 0) {
 			pr_dbg("%s: %.2f%% of writes backed off due to low memory\n",

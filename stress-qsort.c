@@ -28,9 +28,9 @@
 
 #define THRESH 63
 
-#define MIN_QSORT_SIZE		(1 * KB)
-#define MAX_QSORT_SIZE		(4 * MB)
-#define DEFAULT_QSORT_SIZE	(256 * KB)
+#define MIN_QSORT_SIZE		(1 * STRESS_KB)
+#define MAX_QSORT_SIZE		(4 * STRESS_MB)
+#define DEFAULT_QSORT_SIZE	(256 * STRESS_KB)
 
 #if defined(HAVE_SIGLONGJMP)
 static volatile bool do_jmp = true;

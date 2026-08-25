@@ -25,9 +25,9 @@
 #include "core-mincore.h"
 #include "core-out-of-memory.h"
 
-#define MIN_VFORKMANY_VM_BYTES		(4 * KB)
+#define MIN_VFORKMANY_VM_BYTES		(4 * STRESS_KB)
 #define MAX_VFORKMANY_VM_BYTES		(MAX_MEM_LIMIT)
-#define DEFAULT_VFORKMANY_VM_BYTES	(64 * MB)
+#define DEFAULT_VFORKMANY_VM_BYTES	(64 * STRESS_MB)
 
 typedef struct {
 	volatile uint64_t invoked;	/* count of vfork processes that started */

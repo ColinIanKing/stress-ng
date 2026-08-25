@@ -23,9 +23,9 @@
 #include "core-mmap.h"
 #include "core-signal.h"
 
-#define MIN_FILEHOLE_BYTES	(1 * MB)
-#define MAX_FILEHOLE_BYTES	(32 * GB)
-#define DEFAULT_FILEHOLE_BYTES	(16 * MB)
+#define MIN_FILEHOLE_BYTES	(1 * STRESS_MB)
+#define MAX_FILEHOLE_BYTES	(32 * STRESS_GB)
+#define DEFAULT_FILEHOLE_BYTES	(16 * STRESS_MB)
 
 #if defined(HAVE_PREADV) || \
     defined(HAVE_PWRITEV)
@@ -684,7 +684,7 @@ static int stress_filehole(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
 	stress_metrics_set(args, "Mbytes per file (maximum)",
-		max_size / (double)MB, STRESS_METRIC_GEOMETRIC_MEAN);
+		max_size / (double)STRESS_MB, STRESS_METRIC_GEOMETRIC_MEAN);
 	stress_metrics_set(args, "blocks used per file (maximum)",
 		max_blks, STRESS_METRIC_GEOMETRIC_MEAN);
 	if (extents_count > 0.0) {

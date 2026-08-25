@@ -2660,7 +2660,7 @@ static void stress_dev_acpi_thermal_rel_get(
 {
 	char *buf;
 
-	if ((length < 1) || (length > 64 * KB))
+	if ((length < 1) || (length > 64 * STRESS_KB))
 		return;
 	buf = (char *)malloc((size_t)length);
 	if (!buf)

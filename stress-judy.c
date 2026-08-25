@@ -23,9 +23,9 @@
 #include <Judy.h>
 #endif
 
-#define MIN_JUDY_SIZE		(1 * KB)
-#define MAX_JUDY_SIZE		(4 * MB)
-#define DEFAULT_JUDY_SIZE	(256 * KB)
+#define MIN_JUDY_SIZE		(1 * STRESS_KB)
+#define MAX_JUDY_SIZE		(4 * STRESS_MB)
+#define DEFAULT_JUDY_SIZE	(256 * STRESS_KB)
 
 #define JUDY_OP_INSERT		(0)
 #define JUDY_OP_FIND		(1)

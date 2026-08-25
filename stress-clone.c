@@ -411,7 +411,7 @@ static int clone_func(void *arg)
 		stress_lock_release(metrics->lock);
 	}
 
-	if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_memory_low_check((size_t)(1 * MB))) {
+	if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_memory_low_check((size_t)(1 * STRESS_MB))) {
 		return 0;
 	}
 
@@ -511,7 +511,7 @@ static int stress_clone_child(stress_args_t *args, void *context)
 
 	do {
 		const bool low_mem_reap = ((g_opt_flags & OPT_FLAGS_OOM_AVOID) &&
-					   stress_memory_low_check((size_t)(1 * MB)));
+					   stress_memory_low_check((size_t)(1 * STRESS_MB)));
 
 		if (!low_mem_reap && (clones.length < clone_max)) {
 			static size_t idx;

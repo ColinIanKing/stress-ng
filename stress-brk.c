@@ -23,7 +23,7 @@
 #include "core-nt-load.h"
 #include "core-out-of-memory.h"
 
-#define MIN_BRK_BYTES		(64 * KB)
+#define MIN_BRK_BYTES		(64 * STRESS_KB)
 #define MAX_BRK_BYTES		(MAX_MEM_LIMIT)
 #define DEFAULT_BRK_BYTES	(MAX_MEM_LIMIT)
 

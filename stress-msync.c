@@ -22,9 +22,9 @@
 #include "core-mmap.h"
 #include "core-out-of-memory.h"
 
-#define MIN_MSYNC_BYTES		(1 * MB)  /* MUST NOT BE page size or less! */
+#define MIN_MSYNC_BYTES		(1 * STRESS_MB)  /* MUST NOT BE page size or less! */
 #define MAX_MSYNC_BYTES		(MAX_FILE_LIMIT)
-#define DEFAULT_MSYNC_BYTES	(256 * MB)
+#define DEFAULT_MSYNC_BYTES	(256 * STRESS_MB)
 
 #if defined(HAVE_MSYNC)
 static sigjmp_buf jmp_env;

@@ -418,7 +418,7 @@ static int stress_vecshuf(stress_args_t *args)
 			if ((duration > 0.0) && (ops > 0.0) &&
 			    (bytes > 0.0) && (total_duration > 0.0)) {
 				const double ops_rate = (ops / duration) / 1000000.0;
-				const double bytes_rate = (bytes / duration) / (1.0 * MB);
+				const double bytes_rate = (bytes / duration) / (1.0 * STRESS_MB);
 
 				inverse_sum_ops += 1.0 / ops_rate;
 				inverse_sum_bytes += 1.0 / bytes_rate;

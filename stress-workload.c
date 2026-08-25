@@ -546,7 +546,7 @@ static int stress_workload(stress_args_t *args)
 	int workload_method;
 	stress_workload_t *workload;
 	uint8_t *mapped_buffer;
-	const size_t buffer_len = MB;
+	const size_t buffer_len = STRESS_MB;
 	size_t mapped_buffer_len;
 	stress_workload_bucket_t slice_offset_bucket;
 	int rc = EXIT_SUCCESS;

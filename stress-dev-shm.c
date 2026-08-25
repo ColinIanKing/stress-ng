@@ -49,7 +49,7 @@ static inline int stress_dev_shm_child(
 	int rc = EXIT_SUCCESS;
 	const int fd = context->fd;
 	const size_t page_size = args->page_size;
-	const size_t page_thresh = 16 * MB;
+	const size_t page_thresh = 16 * STRESS_MB;
 	ssize_t sz = (ssize_t)page_size;
 	uint32_t *addr;
 

@@ -37,9 +37,9 @@
 #include "core-signal.h"
 #include "core-vecmath.h"
 
-#define MIN_VM_BYTES		(4 * KB)
+#define MIN_VM_BYTES		(4 * STRESS_KB)
 #define MAX_VM_BYTES		(MAX_MEM_LIMIT)
-#define DEFAULT_VM_BYTES	(256 * MB)
+#define DEFAULT_VM_BYTES	(256 * STRESS_MB)
 
 #define MIN_VM_HANG		(0)
 #define MAX_VM_HANG		(3600)

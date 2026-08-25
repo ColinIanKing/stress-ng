@@ -27,12 +27,12 @@
 #include "core-numa.h"
 #include "core-out-of-memory.h"
 
-#define MIN_D_BYTES	(1 * KB)
-#define MAX_D_BYTES	(4 * GB)
+#define MIN_D_BYTES	(1 * STRESS_KB)
+#define MAX_D_BYTES	(4 * STRESS_GB)
 
-#define MIN_I_BYTES	(1 * KB)
-#define MAX_I_BYTES	(4 * GB)
-#define DEFAULT_I_BYTES	(4 * KB)
+#define MIN_I_BYTES	(1 * STRESS_KB)
+#define MAX_I_BYTES	(4 * STRESS_GB)
+#define DEFAULT_I_BYTES	(4 * STRESS_KB)
 
 static const stress_help_t help[] = {
 	{ NULL,	"flushcache N",       "start N CPU instruction + data cache flush workers" },

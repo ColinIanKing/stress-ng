@@ -25,9 +25,9 @@
 #include "core-out-of-memory.h"
 #include "core-pthread.h"
 
-#define MIN_MADVISE_BYTES	(4 * KB)
-#define MAX_MADVISE_BYTES	(64 * MB)
-#define DEFAULT_MADVISE_BYTES	(4 * MB)
+#define MIN_MADVISE_BYTES	(4 * STRESS_KB)
+#define MAX_MADVISE_BYTES	(64 * STRESS_MB)
+#define DEFAULT_MADVISE_BYTES	(4 * STRESS_MB)
 
 static const stress_help_t help[] = {
 	{ NULL,	"madvise N",	 	"start N workers exercising madvise on memory" },

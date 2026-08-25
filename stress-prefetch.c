@@ -27,9 +27,9 @@
 #include "core-cpu-cache.h"
 #include "core-put.h"
 
-#define MIN_PREFETCH_L3_SIZE		(4 * KB)
+#define MIN_PREFETCH_L3_SIZE		(4 * STRESS_KB)
 #define MAX_PREFETCH_L3_SIZE		(MAX_MEM_LIMIT)
-#define DEFAULT_PREFETCH_L3_SIZE	(4 * MB)
+#define DEFAULT_PREFETCH_L3_SIZE	(4 * STRESS_MB)
 
 #define STRESS_PREFETCH_OFFSETS		(128)
 #define STRESS_CACHE_LINE_SIZE		(64)
@@ -488,7 +488,7 @@ static int stress_prefetch(stress_args_t *args)
 		}
 	}
 
-	non_prefetch_rate = prefetch_info[0].rate / (double)GB;
+	non_prefetch_rate = prefetch_info[0].rate / (double)STRESS_GB;
 	stress_metrics_set(args, "GB per sec non-prefetch read rate",
 		non_prefetch_rate, STRESS_METRIC_HARMONIC_MEAN);
 
@@ -498,10 +498,10 @@ static int stress_prefetch(stress_args_t *args)
 		ns = 0.0;
 
 	pr_dbg("%s: best prefetch read rate @ %.2f GB per sec at offset %zu (~%.2f nanosecs)\n",
-		args->name, best_rate / (double)GB,
+		args->name, best_rate / (double)STRESS_GB,
 		prefetch_info[best].offset, ns);
 
-	best_rate /= (double)GB;
+	best_rate /= (double)STRESS_GB;
 	stress_metrics_set(args, "GB per sec best read rate",
 		best_rate, STRESS_METRIC_HARMONIC_MEAN);
 

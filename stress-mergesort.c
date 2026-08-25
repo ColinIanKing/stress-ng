@@ -25,9 +25,9 @@
 #include "core-sort.h"
 #include "core-target-clones.h"
 
-#define MIN_MERGESORT_SIZE	(1 * KB)
-#define MAX_MERGESORT_SIZE	(4 * MB)
-#define DEFAULT_MERGESORT_SIZE	(256 * KB)
+#define MIN_MERGESORT_SIZE	(1 * STRESS_KB)
+#define MAX_MERGESORT_SIZE	(4 * STRESS_MB)
+#define DEFAULT_MERGESORT_SIZE	(256 * STRESS_KB)
 
 static const stress_help_t help[] = {
 	{ NULL,	"mergesort N",		"start N workers merge sorting 32 bit random integers" },

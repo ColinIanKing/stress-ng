@@ -23,9 +23,9 @@
 #include "core-sort.h"
 #include "core-target-clones.h"
 
-#define MIN_INSERTIONSORT_SIZE		(1 * KB)
-#define MAX_INSERTIONSORT_SIZE		(4 * MB)
-#define DEFAULT_INSERTIONSORT_SIZE	(16384)
+#define MIN_INSERTIONSORT_SIZE		(1 * STRESS_KB)
+#define MAX_INSERTIONSORT_SIZE		(4 * STRESS_MB)
+#define DEFAULT_INSERTIONSORT_SIZE	(16 * STRESS_KB)
 
 #if defined(HAVE_SIGLONGJMP)
 static volatile bool do_jmp = true;

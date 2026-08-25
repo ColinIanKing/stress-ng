@@ -35,9 +35,9 @@
 #include <sys/sendfile.h>
 #endif
 
-#define MIN_IOMIX_BYTES		(1 * MB)
+#define MIN_IOMIX_BYTES		(1 * STRESS_MB)
 #define MAX_IOMIX_BYTES		(MAX_FILE_LIMIT)
-#define DEFAULT_IOMIX_BYTES	(1 * GB)
+#define DEFAULT_IOMIX_BYTES	(1 * STRESS_GB)
 
 typedef void (*stress_iomix_func)(stress_args_t *args, const int fd, const char *fs_type, const off_t iomix_bytes);
 

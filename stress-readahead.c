@@ -20,9 +20,9 @@
 #include "stress-ng.h"
 #include "core-pragma.h"
 
-#define MIN_READAHEAD_BYTES	(1 * MB)
+#define MIN_READAHEAD_BYTES	(1 * STRESS_MB)
 #define MAX_READAHEAD_BYTES	(MAX_FILE_LIMIT)
-#define DEFAULT_READAHEAD_BYTES	(64 * MB)
+#define DEFAULT_READAHEAD_BYTES	(64 * STRESS_MB)
 
 #define BUF_ALIGNMENT		(4096)
 #define BUF_SIZE		(4096)

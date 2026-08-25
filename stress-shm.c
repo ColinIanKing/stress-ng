@@ -24,9 +24,9 @@
 #include "core-mincore.h"
 #include "core-out-of-memory.h"
 
-#define MIN_SHM_POSIX_BYTES	(1 * MB)
-#define MAX_SHM_POSIX_BYTES	(1 * GB)
-#define DEFAULT_SHM_POSIX_BYTES	(8 * MB)
+#define MIN_SHM_POSIX_BYTES	(1 * STRESS_MB)
+#define MAX_SHM_POSIX_BYTES	(1 * STRESS_GB)
+#define DEFAULT_SHM_POSIX_BYTES	(8 * STRESS_MB)
 
 #define MIN_SHM_POSIX_OBJECTS	(1)
 #define MAX_SHM_POSIX_OBJECTS	(128)

@@ -35,9 +35,9 @@
 #define HAVE_MMAP2
 #endif
 
-#define MIN_MMAP_BYTES		(4 * KB)
+#define MIN_MMAP_BYTES		(4 * STRESS_KB)
 #define MAX_MMAP_BYTES		(MAX_MEM_LIMIT)
-#define DEFAULT_MMAP_BYTES	(256 * MB)
+#define DEFAULT_MMAP_BYTES	(256 * STRESS_MB)
 
 static const stress_help_t help[] = {
 	{ NULL,	"mmap N",	     "start N workers stressing mmap and munmap" },

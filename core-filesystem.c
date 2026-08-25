@@ -1253,7 +1253,7 @@ ssize_t stress_fs_write(
 {
 	ssize_t wbytes = 0;
 	ssize_t ret;
-	ssize_t max_sz = MB;
+	ssize_t max_sz = STRESS_MB;
 
 	if (UNLIKELY(!buffer || (size < 1)))
 		return -1;

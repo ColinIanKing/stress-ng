@@ -25,7 +25,7 @@
 #include "core-resources.h"
 #include "core-signal.h"
 
-#define MIN_MEM_FREE	(16 * MB)
+#define MIN_MEM_FREE	(16 * STRESS_MB)
 
 #define MIN_RESOURCES_PROCS	(1)
 #define MAX_RESOURCES_PROCS	(4096)

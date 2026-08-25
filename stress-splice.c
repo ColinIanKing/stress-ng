@@ -22,9 +22,9 @@
 #include "core-madvise.h"
 #include "core-mmap.h"
 
-#define MIN_SPLICE_BYTES	(1 * KB)
-#define MAX_SPLICE_BYTES	(64 * MB)
-#define DEFAULT_SPLICE_BYTES	(64 * KB)
+#define MIN_SPLICE_BYTES	(1 * STRESS_KB)
+#define MAX_SPLICE_BYTES	(64 * STRESS_MB)
+#define DEFAULT_SPLICE_BYTES	(64 * STRESS_KB)
 
 #define SPLICE_BUFFER_LEN	(65536)
 
@@ -369,7 +369,7 @@ static int stress_splice(stress_args_t *args)
 
 	rate = (duration > 0.0) ? bytes / duration : 0.0;
 	stress_metrics_set(args, "MB per sec splice rate",
-		rate / (double)MB, STRESS_METRIC_HARMONIC_MEAN);
+		rate / (double)STRESS_MB, STRESS_METRIC_HARMONIC_MEAN);
 
 	(void)close(fd_out);
 close_fds4:

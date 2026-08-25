@@ -38,9 +38,9 @@
 #define HAVE_TIMER_FUNCS
 #endif
 
-#define MIN_LOCKBUS_BYTES	(64 * KB)
+#define MIN_LOCKBUS_BYTES	(64 * STRESS_KB)
 #define MAX_LOCKBUS_BYTES	(MAX_MEM_LIMIT)
-#define DEFAULT_LOCKBUS_BYTES	(16 * MB)
+#define DEFAULT_LOCKBUS_BYTES	(16 * STRESS_MB)
 
 static const stress_help_t help[] = {
 	{ NULL,	"lockbus N",	 	"start N workers locking a memory increment" },

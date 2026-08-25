@@ -40,7 +40,7 @@ static const stress_help_t help[] = {
 #if defined(HAVE_SWAPCONTEXT) && 	\
     defined(HAVE_UCONTEXT_H)
 
-#define MMAPSTACK_SIZE		(256 * KB)
+#define MMAPSTACK_SIZE		(256 * STRESS_KB)
 
 /*
  *  stress_stack_check sanity check list

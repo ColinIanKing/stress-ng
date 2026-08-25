@@ -544,12 +544,12 @@ STRESSORS(STRESSOR_INFO)
 extern const char * const stress_config[];
 
 /* Memory size constants */
-#define KB			(1ULL << 10)
-#define	MB			(1ULL << 20)
-#define GB			(1ULL << 30)
-#define TB			(1ULL << 40)
-#define PB			(1ULL << 50)
-#define EB			(1ULL << 60)
+#define STRESS_KB		(1ULL << 10)
+#define STRESS_MB		(1ULL << 20)
+#define STRESS_GB		(1ULL << 30)
+#define STRESS_TB		(1ULL << 40)
+#define STRESS_PB		(1ULL << 50)
+#define STRESS_EB		(1ULL << 60)
 
 #define ONE_BILLIONTH		(1.0E-9)
 #define ONE_MILLIONTH		(1.0E-6)

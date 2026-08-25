@@ -41,9 +41,9 @@ typedef struct {
 
 #define MAX_RLIMIT_CPU		(1)
 #define MAX_RLIMIT_FSIZE	(1)
-#define MAX_RLIMIT_AS		(32 * MB)
-#define MAX_RLIMIT_DATA		(16 * MB)
-#define MAX_RLIMIT_STACK	(1 * MB)
+#define MAX_RLIMIT_AS		(32 * STRESS_MB)
+#define MAX_RLIMIT_DATA		(16 * STRESS_MB)
+#define MAX_RLIMIT_STACK	(1 * STRESS_MB)
 #define MAX_RLIMIT_NOFILE	(32)
 
 typedef struct {

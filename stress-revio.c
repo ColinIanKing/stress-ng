@@ -21,9 +21,9 @@
 #include "core-builtin.h"
 #include "core-pragma.h"
 
-#define MIN_REVIO_BYTES		(1 * MB)
+#define MIN_REVIO_BYTES		(1 * STRESS_MB)
 #define MAX_REVIO_BYTES		(MAX_FILE_LIMIT)
-#define DEFAULT_REVIO_BYTES	(1 * GB)
+#define DEFAULT_REVIO_BYTES	(1 * STRESS_GB)
 
 #define BUF_ALIGNMENT		(4096)
 

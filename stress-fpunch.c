@@ -24,9 +24,9 @@
 #include "core-mmap.h"
 #include "core-signal.h"
 
-#define MIN_FPUNCH_BYTES	(1 * MB)
-#define MAX_FPUNCH_BYTES	(2 * GB)
-#define DEFAULT_FPUNCH_BYTES	(16 * MB)
+#define MIN_FPUNCH_BYTES	(1 * STRESS_MB)
+#define MAX_FPUNCH_BYTES	(2 * STRESS_GB)
+#define DEFAULT_FPUNCH_BYTES	(16 * STRESS_MB)
 
 #if defined(HAVE_PREADV) || \
     defined(HAVE_PWRITEV)
@@ -47,8 +47,8 @@ static const stress_opt_t opts[] = {
 
 #if defined(HAVE_FALLOCATE)
 
-#define PROC_FPUNCH_OFFSET		(2 * MB)
-#define BUF_SIZE			(4096)
+#define PROC_FPUNCH_OFFSET		(2 * STRESS_MB)
+#define BUF_SIZE			(4 * STRESS_KB)
 #define STRESS_PUNCH_PIDS		(4)
 
 typedef struct {

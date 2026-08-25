@@ -697,7 +697,7 @@ static int stress_cpu_cache_get_sh4(stress_cpu_cache_cpu_t *cpu)
 			if (sscanf(ptr + 1, "%zuKiB)", &size) == 1) {
 				cpu->caches[cpu->cache_count].type =
 					(buffer[0] == 'i') ? CACHE_TYPE_INSTRUCTION : CACHE_TYPE_DATA;
-				cpu->caches[cpu->cache_count].size = size * KB;
+				cpu->caches[cpu->cache_count].size = size * STRESS_KB;
 				cpu->caches[cpu->cache_count].line_size = 64;	/* Assumption! */
 				cpu->caches[cpu->cache_count].ways = cpu->caches[cpu->cache_count].size / 64;
 				cpu->caches[cpu->cache_count].level = 1;
@@ -860,16 +860,16 @@ static uint64_t stress_cpu_cache_size_to_bytes(const char *str)
 		/* no-op */
 		break;
 	case 'K':
-		bytes *= KB;
+		bytes *= STRESS_KB;
 		break;
 	case 'M':
-		bytes *= MB;
+		bytes *= STRESS_MB;
 		break;
 	case 'G':
-		bytes *= GB;
+		bytes *= STRESS_GB;
 		break;
 	case 'T':
-		bytes *= TB;
+		bytes *= STRESS_TB;
 		break;
 	default:
 		pr_err("unable to convert '%c' size to bytes\n", sz);

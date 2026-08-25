@@ -22,7 +22,7 @@
 #include "core-killpid.h"
 #include "core-mmap.h"
 
-#define MIN_MMAPFORK_BYTES	(4 * KB)
+#define MIN_MMAPFORK_BYTES	(4 * STRESS_KB)
 #define MAX_MMAPFORK_BYTES	(MAX_MEM_LIMIT)
 
 #define MIN_MMAPFORK_PROCS	(1)

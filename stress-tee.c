@@ -324,7 +324,7 @@ do_splice:
 
 	rate = (duration > 0.0) ? bytes / duration : 0.0;
 	stress_metrics_set(args, "MB per sec tee rate",
-		rate / (double)MB, STRESS_METRIC_HARMONIC_MEAN);
+		rate / (double)STRESS_MB, STRESS_METRIC_HARMONIC_MEAN);
 
 tidy_child2:
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
