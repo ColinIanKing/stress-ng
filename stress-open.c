@@ -23,7 +23,8 @@
 #include "core-killpid.h"
 
 #if defined(HAVE_LINUX_OPENAT2_H) &&	\
-    !defined(HAVE_COMPILER_TCC)
+    !defined(HAVE_COMPILER_TCC) &&	\
+    !defined(HAVE_COMPILER_PCC)
 #include <linux/openat2.h>
 #endif
 
