@@ -529,7 +529,7 @@ long int shim_getcpu(
 	return (long int)syscall(__NR_getcpu, cpu, node, tcache);
 #else
 	UNEXPECTED
-	return (long int)shim_enosys(0, cpu, node, tcache);
+	return shim_enosys(0, cpu, node, tcache);
 #endif
 }
 
@@ -622,7 +622,7 @@ long int shim_kcmp(pid_t pid1, pid_t pid2, int type, unsigned long int idx1, uns
 	errno = 0;
 	return (long int)syscall(__NR_kcmp, pid1, pid2, type, idx1, idx2);
 #else
-	return (long int)shim_enosys(0, pid1, pid2, type, idx1, idx2);
+	return shim_enosys(0, pid1, pid2, type, idx1, idx2);
 #endif
 }
 
@@ -727,7 +727,7 @@ long int shim_mbind(
 	return (long int)syscall(__NR_mbind,
 		addr, len, mode, nodemask, maxnode, flags);
 #else
-	return (long int)shim_enosys(0, addr, len, mode, nodemask, maxnode, flags);
+	return shim_enosys(0, addr, len, mode, nodemask, maxnode, flags);
 #endif
 }
 
@@ -746,7 +746,7 @@ long int shim_migrate_pages(
 	return (long int)syscall(__NR_migrate_pages,
 		pid, maxnode, old_nodes, new_nodes);
 #else
-	return (long int)shim_enosys(0, pid, maxnode, old_nodes, new_nodes);
+	return shim_enosys(0, pid, maxnode, old_nodes, new_nodes);
 #endif
 }
 
@@ -767,7 +767,7 @@ long int shim_move_pages(
 	return (long int)syscall(__NR_move_pages, pid, count, pages, nodes,
 		status, flags);
 #else
-	return (long int)shim_enosys(0, pid, count, pages, nodes, status, flags);
+	return shim_enosys(0, pid, count, pages, nodes, status, flags);
 #endif
 }
 
@@ -2497,7 +2497,7 @@ long int shim_sgetmask(void)
     defined(HAVE_SYSCALL)
 	return (long int)syscall(__NR_sgetmask);
 #else
-	return (long int)shim_enosys(0);
+	return shim_enosys(0);
 #endif
 }
 
@@ -2511,7 +2511,7 @@ long int shim_ssetmask(long int newmask)
     defined(HAVE_SYSCALL)
 	return (long int)syscall(__NR_ssetmask, newmask);
 #else
-	return (long int)shim_enosys(0, newmask);
+	return shim_enosys(0, newmask);
 #endif
 }
 
