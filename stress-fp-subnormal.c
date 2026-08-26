@@ -27,16 +27,8 @@
 
 #define LOOPS_PER_CALL	(65536)
 
-#define FLT_TINY1	(1.4012984643248170709237295832899161312802619418765157717570682838897910826858606014866381883621215820e-45f)
-#define FLT_TINY2	(4.2038953929744512127711887498697483938407858256295473152712048516693732480575818044599145650863647461e-45f)
 #define FLT_ONEISH	(1.00000011920928955078125f)
-
-#define DBL_TINY1	(4.9406564584124654417656879286822137236505980261432476442558568250067550727020875186529983636163599238e-324)
-#define DBL_TINY2	(1.4821969375237396325297063786046641170951794078429742932767570475020265218106262555958995090849079771e-323)
 #define DBL_ONEISH	(1.0000000000000002220446049250313080847263336181640625)
-
-#define LDBL_TINY1 	(1.0935598595647423807585217800858259449197152447080690031162941461085115065900193210428682125877481616e-4950L)
-#define LDBL_TINY2 	(3.6451995318824746025284059336194198163990508156935633437209804870283716886333977368095607086258272052e-4951L)
 #define LDBL_ONEISH	(1.000000000000000000108420217248550443400745280086994171142578125L)
 
 #define STRESS_FP_TYPE_LONG_DOUBLE	(0)
@@ -99,6 +91,7 @@ static double OPTIMIZE1 name(					\
 			fp_data->field.tiny2;			\
 	const type v2 = rnd ? fp_data->field.tiny2 :		\
 			fp_data->field.tiny1;			\
+	type zeroish = (type)0.0;				\
 								\
 	for (i = 0; i < loops; i++) 				\
 		fp_data->field.r[idx] = 0.0;			\
@@ -107,14 +100,17 @@ static double OPTIMIZE1 name(					\
 	for (i = 0; i < loops; i++) {				\
 		register type tmp;				\
 								\
-		tmp = v1 + v2;					\
+		tmp = v1 + zeroish;				\
 		stress_asm_mb();				\
 		fp_data->field.r[idx] += tmp;			\
 		stress_asm_mb();				\
 								\
-		tmp = v2 + v1;					\
+		tmp = v2 + zeroish;				\
 		stress_asm_mb();				\
 		fp_data->field.r[idx] += tmp;			\
+		stress_asm_mb();				\
+								\
+		zeroish += v1;					\
 		stress_asm_mb();				\
 	}							\
 	t2 = stress_time_now();					\
@@ -139,6 +135,7 @@ static double OPTIMIZE1 name(					\
 			      fp_data->field.tiny2;		\
 	const type v2 = rnd ? fp_data->field.tiny2 :		\
 			      fp_data->field.tiny1;		\
+	type zeroish = (type)0.0;				\
 								\
 	for (i = 0; i < loops; i++) 				\
 		fp_data->field.r[idx] = (type)0.0;		\
@@ -147,14 +144,17 @@ static double OPTIMIZE1 name(					\
 	for (i = 0; i < loops; i++) {				\
 		register type tmp;				\
 								\
-		tmp = v2 - v1;					\
+		tmp = v2 - zeroish;				\
 		stress_asm_mb();				\
 		fp_data->field.r[idx] -= tmp;			\
 		stress_asm_mb();				\
 								\
-		tmp = v1 - v2;					\
+		tmp = v1 - zeroish;				\
 		stress_asm_mb();				\
 		fp_data->field.r[idx] -= tmp;			\
+		stress_asm_mb();				\
+								\
+		zeroish += v1;					\
 		stress_asm_mb();				\
 	}							\
 	t2 = stress_time_now();					\
@@ -179,7 +179,7 @@ static double OPTIMIZE1 name(					\
 			fp_data->field.tiny2;			\
 	const type v2 = rnd ? fp_data->field.tiny2 :		\
 			fp_data->field.tiny1;			\
-	const type oneish = fp_data->field.oneish;		\
+	type oneish = fp_data->field.oneish;			\
 								\
 	for (i = 0; i < loops; i++) 				\
 		fp_data->field.r[idx] = oneish;			\
@@ -195,6 +195,9 @@ static double OPTIMIZE1 name(					\
 								\
 		tmp = v1 * oneish;				\
 		fp_data->field.r[idx] -= tmp;			\
+		stress_asm_mb();				\
+								\
+		oneish += (type)0.0001;				\
 		stress_asm_mb();				\
 	}							\
 	t2 = stress_time_now();					\
@@ -219,7 +222,7 @@ static double OPTIMIZE1 name(					\
 			fp_data->field.tiny2;			\
 	const type v2 = rnd ? fp_data->field.tiny2 :		\
 			fp_data->field.tiny1;			\
-	const type oneish = fp_data->field.oneish;		\
+	type oneish = fp_data->field.oneish;			\
 								\
 	for (i = 0; i < loops; i++) 				\
 		fp_data->field.r[idx] = oneish;			\
@@ -236,6 +239,9 @@ static double OPTIMIZE1 name(					\
 		tmp = oneish / v2;				\
 		stress_asm_mb();				\
 		fp_data->field.r[idx] -= tmp;			\
+		stress_asm_mb();				\
+								\
+		oneish += (type)0.0001;				\
 		stress_asm_mb();				\
 	}							\
 	t2 = stress_time_now();					\
@@ -313,6 +319,44 @@ static const char * PURE stress_fp_subnormal_type(const int fp_type)
 	}
 	return "unknown";
 }
+
+#include <math.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <inttypes.h>
+
+/*
+ *  slide a single bit across the floating point value
+ *  to find smallest subnormal allowed in the type.
+ *  scale the value by 2.0 if scale is true to make next
+ *  smallest subnormal
+ */
+#define STRESS_MIN_SUBNORMAL(type, name)			\
+static void stress_min_subnormal_ ## name(type *min, bool scale)\
+{							\
+	type value;					\
+	int i;						\
+	uint8_t *u8 = (uint8_t *)&value;		\
+	const int bits = (int)sizeof(value) * 8;	\
+							\
+	*min = (type)1.0;				\
+	for (i = 0; i < bits; i++) {			\
+		(void)memset(&value, 0, sizeof(value));	\
+		u8[i / 8] = 1U << (i & 7);		\
+		if (fpclassify(value) == FP_SUBNORMAL) {\
+			if (value < *min)		\
+				*min = value;		\
+		}					\
+	}						\
+	if (scale)					\
+		*min *= (type)2.0;			\
+}
+
+STRESS_MIN_SUBNORMAL(float, f)
+STRESS_MIN_SUBNORMAL(double, d)
+STRESS_MIN_SUBNORMAL(long double, ld)
 
 static int stress_fp_subnormal_call_method(
 	stress_args_t *args,
@@ -449,33 +493,41 @@ static int stress_fp(stress_args_t *args)
 		stress_fp_subnormal_metrics[i].count = 0.0;
 	}
 
-#if ((DBL_MIN_EXP == LDBL_MIN_EXP) ||	\
-     defined(STRESS_ARCH_PPC64) ||	\
-     defined(STRESS_ARCH_PPC))
-	fp_data->ld.tiny1 = DBL_TINY1;
-	fp_data->ld.tiny2 = DBL_TINY2;
-	fp_data->ld.oneish = DBL_ONEISH;
-	fp_data->ld.r[0] = DBL_TINY1;
-	fp_data->ld.r[1] = DBL_TINY1;
-#else
-	fp_data->ld.tiny1 = LDBL_TINY1;
-	fp_data->ld.tiny2 = LDBL_TINY2;
+	stress_min_subnormal_ld(&fp_data->ld.tiny1, false);
+	stress_min_subnormal_ld(&fp_data->ld.tiny2, true);
 	fp_data->ld.oneish = LDBL_ONEISH;
-	fp_data->ld.r[0] = LDBL_TINY1;
-	fp_data->ld.r[1] = LDBL_TINY1;
-#endif
+	stress_min_subnormal_ld(&fp_data->ld.r[0], false);
+	stress_min_subnormal_ld(&fp_data->ld.r[1], false);
 
-	fp_data->d.tiny1 = DBL_TINY1;
-	fp_data->d.tiny2 = DBL_TINY2;
+	stress_min_subnormal_d(&fp_data->d.tiny1, false);
+	stress_min_subnormal_d(&fp_data->d.tiny2, true);
 	fp_data->d.oneish = DBL_ONEISH;
-	fp_data->d.r[0] = DBL_TINY1;
-	fp_data->d.r[1] = DBL_TINY1;
+	stress_min_subnormal_d(&fp_data->d.r[0], false);
+	stress_min_subnormal_d(&fp_data->d.r[1], false);
 
-	fp_data->f.tiny1 = FLT_TINY1;
-	fp_data->f.tiny2 = FLT_TINY2;
+	stress_min_subnormal_f(&fp_data->f.tiny1, false);
+	stress_min_subnormal_f(&fp_data->f.tiny2, true);
 	fp_data->f.oneish = FLT_ONEISH;
-	fp_data->f.r[0] = FLT_TINY1;
-	fp_data->f.r[1] = FLT_TINY1;
+	stress_min_subnormal_f(&fp_data->f.r[0], false);
+	stress_min_subnormal_f(&fp_data->f.r[1], false);
+
+	if (verify) {
+		if ((fpclassify(fp_data->ld.tiny1) != FP_SUBNORMAL) ||
+		    (fpclassify(fp_data->ld.tiny2) != FP_SUBNORMAL) ||
+		    (fpclassify(fp_data->ld.r[0]) != FP_SUBNORMAL) ||
+		    (fpclassify(fp_data->ld.r[0]) != FP_SUBNORMAL))
+			pr_inf("%s: initial long doubles are not subnormal\n", args->name);
+		if ((fpclassify(fp_data->d.tiny1) != FP_SUBNORMAL) ||
+		    (fpclassify(fp_data->d.tiny2) != FP_SUBNORMAL) ||
+		    (fpclassify(fp_data->d.r[0]) != FP_SUBNORMAL) ||
+		    (fpclassify(fp_data->d.r[0]) != FP_SUBNORMAL))
+			pr_inf("%s: initial doubles are not subnormal\n", args->name);
+		if ((fpclassify(fp_data->f.tiny1) != FP_SUBNORMAL) ||
+		    (fpclassify(fp_data->f.tiny2) != FP_SUBNORMAL) ||
+		    (fpclassify(fp_data->f.r[0]) != FP_SUBNORMAL) ||
+		    (fpclassify(fp_data->f.r[0]) != FP_SUBNORMAL))
+			pr_inf("%s: initial floats are not subnormal\n", args->name);
+	}
 
 	do {
 		if (stress_fp_subnormal_call_method(args, fp_data, fp_subnormal_method, verify) == EXIT_FAILURE) {
