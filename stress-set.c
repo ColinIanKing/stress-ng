@@ -168,7 +168,6 @@ static int stress_set(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 	do {
-		int ret;
 		gid_t gid;
 		uid_t uid;
 #if defined(HAVE_SETREUID)
@@ -230,6 +229,7 @@ static int stress_set(stress_args_t *args)
 		if (!stress_capabilities_check(SHIM_CAP_SYS_TIME)) {
 			struct timeval tv;
 			shim_timezone_t tz;
+			int ret;
 
 			/* We should not be able to set the time of day */
 			ret = gettimeofday(&tv, &tz);
@@ -282,22 +282,26 @@ static int stress_set(stress_args_t *args)
 #if defined(HAVE_GRP_H) &&	\
     defined(HAVE_GETGROUPS) &&	\
     defined(HAVE_SETGROUPS)
-		ret = getgroups(0, NULL);
-		if (ret > 0) {
-			gid_t groups[GIDS_MAX];
-			int n;
+		{
+			int ret;
 
-			(void)shim_memset(groups, 0, sizeof(groups));
-			ret = STRESS_MINIMUM(ret, (int)SIZEOF_ARRAY(groups));
-			n = getgroups(ret, groups);
-			if (n > 0) {
-				const gid_t bad_groups[1] = { (gid_t)-1 };
+			ret = getgroups(0, NULL);
+			if (ret > 0) {
+				gid_t groups[GIDS_MAX];
+				int n;
 
-				/* Exercise invalid groups */
-				VOID_RET(int, shim_setgroups(INT_MIN, groups));
-				VOID_RET(int, shim_setgroups(0, groups));
-				VOID_RET(int, shim_setgroups(1, bad_groups));
-				VOID_RET(int, shim_setgroups(n, groups));
+				(void)shim_memset(groups, 0, sizeof(groups));
+				ret = STRESS_MINIMUM(ret, (int)SIZEOF_ARRAY(groups));
+				n = getgroups(ret, groups);
+				if (n > 0) {
+					const gid_t bad_groups[1] = { (gid_t)-1 };
+
+					/* Exercise invalid groups */
+					VOID_RET(int, shim_setgroups(INT_MIN, groups));
+					VOID_RET(int, shim_setgroups(0, groups));
+					VOID_RET(int, shim_setgroups(1, bad_groups));
+					VOID_RET(int, shim_setgroups(n, groups));
+				}
 			}
 		}
 #else
@@ -330,6 +334,7 @@ static int stress_set(stress_args_t *args)
 #if defined(HAVE_SETRESGID)
 #if defined(HAVE_GETRESGID)
 		{
+			int ret;
 			gid_t rgid = (gid_t)-1;
 			gid_t egid = (gid_t)-1;
 			gid_t sgid = (gid_t)-1;
@@ -363,6 +368,7 @@ static int stress_set(stress_args_t *args)
 #if defined(HAVE_SETRESUID)
 #if defined(HAVE_GETRESUID)
 		{
+			int ret;
 			uid_t ruid = (uid_t)-1;
 			uid_t euid = (uid_t)-1;
 			uid_t suid = (uid_t)-1;
@@ -396,6 +402,7 @@ static int stress_set(stress_args_t *args)
 #if defined(HAVE_SETRESGID)
 #if defined(HAVE_GETRESGID)
 		{
+			int ret;
 			gid_t rgid = (gid_t)-1;
 			gid_t egid = (gid_t)-1;
 			gid_t sgid = (gid_t)-1;
@@ -433,6 +440,8 @@ static int stress_set(stress_args_t *args)
 			/* Passing -1 will return the current fsgid */
 			fsgid = setfsgid((gid_t)-1);
 			if (fsgid >= 0) {
+				int ret;
+
 				/* Set the current fsgid, should work */
 				ret = setfsgid((gid_t)fsgid);
 				if (ret == fsgid) {
@@ -461,6 +470,8 @@ static int stress_set(stress_args_t *args)
 			/* Passing -1 will return the current fsuid */
 			fsuid = setfsuid((uid_t)-1);
 			if (fsuid >= 0) {
+				int ret;
+
 				/* Set the current fsuid, should work */
 				ret = setfsuid((uid_t)fsuid);
 				if (ret == fsuid) {
@@ -494,6 +505,7 @@ static int stress_set(stress_args_t *args)
 #if defined(HAVE_GETDOMAINNAME) &&	\
     defined(HAVE_SETDOMAINNAME)
 		{
+			int ret;
 			char name[2048];
 
 			ret = shim_getdomainname(name, sizeof(name));
@@ -547,8 +559,11 @@ static int stress_set(stress_args_t *args)
 		if (!cap_sys_resource) {
 			for (i = 0; i < SIZEOF_ARRAY(rlimits); i++) {
 				if ((rlimits[i].ret == 0) && (rlimits[i].rlim.rlim_max < RLIM_INFINITY)) {
+					int ret;
+
 					rlim.rlim_cur = rlimits[i].rlim.rlim_cur;
 					rlim.rlim_max = RLIM_INFINITY;
+
 					ret = setrlimit(rlimit_resources[i], &rlim);
 					/*
 					 *  Cygwin can return -EINVAL as it's not supported in
