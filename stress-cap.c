@@ -53,7 +53,7 @@ static int stress_capgetset_pid(
 	uch.pid = pid;
 
 	ret = capget(&uch, ucd);
-	if ((ret < 0) && 
+	if ((ret < 0) &&
 	    (((errno == ESRCH) && exists) || (errno != ESRCH))) {
 		pr_fail("%s: capget on PID %" PRIdMAX " failed, errno=%d (%s)\n",
 			args->name, (intmax_t)pid, errno, strerror(errno));
