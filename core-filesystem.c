@@ -1040,11 +1040,11 @@ int stress_fs_bad_fd_get(void)
 
 	for (i = 2048; i > fileno(stdout); i--, open_max--) {
 		errno = 0;
-		if ((fcntl((int)open_max, F_GETFL) == -1) && (errno == EBADF))
+		if ((fcntl(open_max, F_GETFL) == -1) && (errno == EBADF))
 			return open_max;
 
 		errno = 0;
-		if ((fcntl((int)i, F_GETFL) == -1) && (errno == EBADF))
+		if ((fcntl(i, F_GETFL) == -1) && (errno == EBADF))
 			return i;
 	}
 #else
