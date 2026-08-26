@@ -132,6 +132,7 @@
 * [Heterogeneous Anomaly Detection for Software Systems via Semi-supervised Cross-modal Attention](https://arxiv.org/pdf/2302.06914.pdf)
 * [Introducing k4.0s: a Model for Mixed-Criticality Container Orchestration in Industry 4.0 ](https://arxiv.org/pdf/2205.14188.pdf)
 * [Lightweight Implementation of Per-packet Service Protection in eBPF/XDP](https://arxiv.org/pdf/2312.07152.pdf)
+* [Performance Roulette: How Cloud Weather Affects ML-Based System Optimization](https://mlforsystems.org/assets/papers/neurips2023/paper24.pdf)
 * [Profiling with Trust: System Monitoring from Trusted Execution Environments](https://assets.researchsquare.com/files/rs-3169665/v1_covered_63751076-8387-429e-8296-3f3cc4c3ed34.pdf?c=1689832627)
 * [Quantifying the Security Profile of Linux Applications](https://dl.acm.org/doi/10.1145/3609510.3609814)
 * [PSPRAY: Timing Side-Channel based Linux Kernel Heap Exploitation Technique](https://lifeasageek.github.io/papers/yoochan-pspray.pdf)
