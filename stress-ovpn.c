@@ -51,6 +51,7 @@ static const stress_opt_t opts[] = {
 #if defined(HAVE_LIB_NL) &&		\
     defined(HAVE_LINUX_OVPN_UAPI) &&	\
     defined(HAVE_ATOMIC_STORE_N) &&	\
+    defined(HAVE_IOVEC) &&		\
     !defined(BUILD_STATIC)
 
 #include <time.h>

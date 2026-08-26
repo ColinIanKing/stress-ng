@@ -327,14 +327,17 @@ static void stress_sock_ioctl(
 static void stress_sock_invalid_recv(const int fd, const int bad_fd, const int opt)
 {
 	char ALIGN64 buf[16];
-#if defined(HAVE_RECVMSG) ||	\
-    defined(HAVE_RECVMMSG)
+#if defined(HAVE_IOVEC) &&	\
+    (defined(HAVE_RECVMSG) ||	\
+     defined(HAVE_RECVMMSG))
 	struct iovec ALIGN64 vec[1];
 #endif
-#if defined(HAVE_RECVMSG)
+#if defined(HAVE_IOVEC) &&	\
+    defined(HAVE_RECVMSG)
 	struct msghdr msg;
 #endif
-#if defined(HAVE_RECVMMSG)
+#if defined(HAVE_IOVEC) &&	\
+    defined(HAVE_RECVMMSG)
 	struct mmsghdr ALIGN64 msgvec[MSGVEC_SIZE];
 	struct timespec ts;
 #endif
@@ -347,7 +350,8 @@ static void stress_sock_invalid_recv(const int fd, const int bad_fd, const int o
 		/* exercise invalid fd */
 		VOID_RET(ssize_t, recv(bad_fd, buf, sizeof(buf), 0));
 		break;
-#if defined(HAVE_RECVMSG)
+#if defined(HAVE_IOVEC) &&	\
+    defined(HAVE_RECVMSG)
 	case SOCKET_OPT_RECVMSG:
 		vec[0].iov_base = buf;
 		vec[0].iov_len = sizeof(buf);
@@ -362,7 +366,8 @@ static void stress_sock_invalid_recv(const int fd, const int bad_fd, const int o
 		VOID_RET(ssize_t, recvmsg(bad_fd, &msg, 0));
 		break;
 #endif
-#if defined(HAVE_RECVMMSG)
+#if defined(HAVE_IOVEC) &&	\
+    defined(HAVE_RECVMMSG)
 	case SOCKET_OPT_RECVMMSG:
 		(void)shim_memset(msgvec, 0, sizeof(msgvec));
 		vec[0].iov_base = buf;
@@ -809,16 +814,19 @@ retry:
 
 		do {
 			ssize_t n = 0;
-#if defined(HAVE_RECVMSG) ||	\
-    defined(HAVE_RECVMMSG)
+#if defined(HAVE_IOVEC) &&	\
+    (defined(HAVE_RECVMSG) ||	\
+     defined(HAVE_RECVMMSG))
 			size_t i;
 			size_t j;
 			struct iovec ALIGN64 vec[MMAP_IO_SIZE / 16];
 #endif
-#if defined(HAVE_RECVMSG)
+#if defined(HAVE_IOVEC) &&	\
+    defined(HAVE_RECVMSG)
 			struct msghdr ALIGN64 msg;
 #endif
-#if defined(HAVE_RECVMMSG)
+#if defined(HAVE_IOVEC) &&	\
+    defined(HAVE_RECVMMSG)
 			struct mmsghdr ALIGN64 msgvec[MSGVEC_SIZE];
 			const int max_opt = 3;
 #else
@@ -867,7 +875,8 @@ retry:
 			case SOCKET_OPT_RECV:
 				n = recv(fd, buf, MMAP_IO_SIZE, recvflag);
 				break;
-#if defined(HAVE_RECVMSG)
+#if defined(HAVE_IOVEC) &&	\
+    defined(HAVE_RECVMSG)
 			case SOCKET_OPT_RECVMSG:
 				for (j = 0, i = 16; i < MMAP_IO_SIZE; i += 16, j++) {
 					/* intentionally read into same buffer */
@@ -880,7 +889,8 @@ retry:
 				n = recvmsg(fd, &msg, recvflag);
 				break;
 #endif
-#if defined(HAVE_RECVMMSG)
+#if defined(HAVE_IOVEC) &&	\
+    defined(HAVE_RECVMMSG)
 			case SOCKET_OPT_RECVMMSG:
 				(void)shim_memset(msgvec, 0, sizeof(msgvec));
 				for (j = 0, i = 16; i < MMAP_IO_SIZE; i += 16, j++) {
@@ -1118,22 +1128,26 @@ retry:
 		if (LIKELY(sfd >= 0)) {
 			size_t i;
 			size_t k;
-#if defined(HAVE_SENDMSG) ||	\
-    defined(HAVE_SENDMMSG)
+#if defined(HAVE_IOVEC) &&	\
+    (defined(HAVE_SENDMSG) ||	\
+     defined(HAVE_SENDMMSG))
 			size_t j;
 #endif
 			struct sockaddr saddr;
 			socklen_t len;
 			int sndbuf;
 			int opt;
-#if defined(HAVE_SENDMSG) ||	\
-    defined(HAVE_SENDMMSG)
+#if defined(HAVE_IOVEC) &&	\
+    (defined(HAVE_SENDMSG) ||	\
+     defined(HAVE_SENDMMSG))
 			struct iovec ALIGN64 vec[MMAP_IO_SIZE / 16];
 #endif
-#if defined(HAVE_SENDMSG)
+#if defined(HAVE_IOVEC) &&	\
+    defined(HAVE_SENDMSG)
 			struct msghdr ALIGN64 msg;
 #endif
-#if defined(HAVE_SENDMMSG)
+#if defined(HAVE_IOVEC) &&	\
+    defined(HAVE_SENDMMSG)
 			struct mmsghdr ALIGN64 msgvec[MSGVEC_SIZE];
 #endif
 
@@ -1241,7 +1255,8 @@ retry_send:
 						}
 					}
 					break;
-#if defined(HAVE_SENDMSG)
+#if defined(HAVE_IOVEC) &&	\
+    defined(HAVE_SENDMSG)
 				case SOCKET_OPT_SENDMSG:
 					for (j = 0, i = 16; i < MMAP_IO_SIZE; i += 16, j++) {
 						/* intentionally write from same buffer */
@@ -1266,7 +1281,8 @@ retry_sendmsg:
 					}
 					break;
 #endif
-#if defined(HAVE_SENDMMSG)
+#if defined(HAVE_IOVEC) &&	\
+    defined(HAVE_SENDMMSG)
 				case SOCKET_OPT_SENDMMSG:
 					(void)shim_memset(msgvec, 0, sizeof(msgvec));
 					for (j = 0, i = 16; i < MMAP_IO_SIZE; i += 16, j++) {

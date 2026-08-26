@@ -762,8 +762,10 @@ extern int shim_lremovexattr(const char *path, const char *name);
 extern int shim_fremovexattr(int fd, const char *name);
 extern ssize_t shim_llistxattr(const char *path, char *list, size_t size);
 extern int shim_reboot(int magic, int magic2, int cmd, void *arg);
+#if defined(HAVE_IOVEC)
 extern ssize_t shim_process_madvise(int pidfd, const struct iovec *iovec,
 	unsigned long int vlen, int advice, unsigned int flags);
+#endif
 extern int shim_clock_getres(clockid_t clk_id, struct timespec *res);
 extern int shim_clock_adjtime(clockid_t clk_id, shim_timex_t *buf);
 extern int shim_clock_gettime(clockid_t clk_id, struct timespec *tp);

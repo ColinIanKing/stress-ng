@@ -71,6 +71,7 @@ static const stress_opt_t opts[] = {
 };
 
 #if defined(HAVE_SYS_UIO_H) &&		\
+    defined(HAVE_IOVEC) &&		\
     defined(HAVE_PROCESS_VM_READV) &&	\
     defined(HAVE_PROCESS_VM_WRITEV) &&	\
     defined(HAVE_CLONE) &&		\

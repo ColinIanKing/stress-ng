@@ -69,7 +69,8 @@ static const stress_opt_t opts[] = {
 
 #if defined(__linux__) &&		\
     defined(HAVE_LIB_PTHREAD) &&	\
-    defined(HAVE_PTHREAD_BARRIER)
+    defined(HAVE_PTHREAD_BARRIER) &&	\
+    defined(HAVE_IOVEC)
 
 #define MSG_ID			'M'
 
@@ -999,6 +1000,6 @@ const stressor_info_t stress_fd_race_info = {
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.opts = opts,
-	.unimplemented_reason = "only supported on Linux with pthread support and pthread_barrier"
+	.unimplemented_reason = "only supported on Linux with pthread support and pthread_barrier and struct iovec"
 };
 #endif

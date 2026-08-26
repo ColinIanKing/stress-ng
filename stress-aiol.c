@@ -56,6 +56,7 @@ static const stress_opt_t opts[] = {
     defined(HAVE_LIBAIO_H) &&		\
     defined(HAVE_CLOCK_GETTIME) &&	\
     defined(HAVE_SYSCALL) &&		\
+    defined(HAVE_IOVEC) &&		\
     defined(__NR_io_setup) &&		\
     defined(__NR_io_destroy) &&		\
     defined(__NR_io_submit) &&		\
@@ -895,6 +896,6 @@ const stressor_info_t stress_aiol_info = {
 	.opts = opts,
 	.help = help,
 	.verify = VERIFY_ALWAYS,
-	.unimplemented_reason = "built without libaio.h or poll.h"
+	.unimplemented_reason = "built without libaio.h or poll.h or struct iovec"
 };
 #endif

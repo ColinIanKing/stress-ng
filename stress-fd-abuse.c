@@ -1540,6 +1540,7 @@ static void stress_fd_flistxattr(const stress_fd_t *fd)
 #endif
 
 #if defined(HAVE_VMSPLICE) &&	\
+    defined(HAVE_IOVEC) &&	\
     defined(SPLICE_F_NONBLOCK)
 static void stress_fd_vmslice(const stress_fd_t *fd)
 {
@@ -1612,6 +1613,7 @@ static void stress_fd_pwrite(const stress_fd_t *fd)
 #endif
 
 #if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_IOVEC) &&	\
     defined(HAVE_READV)
 static void stress_fd_readv(const stress_fd_t *fd)
 {
@@ -1632,6 +1634,7 @@ static void stress_fd_readv(const stress_fd_t *fd)
 #endif
 
 #if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_IOVEC) &&	\
     defined(HAVE_WRITEV)
 static void stress_fd_writev(const stress_fd_t *fd)
 {
@@ -1652,6 +1655,7 @@ static void stress_fd_writev(const stress_fd_t *fd)
 #endif
 
 #if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_IOVEC) &&	\
     defined(HAVE_PREADV)
 static void stress_fd_preadv(const stress_fd_t *fd)
 {
@@ -1669,6 +1673,7 @@ static void stress_fd_preadv(const stress_fd_t *fd)
 #endif
 
 #if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_IOVEC) &&	\
     defined(HAVE_PWRITEV)
 static void stress_fd_pwritev(const stress_fd_t *fd)
 {
@@ -1686,6 +1691,7 @@ static void stress_fd_pwritev(const stress_fd_t *fd)
 #endif
 
 #if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_IOVEC) &&	\
      (defined(HAVE_PREADV2) ||	\
      defined(HAVE_PWRITEV2))
 
@@ -1710,6 +1716,7 @@ static const int rwf_flags[] = {
 #endif
 
 #if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_IOVEC) &&	\
     defined(HAVE_PREADV2)
 static void stress_fd_preadv2(const stress_fd_t *fd)
 {
@@ -1728,6 +1735,7 @@ static void stress_fd_preadv2(const stress_fd_t *fd)
 #endif
 
 #if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_IOVEC) &&	\
     defined(HAVE_PWRITEV2)
 static void stress_fd_pwritev2(const stress_fd_t *fd)
 {
@@ -1794,7 +1802,8 @@ static void stress_fd_sendto(const stress_fd_t *fd)
 #endif
 
 #if defined(MSG_DONTWAIT) &&	\
-    defined(HAVE_RECVMSG)
+    defined(HAVE_RECVMSG) &&	\
+    defined(HAVE_IOVEC)
 static void stress_fd_recvmsg(const stress_fd_t *fd)
 {
 	if (fd->flags & (FD_FLAG_RECV | FD_FLAG_READ)) {
@@ -1815,7 +1824,8 @@ static void stress_fd_recvmsg(const stress_fd_t *fd)
 #endif
 
 #if defined(MSG_DONTWAIT) &&	\
-    defined(HAVE_SENDMSG)
+    defined(HAVE_SENDMSG) &&	\
+    defined(HAVE_IOVEC)
 static void stress_fd_sendmsg(const stress_fd_t *fd)
 {
 	if (fd->flags & (FD_FLAG_SEND | FD_FLAG_WRITE)) {
@@ -2019,6 +2029,7 @@ static const fd_func_t fd_funcs[] = {
 	stress_fd_flistxattr,
 #endif
 #if defined(HAVE_VMSPLICE) &&	\
+    defined(HAVE_IOVEC) &&	\
     defined(SPLICE_F_NONBLOCK)
 	stress_fd_vmslice,
 #endif
@@ -2031,26 +2042,32 @@ static const fd_func_t fd_funcs[] = {
 	stress_fd_pwrite,
 #endif
 #if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_IOVEC) &&	\
     defined(HAVE_READV)
 	stress_fd_readv,
 #endif
 #if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_IOVEC) &&	\
     defined(HAVE_WRITEV)
 	stress_fd_writev,
 #endif
 #if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_IOVEC) &&	\
     defined(HAVE_PREADV)
 	stress_fd_preadv,
 #endif
 #if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_IOVEC) &&	\
     defined(HAVE_PWRITEV)
 	stress_fd_pwritev,
 #endif
 #if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_IOVEC) &&	\
     defined(HAVE_PREADV2)
 	stress_fd_preadv2,
 #endif
 #if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_IOVEC) &&	\
     defined(HAVE_PWRITEV2)
 	stress_fd_pwritev2,
 #endif
@@ -2067,10 +2084,12 @@ static const fd_func_t fd_funcs[] = {
 	stress_fd_sendto,
 #endif
 #if defined(MSG_DONTWAIT) &&	\
+    defined(HAVE_IOVEC) &&	\
     defined(HAVE_RECVMSG)
 	stress_fd_recvmsg,
 #endif
 #if defined(MSG_DONTWAIT) &&	\
+    defined(HAVE_IOVEC) &&	\
     defined(HAVE_SENDMSG)
 	stress_fd_sendmsg,
 #endif

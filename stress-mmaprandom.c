@@ -1912,7 +1912,8 @@ static void stress_mmaprandom_numa_move(mr_ctxt_t *ctxt, const int idx)
 
 #if defined(__NR_process_madvise) &&	\
     defined(HAVE_SYSCALL) &&		\
-    defined(HAVE_SYS_UIO_H)
+    defined(HAVE_SYS_UIO_H) &&		\
+    defined(HAVE_IOVEC)
 /*
  *  stress_mmaprandom_process_madvise()
  *	madvise a mmap'd region using process_madvise
@@ -2069,7 +2070,8 @@ static const mr_funcs_t mr_funcs[] = {
 #endif
 #if defined(__NR_process_madvise) &&	\
     defined(HAVE_SYSCALL) &&		\
-    defined(HAVE_SYS_UIO_H)
+    defined(HAVE_SYS_UIO_H) &&		\
+    defined(HAVE_IOVEC)
 	{ stress_mmaprandom_process_madvise,	"process madvise" },
 #endif
 #if defined(__linux__)

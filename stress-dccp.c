@@ -269,14 +269,16 @@ static int stress_dccp_server(
 		sfd = accept(fd, (struct sockaddr *)NULL, NULL);
 		if (sfd >= 0) {
 			size_t i;
-			size_t j;
 			size_t k;
 			struct sockaddr saddr;
 			socklen_t len;
 			int sndbuf;
+#if defined(HAVE_IOVEC)
 			struct msghdr msg;
 			struct iovec vec[sizeof(buf) / 16];
-#if defined(HAVE_SENDMMSG)
+#endif
+#if defined(HAVE_IOVEC) &&	\
+    defined(HAVE_SENDMMSG)
 			struct mmsghdr msgvec[MSGVEC_SIZE];
 #endif
 			len = sizeof(saddr);
@@ -316,8 +318,11 @@ again:
 					stress_bogo_inc(args);
 				} while (LIKELY(stress_continue(args) && (k < dccp_msgs)));
 				break;
+#if defined(HAVE_IOVEC)
 			case DCCP_OPT_SENDMSG:
 				do {
+					size_t j;
+
 					for (j = 0, i = 16; i < sizeof(buf); i += 16, j++, k++) {
 						vec[j].iov_base = buf;
 						vec[j].iov_len = i;
@@ -335,9 +340,13 @@ again:
 					stress_bogo_inc(args);
 				} while (LIKELY(stress_continue(args) && (k < dccp_msgs)));
 				break;
-#if defined(HAVE_SENDMMSG)
+#endif
+#if defined(HAVE_IOVEC) &&	\
+    defined(HAVE_SENDMMSG)
 			case DCCP_OPT_SENDMMSG:
 				do {
+					size_t j;
+
 					for (j = 0, i = 16; i < sizeof(buf); i += 16, j++, k++) {
 						vec[j].iov_base = buf;
 						vec[j].iov_len = i;

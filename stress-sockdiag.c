@@ -54,7 +54,8 @@ static const stress_help_t help[] = {
     defined(HAVE_LINUX_SOCK_DIAG_H) &&	\
     defined(HAVE_LINUX_NETLINK_H) && 	\
     defined(HAVE_LINUX_RTNETLINK_H) &&	\
-    defined(HAVE_LINUX_UNIX_DIAG_H)
+    defined(HAVE_LINUX_UNIX_DIAG_H) &&	\
+    defined(HAVE_IOVEC)
 
 typedef struct {
 	struct nlmsghdr nlh;

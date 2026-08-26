@@ -155,7 +155,8 @@ static const stress_hdd_opts_t hdd_opts[] = {
 #if defined(HAVE_FDATASYNC)
 	{ "fdatasync",	HDD_OPT_FDATASYNC, 0, 0, 0 },
 #endif
-#if defined(HAVE_SYS_UIO_H)
+#if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_IOVEC)
 	{ "iovec",	HDD_OPT_IOVEC, 0, 0, 0 },
 #endif
 #if defined(HAVE_SYNCFS)
@@ -213,6 +214,7 @@ static ssize_t stress_hdd_write(
 	errno = 0;
 	if (hdd_flags & HDD_OPT_IOVEC) {
 #if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_IOVEC) &&	\
     (defined(HAVE_PWRITEV2) ||	\
      defined(HAVE_PWRITEV) ||	\
      defined(HAVE_WRITEV))
@@ -344,6 +346,7 @@ static ssize_t stress_hdd_read(
 	errno = 0;
 	if (hdd_flags & HDD_OPT_IOVEC) {
 #if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_IOVEC) &&	\
     (defined(HAVE_PREADV2) ||	\
      defined(HAVE_PREADV) ||	\
      defined(HAVE_READV))
@@ -424,6 +427,7 @@ static ssize_t stress_hdd_read(
 static void stress_hdd_invalid_read(const int fd, uint8_t *buf)
 {
 #if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_IOVEC) &&	\
     (defined(HAVE_PREADV2) ||	\
      defined(HAVE_PREADV) ||	\
      defined(HAVE_READV))
@@ -434,6 +438,7 @@ static void stress_hdd_invalid_read(const int fd, uint8_t *buf)
 	(void)fd;
 
 #if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_IOVEC) &&	\
     (defined(HAVE_PREADV2) ||	\
      defined(HAVE_PREADV) ||	\
      defined(HAVE_READV))
@@ -445,6 +450,7 @@ static void stress_hdd_invalid_read(const int fd, uint8_t *buf)
 #endif
 
 #if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_IOVEC) &&	\
     defined(HAVE_PREADV2)
 	/* invalid preadv2 fd */
 	VOID_RET(ssize_t, preadv2(-1, iov, HDD_IO_VEC_MAX, 0, 0));
@@ -459,6 +465,7 @@ static void stress_hdd_invalid_read(const int fd, uint8_t *buf)
 #endif
 
 #if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_IOVEC) &&	\
     defined(HAVE_PREADV)
 	/* invalid preadv fd */
 	VOID_RET(ssize_t, preadv(-1, iov, HDD_IO_VEC_MAX, 0));
@@ -470,6 +477,7 @@ static void stress_hdd_invalid_read(const int fd, uint8_t *buf)
 #endif
 
 #if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_IOVEC) &&	\
     defined(HAVE_READV)
 	/* invalid readv fd */
 	VOID_RET(ssize_t, readv(-1, iov, HDD_IO_VEC_MAX));
@@ -486,6 +494,7 @@ static void stress_hdd_invalid_read(const int fd, uint8_t *buf)
 static void stress_hdd_invalid_write(const int fd, uint8_t *buf)
 {
 #if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_IOVEC) &&	\
     (defined(HAVE_PWRITEV2) ||	\
      defined(HAVE_PWRITEV) ||	\
      defined(HAVE_WRITEV))
@@ -496,6 +505,7 @@ static void stress_hdd_invalid_write(const int fd, uint8_t *buf)
 	(void)fd;
 
 #if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_IOVEC) &&	\
     (defined(HAVE_PWRITEV2) ||	\
      defined(HAVE_PWRITEV) ||	\
      defined(HAVE_WRITEV))
@@ -509,6 +519,7 @@ static void stress_hdd_invalid_write(const int fd, uint8_t *buf)
 #endif
 
 #if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_IOVEC) &&	\
     defined(HAVE_PWRITEV2)
 	/* invalid pwritev2 fd */
 	VOID_RET(ssize_t, pwritev2(-1, iov, HDD_IO_VEC_MAX, 0, 0));
@@ -523,6 +534,7 @@ static void stress_hdd_invalid_write(const int fd, uint8_t *buf)
 #endif
 
 #if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_IOVEC) &&	\
     defined(HAVE_PWRITEV)
 	/* invalid pwritev fd */
 	VOID_RET(ssize_t, pwritev(-1, iov, HDD_IO_VEC_MAX, 0));
@@ -534,6 +546,7 @@ static void stress_hdd_invalid_write(const int fd, uint8_t *buf)
 #endif
 
 #if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_IOVEC) &&	\
     defined(HAVE_WRITEV)
 	/* invalid writev fd */
 	VOID_RET(ssize_t, writev(-1, iov, HDD_IO_VEC_MAX));

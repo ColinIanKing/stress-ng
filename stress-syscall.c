@@ -4840,6 +4840,7 @@ static int syscall_pread(void)
 }
 
 #if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_IOVEC) &&	\
     defined(HAVE_PREADV)
 #define HAVE_SYSCALL_PREADV
 static int syscall_preadv(void)
@@ -4863,6 +4864,7 @@ static int syscall_preadv(void)
 #endif
 
 #if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_IOVEC) &&	\
     defined(HAVE_PREADV2)
 #define HAVE_SYSCALL_PREADV2
 static int syscall_preadv2(void)
@@ -4913,6 +4915,7 @@ static int syscall_prlimit(void)
 #endif
 
 #if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_IOVEC) &&	\
     defined(HAVE_PROCESS_VM_READV)
 #define HAVE_SYSCALL_PROCESS_VM_READV
 static int syscall_process_vm_readv(void)
@@ -4947,6 +4950,7 @@ static int syscall_process_vm_readv(void)
 #endif
 
 #if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_IOVEC) &&	\
     defined(HAVE_PROCESS_VM_WRITEV)
 #define HAVE_SYSCALL_PROCESS_VM_WRITEV
 static int syscall_process_vm_writev(void)
@@ -5037,6 +5041,7 @@ static int syscall_pwrite(void)
 }
 
 #if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_IOVEC) &&	\
     defined(HAVE_PWRITEV)
 #define HAVE_SYSCALL_PWRITEV
 static int syscall_pwritev(void)
@@ -5099,6 +5104,7 @@ static int syscall_quotactl_fd(void)
 #endif
 
 #if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_IOVEC) &&	\
     defined(HAVE_PWRITEV2)
 #define HAVE_SYSCALL_PWRITEV2
 static int syscall_pwritev2(void)
@@ -5141,7 +5147,8 @@ static int syscall_read(void)
 	return (int)ret;
 }
 
-#if defined(HAVE_SYS_UIO_H)
+#if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_IOVEC)
 #define HAVE_SYSCALL_READV
 static int syscall_readv(void)
 {
@@ -7624,7 +7631,8 @@ static int syscall_write(void)
 	return (int)ret;
 }
 
-#if defined(HAVE_SYS_UIO_H)
+#if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_IOVEC)
 #define HAVE_SYSCALL_WRITEV
 static int syscall_writev(void)
 {

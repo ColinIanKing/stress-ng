@@ -339,6 +339,7 @@ static void *stress_madvise_pages(void *arg)
 	return &g_nowt;
 }
 
+#if defined(HAVE_IOVEC)
 static void stress_process_madvise(const pid_t pid, void *buf, const size_t madvise_bytes)
 {
 	int pidfd;
@@ -374,6 +375,7 @@ static void stress_process_madvise(const pid_t pid, void *buf, const size_t madv
 	VOID_RET(ssize_t, shim_process_madvise(-1, &vec, 1, MADV_PAGEOUT, 0));
 #endif
 }
+#endif
 
 /*
  *  stress_madvise()
@@ -515,7 +517,9 @@ static int stress_madvise(stress_args_t *args)
 		(void)shim_memset(buf, 0xff, ctxt.madvise_bytes);
 		(void)stress_madvise_randomize(buf, ctxt.madvise_bytes);
 		(void)stress_mincore_touch_pages(buf, ctxt.madvise_bytes);
+#if defined(HAVE_IOVEC)
 		stress_process_madvise(pid, buf, ctxt.madvise_bytes);
+#endif
 
 		ctxt.args = args;
 		ctxt.buf = buf;

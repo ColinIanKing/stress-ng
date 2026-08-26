@@ -42,7 +42,8 @@ static const stress_help_t help[] = {
 #if defined(HAVE_IOPRIO_GET) &&	\
     defined(HAVE_IOPRIO_SET) && \
     defined(HAVE_PWRITEV) &&	\
-    defined(HAVE_SYS_UIO_H)
+    defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_IOVEC)
 
 #define MAX_IOV		(4)
 #define BUF_SIZE	(32)
@@ -293,6 +294,6 @@ const stressor_info_t stress_ioprio_info = {
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
-	.unimplemented_reason = "built without sys/uio.h, ioprio_get(), ioprio_set() or pwritev() support"
+	.unimplemented_reason = "built without sys/uio.h, struct iovec, ioprio_get(), ioprio_set() or pwritev() support"
 };
 #endif

@@ -39,6 +39,7 @@ static const stress_opt_t opts[] = {
 };
 
 #if defined(HAVE_VMSPLICE) &&	\
+    defined(HAVE_IOVEC) &&	\
     defined(SPLICE_F_MOVE)
 
 /*

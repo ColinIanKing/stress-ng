@@ -49,7 +49,8 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-#if defined(__linux__)
+#if defined(__linux__) &&	\
+    defined(HAVE_IOVEC)
 
 #define MSG_ID			'M'
 
@@ -524,6 +525,6 @@ const stressor_info_t stress_sockfd_info = {
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
-	.unimplemented_reason = "only supported on Linux"
+	.unimplemented_reason = "only supported on Linux with struct iovec"
 };
 #endif

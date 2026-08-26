@@ -212,7 +212,8 @@ static int stress_pipe_read_generic_verify(
 	return rc;
 }
 
-#if defined(HAVE_VMSPLICE)
+#if defined(HAVE_VMSPLICE) &&	\
+    defined(HAVE_IOVEC)
 /*
  *  stress_pipe_read_splice()
  *	pipe read using vmsplice
@@ -427,7 +428,8 @@ static int stress_pipe_write_generic_verify(
 	return rc;
 }
 
-#if defined(HAVE_VMSPLICE)
+#if defined(HAVE_VMSPLICE) &&	\
+    defined(HAVE_IOVEC)
 /*
  *  stress_pipe_write()
  *	vmsplice pipe write, no verify
@@ -732,7 +734,8 @@ static int stress_pipe(stress_args_t *args)
 			(void)stress_affinity_change_cpu(args, parent_cpu);
 
 			(void)close(pipefds[1]);
-#if defined(HAVE_VMSPLICE)
+#if defined(HAVE_VMSPLICE) &&	\
+    defined(HAVE_IOVEC)
 			if (pipe_vmsplice) {
 				ret = verify ?
 					stress_pipe_read_splice_verify(args, pipefds[0], buf_rd, pipe_data_size, buf_rd_size, val) :
@@ -743,7 +746,8 @@ static int stress_pipe(stress_args_t *args)
 				ret = verify ?
 					stress_pipe_read_generic_verify(args, pipefds[0], buf_rd, pipe_data_size, val) :
 					stress_pipe_read_generic(args, pipefds[0], buf_rd, pipe_data_size);
-#if defined(HAVE_VMSPLICE)
+#if defined(HAVE_VMSPLICE) &&	\
+    defined(HAVE_IOVEC)
 			}
 #endif
 			(void)close(pipefds[0]);
@@ -773,7 +777,8 @@ static int stress_pipe(stress_args_t *args)
 
 			(void)close(pipefds[0]);
 			t = stress_time_now();
-#if defined(HAVE_VMSPLICE)
+#if defined(HAVE_VMSPLICE) &&	\
+    defined(HAVE_IOVEC)
 			if (pipe_vmsplice) {
 				ret = verify ?
 					stress_pipe_write_splice_verify(args, pipefds[1], buf_wr, pipe_data_size, buf_wr_size, &bytes, val) :
@@ -783,7 +788,8 @@ static int stress_pipe(stress_args_t *args)
 				ret = verify ?
 					stress_pipe_write_generic_verify(args, pipefds[1], buf_wr, pipe_data_size, &bytes, val) :
 					stress_pipe_write_generic(args, pipefds[1], buf_wr, pipe_data_size, &bytes);
-#if defined(HAVE_VMSPLICE)
+#if defined(HAVE_VMSPLICE) &&	\
+    defined(HAVE_IOVEC)
 			}
 #endif
 			(void)close(pipefds[0]);

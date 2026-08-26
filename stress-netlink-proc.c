@@ -52,7 +52,8 @@ static const stress_help_t help[] = {
     defined(HAVE_LINUX_CONNECTOR_H) &&	\
     defined(HAVE_LINUX_NETLINK_H) &&	\
     defined(HAVE_LINUX_CN_PROC_H) &&	\
-    defined(HAVE_SYS_UIO_H)
+    defined(HAVE_SYS_UIO_H) &&		\
+    defined(HAVE_IOVEC)
 
 #ifndef LINUX_VERSION_CODE
 #define LINUX_VERSION_CODE KERNEL_VERSION(2,0,0)

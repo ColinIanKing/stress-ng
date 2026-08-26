@@ -2206,6 +2206,7 @@ int shim_reboot(int magic, int magic2, int cmd, void *arg)
 #endif
 }
 
+#if defined(HAVE_IOVEC)
 /*
  *   shim_process_madvise
  *	wrapper for the new linux 5.10 process_madvise system call
@@ -2228,6 +2229,7 @@ ssize_t shim_process_madvise(
 		iovec, vlen, advice, flags);
 #endif
 }
+#endif
 
 /*
  *   shim_clock_getres
