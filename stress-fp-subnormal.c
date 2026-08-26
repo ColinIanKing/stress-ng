@@ -356,8 +356,8 @@ static int stress_fp_subnormal_call_method(
 			ret = shim_memcmp((uint8_t *)&fp_data->ld.r[0], (uint8_t *)&fp_data->ld.r[1], sizeof(long double));
 			if (ret) {
 				size_t i;
-				uint8_t *ptr1 = (uint8_t *)&fp_data->ld.r[0];
-				uint8_t *ptr2 = (uint8_t *)&fp_data->ld.r[1];
+				const uint8_t *ptr1 = (uint8_t *)&fp_data->ld.r[0];
+				const uint8_t *ptr2 = (uint8_t *)&fp_data->ld.r[1];
 
 				printf("r[0] =");
 				for (i = 0; i < sizeof(long double); i++)
