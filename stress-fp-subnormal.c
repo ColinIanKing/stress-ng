@@ -19,6 +19,7 @@
 #include "stress-ng.h"
 #include "core-asm-generic.h"
 #include "core-builtin.h"
+#include "core-cpu.h"
 #include "core-madvise.h"
 #include "core-mmap.h"
 
@@ -335,23 +336,22 @@ static const char * PURE stress_fp_subnormal_type(const int fp_type)
  */
 #define STRESS_MIN_SUBNORMAL(type, name)			\
 static void stress_min_subnormal_ ## name(type *min, bool scale)\
-{							\
-	type value;					\
-	int i;						\
-	uint8_t *u8 = (uint8_t *)&value;		\
-	const int bits = (int)sizeof(value) * 8;	\
-							\
-	*min = (type)1.0;				\
-	for (i = 0; i < bits; i++) {			\
-		(void)memset(&value, 0, sizeof(value));	\
-		u8[i / 8] = 1U << (i & 7);		\
-		if (fpclassify(value) == FP_SUBNORMAL) {\
-			if (value < *min)		\
-				*min = value;		\
-		}					\
-	}						\
-	if (scale)					\
-		*min *= (type)2.0;			\
+{								\
+	type value;						\
+	int i;							\
+	uint8_t *u8 = (uint8_t *)&value;			\
+	const int bits = (int)sizeof(value) * 8;		\
+								\
+	*min = (type)1.0;					\
+	for (i = 0; i < bits; i++) {				\
+		(void)memset(&value, 0, sizeof(value));		\
+		u8[i / 8] = 1U << (i & 7);			\
+		if ((fpclassify(value) == FP_SUBNORMAL) &&	\
+		    (value < *min))				\
+			*min = value;				\
+	}							\
+	if (scale)						\
+		*min *= (type)2.0;				\
 }
 
 STRESS_MIN_SUBNORMAL(float, f)
@@ -470,6 +470,8 @@ static int stress_fp(stress_args_t *args)
 
 	stress_signal_catch_sigill();
 
+	stress_cpu_fp_subnormals_enable();
+
 	mmap_size = sizeof(*fp_data);
 	fp_data = (fp_data_t *)stress_mmap_populate(NULL, mmap_size,
 			PROT_READ | PROT_WRITE,
@@ -535,6 +537,8 @@ static int stress_fp(stress_args_t *args)
 			break;
 		}
 	} while (stress_continue(args));
+
+	stress_cpu_fp_subnormals_disable();
 
 	for (i = 1; i < STRESS_NUM_FP_FUNCS; i++) {
 		const double count = stress_fp_subnormal_metrics[i].count;
