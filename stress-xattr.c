@@ -72,7 +72,7 @@ static int stress_xattr(stress_args_t *args)
 	int xattr_size_max = 0;
 	char *large_tmp;
 #else
-	const size_t hugevalue_sz = 256 * KB;
+	const size_t hugevalue_sz = 256 * STRESS_KB;
 #endif
 	uint32_t rnd32;
 
