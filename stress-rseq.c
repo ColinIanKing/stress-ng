@@ -42,6 +42,7 @@ static const stress_help_t help[] = {
 
 #if defined(HAVE_LINUX_RSEQ_HEADER) &&		\
     defined(HAVE_ASM_NOP) &&			\
+    defined(HAVE_TYPEOF) &&			\
     defined(__NR_rseq) &&			\
     defined(HAVE___RSEQ_OFFSET) &&		\
     defined(HAVE_SYSCALL) &&			\
@@ -51,7 +52,7 @@ static const stress_help_t help[] = {
     !defined(HAVE_COMPILER_ICC) &&		\
     !defined(HAVE_COMPILER_ICX)
 
-#define STRESS_ACCESS_ONCE(x)     (*(__volatile__  __typeof__(x) *)&(x))
+#define STRESS_ACCESS_ONCE(x)     (*(__volatile__  typeof(x) *)&(x))
 
 #if !defined(OPTIMIZE0)
 #define OPTIMIZE0       __attribute__((optimize("-O0")))

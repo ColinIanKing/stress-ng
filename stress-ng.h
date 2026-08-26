@@ -586,7 +586,7 @@ extern const char * const stress_config[];
 #define PAGE_MAPPED		(0x01)
 #define PAGE_MAPPED_FAIL	(0x02)
 
-#if defined(HAVE_COMPILER_GCC_OR_MUSL) || defined(HAVE_COMPILER_CLANG)
+#if defined(HAVE_TYPEOF)
 #define TYPEOF_CAST(a)	(typeof(a))
 #else
 #define	TYPEOF_CAST(a)
