@@ -1812,7 +1812,8 @@ int stress_bsd_getsysctl_int(const char *name)
  */
 int stress_x86_readmsr64(const int cpu, const uint32_t reg, uint64_t *val)
 {
-#if defined(STRESS_ARCH_X86)
+#if defined(STRESS_ARCH_X86) &&	\
+    defined(HAVE_PREAD)
 	char buffer[PATH_MAX];
 	uint64_t value = 0;
 	int fd;
