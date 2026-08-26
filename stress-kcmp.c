@@ -148,7 +148,6 @@ static int stress_kcmp(stress_args_t *args)
 		"need CAP_SYS_PTRACE capability to run kcmp stressor, "
 		"aborting stress test\n";
 
-	(void)shim_memset(&addr, 0, sizeof(addr));
 	if ((fd1 = open("/dev/null", O_WRONLY)) < 0) {
 		pr_fail("%s: open '/dev/null' failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -157,6 +156,7 @@ static int stress_kcmp(stress_args_t *args)
 
 #if defined(HAVE_SYS_EPOLL_H) &&	\
     NEED_GLIBC(2,3,2)
+	(void)shim_memset(&addr, 0, sizeof(addr));
 	reserved_port = stress_net_reserve_ports(args, port, port);
 
 	if (reserved_port >= 0) {
