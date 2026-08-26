@@ -22,7 +22,8 @@
 #include "core-filesystem.h"
 #include "core-killpid.h"
 
-#if defined(HAVE_LINUX_OPENAT2_H)
+#if defined(HAVE_LINUX_OPENAT2_H) &&	\
+    !defined(HAVE_COMPILER_TCC)
 #include <linux/openat2.h>
 #endif
 
