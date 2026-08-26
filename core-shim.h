@@ -642,7 +642,6 @@ static inline ALWAYS_INLINE int shim_sched_yield(void)
 #endif
 }
 
-extern int shim_sched_yield(void);
 extern int shim_cacheflush(char *addr, int nbytes, int cache);
 extern ssize_t shim_copy_file_range(int fd_in, shim_off64_t *off_in, int fd_out,
 	shim_off64_t *off_out, size_t len, unsigned int flags);
@@ -691,7 +690,6 @@ extern char *shim_getlogin(void);
 extern int shim_msync(void *addr, size_t length, int flags);
 extern int shim_sysfs(int option, ...);
 extern int shim_madvise(void *addr, size_t length, int advice);
-extern int shim_mincore(void *addr, size_t length, unsigned char *vec);
 extern int shim_statx(int dfd, const char *filename, int flags,
 	unsigned int mask, shim_statx_t *buffer);
 extern int shim_futex_wake(const void *futex, const int n);
