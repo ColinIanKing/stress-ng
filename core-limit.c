@@ -20,6 +20,9 @@
 #include "stress-ng.h"
 #include "core-limit.h"
 
+#if defined(HAVE_GETRLIMIT) &&	\
+    defined(HAVE_SETRLIMIT)
+
 typedef struct {
 	const shim_rlimit_resource_t resource;	/* RLIMIT_* resource */
 	const char *opt;	/* stress-ng option to control resource */
@@ -125,3 +128,10 @@ void stress_limit_max_set(void)
 #endif
 }
 
+#else
+
+void stress_limit_max_set(void)
+{
+}
+
+#endif

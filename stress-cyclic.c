@@ -628,7 +628,10 @@ static int stress_cyclic(stress_args_t *args)
 #if defined(HAVE_SIGLONGJMP)
 	struct sigaction old_action_xcpu;
 #endif
+#if defined(HAVE_SETRLIMIT) &&	\
+    (defined(RLIMIT_CPU) || defined(RLIMIT_RTTIME))
 	struct rlimit rlim;
+#endif
 	pid_t pid;
 	CLOBBERED uint64_t timeout;
 	uint64_t cyclic_sleep = DEFAULT_DELAY_NS;
@@ -792,6 +795,8 @@ static int stress_cyclic(stress_args_t *args)
 		stress_proc_state_set(args->name, STRESS_STATE_RUN);
 		stress_make_it_fail_set();
 
+#if defined(HAVE_SETRLIMIT) &&	\
+    defined(RLIMIT_CPU)
 		/*
 		 * We run the stressor as a child so that
 		 * if we reach the hard time limits the child
@@ -801,8 +806,10 @@ static int stress_cyclic(stress_args_t *args)
 		rlim.rlim_cur = timeout;
 		rlim.rlim_max = timeout;
 		(void)setrlimit(RLIMIT_CPU, &rlim);
+#endif
 
-#if defined(RLIMIT_RTTIME)
+#if defined(HAVE_SETRLIMIT) &&	\
+    defined(RLIMIT_RTTIME)
 		rlim.rlim_cur = 1000000 * timeout;
 		rlim.rlim_max = 1000000 * timeout;
 		(void)setrlimit(RLIMIT_RTTIME, &rlim);

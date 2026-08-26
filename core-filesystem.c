@@ -799,7 +799,9 @@ ssize_t stress_fs_file_read(
  */
 static uint64_t stress_fs_max_file_rlimit(void)
 {
-#if defined(RLIMIT_NOFILE)
+#if defined(HAVE_GETRLIMIT) &&	\
+    defined(HAVE_SETRLIMIT) &&	\
+    defined(RLIMIT_NOFILE)
 	struct rlimit rlim_orig;
 	struct rlimit rlim;
 	rlim_t min = 64;
@@ -822,6 +824,7 @@ static uint64_t stress_fs_max_file_rlimit(void)
 		}
 	}
 #endif
+
 	if (getrlimit(RLIMIT_NOFILE, &rlim_orig) < 0)
 		return 0ULL;
 
@@ -965,13 +968,19 @@ static inline size_t static_fs_open_count_get(void)
  */
 size_t stress_fs_file_limit_get(void)
 {
+#if defined(HAVE_GETRLIMIT) &&	\
+    defined(RLIMIT_NOFILE)
 	struct rlimit rlim;
+#endif
 	size_t last_opened;
 	size_t opened;
 	size_t max = 65536;	/* initial guess */
 
+#if defined(HAVE_GETRLIMIT) &&	\
+    defined(RLIMIT_NOFILE)
 	if (!getrlimit(RLIMIT_NOFILE, &rlim))
 		max = (size_t)rlim.rlim_cur;
+#endif
 
 	last_opened = 0;
 
@@ -1007,7 +1016,8 @@ size_t stress_fs_file_limit_get(void)
  */
 int stress_fs_bad_fd_get(void)
 {
-#if defined(RLIMIT_NOFILE) &&	\
+#if defined(HAVE_GETRLIMIT) &&	\
+    defined(RLIMIT_NOFILE) &&	\
     defined(F_GETFL)
 	struct rlimit rlim;
 

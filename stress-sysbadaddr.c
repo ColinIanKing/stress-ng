@@ -166,16 +166,19 @@ static const int sigs[] = {
  */
 static void limit_procs(const int procs)
 {
-#if defined(RLIMIT_CPU) || defined(RLIMIT_NPROC)
+#if defined(HAVE_SETRLIMIT) &&				\
+    (defined(RLIMIT_CPU) || defined(RLIMIT_NPROC))
 	struct rlimit lim;
 #endif
 
-#if defined(RLIMIT_CPU)
+#if defined(HAVE_SETRLIMIT) &&	\
+    defined(RLIMIT_CPU)
 	lim.rlim_cur = 1;
 	lim.rlim_max = 1;
 	(void)setrlimit(RLIMIT_CPU, &lim);
 #endif
-#if defined(RLIMIT_NPROC)
+#if defined(HAVE_SETRLIMIT) &&	\
+    defined(RLIMIT_NPROC)
 	lim.rlim_cur = (rlim_t)procs;
 	lim.rlim_max = (rlim_t)procs;
 	(void)setrlimit(RLIMIT_NPROC, &lim);
@@ -894,6 +897,7 @@ static void bad_getresuid4(stress_bad_addr_t *ba, volatile uint64_t *counter)
 }
 #endif
 
+#if defined(HAVE_GETRLIMIT)
 static void bad_getrlimit(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
@@ -901,6 +905,7 @@ static void bad_getrlimit(stress_bad_addr_t *ba, volatile uint64_t *counter)
 		VOID_RET(int, getrlimit(RLIMIT_CPU, (struct rlimit *)ba->addr));
 	}
 }
+#endif
 
 #if defined(HAVE_GETRUSAGE) &&	\
     defined(RUSAGE_SELF)
@@ -1883,6 +1888,7 @@ static void bad_setitimer3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 }
 #endif
 
+#if defined(HAVE_SETRLIMIT)
 static void bad_setrlimit(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
@@ -1890,6 +1896,7 @@ static void bad_setrlimit(stress_bad_addr_t *ba, volatile uint64_t *counter)
 		VOID_RET(int, setrlimit(RLIMIT_CPU, (struct rlimit *)ba->addr));
 	}
 }
+#endif
 
 static void bad_stat1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
@@ -2195,7 +2202,9 @@ static const stress_bad_syscall_t bad_syscalls[] = {
 	bad_getpeername2,
 	bad_getpeername3,
 	bad_getrandom,
+#if defined(HAVE_GETRLIMIT)
 	bad_getrlimit,
+#endif
 #if defined(HAVE_GETRESGID)
 	bad_getresgid1,
 	bad_getresgid2,
@@ -2208,7 +2217,6 @@ static const stress_bad_syscall_t bad_syscalls[] = {
 	bad_getresuid3,
 	bad_getresuid4,
 #endif
-	bad_getrlimit,
 #if defined(HAVE_GETRUSAGE) &&	\
     defined(RUSAGE_SELF)
 	bad_getrusage,
@@ -2378,7 +2386,9 @@ static const stress_bad_syscall_t bad_syscalls[] = {
 	bad_setitimer2,
 	bad_setitimer3,
 #endif
+#if defined(HAVE_SETRLIMIT)
 	bad_setrlimit,
+#endif
 	bad_stat1,
 	bad_stat2,
 	bad_stat3,
@@ -2749,7 +2759,9 @@ static const stress_exercises_t exercises[] = {
 #if defined(HAVE_GETRESUID)
 	STRESS_EX_SYSCALL("getresuid"),
 #endif
+#if defined(HAVE_GETRLIMIT)
 	STRESS_EX_SYSCALL("getrlimit"),
+#endif
 #if defined(HAVE_GETRUSAGE) &&	\
     defined(RUSAGE_SELF)
 	STRESS_EX_SYSCALL("getrusage"),

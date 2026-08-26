@@ -321,7 +321,9 @@ abort:
 			if (UNLIKELY(!stress_continue(args)))
 				break;
 
-#if defined(RLIMIT_NOFILE)
+#if defined(HAVE_GETRLIMIT) &&	\
+    defined(HAVE_SETRLIMIT) &&	\
+    defined(RLIMIT_NOFILE)
 			/*
 			 *  Exercise ppoll with more fds than rlimit soft
 			 *  limit. This should fail with EINVAL on Linux.

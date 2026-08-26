@@ -25,7 +25,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-#if defined(SIGXFSZ) &&	\
+#if defined(SIGXFSZ) &&		\
+    defined(HAVE_GETRLIMIT) &&	\
+    defined(HAVE_SETRLIMIT) &&	\
     defined(RLIMIT_FSIZE)
 
 static volatile uint64_t async_sigs;
@@ -169,6 +171,6 @@ const stressor_info_t stress_sigxfsz_info = {
 	.classifier = CLASS_SIGNAL | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
-	.unimplemented_reason = "built without SIGXFSZ or RLIMIT_FSIZE"
+	.unimplemented_reason = "built without setrlimit(), SIGXFSZ or RLIMIT_FSIZE"
 };
 #endif

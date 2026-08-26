@@ -54,7 +54,8 @@ static int stress_nice(stress_args_t *args)
 	int max_prio = 20;
 	int min_prio = -20;
 
-#if defined(RLIMIT_NICE)
+#if defined(HAVE_GETRLIMIT) &&	\
+    defined(RLIMIT_NICE)
 	{
 		struct rlimit rlim;
 
@@ -218,7 +219,8 @@ static const stress_exercises_t exercises[] = {
 #if defined(HAVE_GETPRIORITY)
 	STRESS_EX_SYSCALL("getpriority"),
 #endif
-#if defined(RLIMIT_NICE)
+#if defined(HAVE_GETRLIMIT) &&	\
+    defined(RLIMIT_NICE)
 	STRESS_EX_SYSCALL("getrlimit"),
 #endif
 	STRESS_EX_SYSCALL("nice"),

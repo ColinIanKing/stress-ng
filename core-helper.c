@@ -245,7 +245,9 @@ int stress_process_dumpable(const bool dumpable)
 
 	(void)dumpable;
 
-#if defined(RLIMIT_CORE)
+#if defined(HAVE_GETRLIMIT) &&	\
+    defined(HAVE_SETRLIMIT) &&	\
+    defined(RLIMIT_CORE)
 	{
 		struct rlimit lim;
 		int ret;

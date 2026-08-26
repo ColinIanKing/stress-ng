@@ -49,6 +49,8 @@ typedef struct {
 	struct rlimit rlim;
 } stress_rlimit_info_t;
 
+#if defined(HAVE_GETRLIMIT) &&	\
+    defined(HAVE_SETRLIMIT)
 static const shim_rlimit_resource_t rlimit_resources[] = {
 #if defined(RLIMIT_AS)
 	RLIMIT_AS,
@@ -95,6 +97,7 @@ static const shim_rlimit_resource_t rlimit_resources[] = {
 };
 
 static stress_rlimit_info_t rlimits[SIZEOF_ARRAY(rlimit_resources)];
+#endif
 
 static const stress_help_t help[] = {
 	{ NULL,	"set N",	"start N workers exercising the set*() system calls" },
@@ -108,7 +111,11 @@ static const stress_help_t help[] = {
  */
 static int stress_set(stress_args_t *args)
 {
+#if defined(HAVE_GETRLIMIT) &&	\
+    defined(HAVE_SETRLIMIT)
 	size_t i;
+	const bool cap_sys_resource = stress_capabilities_check(SHIM_CAP_SYS_RESOURCE);
+#endif
 	int ret_hostname;
 	const size_t max_hostname_len = stress_hostname_length_get();
 	const size_t max_longname_len = max_hostname_len << 1;
@@ -119,7 +126,6 @@ static int stress_set(stress_args_t *args)
     defined(HAVE_SETPGID)
 	const pid_t mypid = getpid();
 #endif
-	const bool cap_sys_resource = stress_capabilities_check(SHIM_CAP_SYS_RESOURCE);
 #if defined(HAVE_SETREUID)
 	const bool cap_setuid = stress_capabilities_check(SHIM_CAP_SETUID);
 	int bad_uid_count = 0;
@@ -129,9 +135,12 @@ static int stress_set(stress_args_t *args)
 	const bool cap_root = stress_capabilities_check(0);
 #endif
 
+#if defined(HAVE_GETRLIMIT) &&	\
+    defined(HAVE_SETRLIMIT)
 	for (i = 0; i < SIZEOF_ARRAY(rlimits); i++) {
 		rlimits[i].ret = getrlimit(rlimit_resources[i], &rlimits[i].rlim);
 	}
+#endif
 
 	hostname = (char *)calloc(max_hostname_len, sizeof(*hostname));
 	if (!hostname) {
@@ -167,7 +176,10 @@ static int stress_set(stress_args_t *args)
 #else
 		UNEXPECTED
 #endif
+#if defined(HAVE_GETRLIMIT) &&	\
+    defined(HAVE_SETRLIMIT)
 		struct rlimit rlim;
+#endif
 
 		/* setsid will fail, ignore return */
 		VOID_RET(pid_t, setsid());
@@ -501,6 +513,9 @@ static int stress_set(stress_args_t *args)
 #else
 		UNEXPECTED
 #endif
+
+#if defined(HAVE_GETRLIMIT) &&	\
+    defined(HAVE_SETRLIMIT)
 		/*
 		 *  Invalid setrlimit syscall with invalid
 		 *  resource attribute resulting in EINVAL error
@@ -551,6 +566,7 @@ static int stress_set(stress_args_t *args)
 				}
 			}
 		}
+#endif
 
 		{
 			/*

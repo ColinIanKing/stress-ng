@@ -26,6 +26,8 @@ static const stress_help_t help[] = {
 };
 
 #if defined(SIGXCPU) &&		\
+    defined(HAVE_GETRLIMIT) &&	\
+    defined(HAVE_SETRLIMIT) &&	\
     (defined(RLIMIT_CPU) ||	\
      defined(RLIMIT_RTTIME))
 
@@ -173,6 +175,6 @@ const stressor_info_t stress_sigxcpu_info = {
 	.classifier = CLASS_SIGNAL | CLASS_OS,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
-	.unimplemented_reason = "built without SIGXCPU or RLIMIT_FSIZE"
+	.unimplemented_reason = "built without setrlimit(), SIGXCPU or RLIMIT_FSIZE"
 };
 #endif

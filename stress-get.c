@@ -449,6 +449,7 @@ static int stress_getresuid(stress_args_t *args)
 
 static int stress_getrlimit(stress_args_t *args)
 {
+#if defined(HAVE_GETRLIMIT)
 	static size_t i = 0;
 
 	if (i < SIZEOF_ARRAY(rlimits)) {
@@ -466,6 +467,7 @@ static int stress_getrlimit(stress_args_t *args)
 		if (i >= SIZEOF_ARRAY(rlimits))
 			i = 0;
 	}
+#endif
 	(void)args;
 
 	return EXIT_SUCCESS;
@@ -1138,7 +1140,9 @@ static const stress_exercises_t exercises[] = {
 #if defined(HAVE_GETRESUID)
 	STRESS_EX_SYSCALL("getresuid"),
 #endif
+#if defined(HAVE_GETRLIMIT)
 	STRESS_EX_SYSCALL("getrlimit"),
+#endif
 	STRESS_EX_SYSCALL("getrusage"),
 #if defined(HAVE_GETSID)
 	STRESS_EX_SYSCALL("getsid"),

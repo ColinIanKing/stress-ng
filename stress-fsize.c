@@ -25,6 +25,8 @@ static const stress_help_t help[] = {
 };
 
 #if defined(HAVE_FALLOCATE) &&	\
+    defined(HAVE_GETRLIMIT) &&	\
+    defined(HAVE_SETRLIMIT) &&	\
     defined(RLIMIT_FSIZE) &&	\
     defined(SIGXFSZ)
 
@@ -363,6 +365,6 @@ const stressor_info_t stress_fsize_info = {
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
-	.unimplemented_reason = "built without fallocate(), RLIMIT_FSIZE or SIGXFSZ"
+	.unimplemented_reason = "built without getrlimit((), setrlimit(), fallocate(), RLIMIT_FSIZE or SIGXFSZ"
 };
 #endif

@@ -157,6 +157,7 @@ static int stress_resched(stress_args_t *args)
 	uint64_t *yields;
 
 #if defined(HAVE_SETPRIORITY) &&	\
+    defined(HAVE_GETRIMIT) &&		\
     defined(RLIMIT_NICE)
 	{
 		struct rlimit rlim;

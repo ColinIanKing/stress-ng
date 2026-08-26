@@ -178,7 +178,9 @@ static void NORETURN stress_softlockup_child(
 	const uint64_t loop_count)
 {
 	struct sigaction old_action_xcpu;
+#if defined(HAVE_SETRLIMIT)
 	struct rlimit rlim;
+#endif
 	const pid_t mypid = getpid();
 	int ret;
 	int rc = EXIT_FAILURE;
@@ -190,11 +192,15 @@ static void NORETURN stress_softlockup_child(
 	 * terminated with a SIGKILL and we can
 	 * catch that with the parent
 	 */
+#if defined(HAVE_SETRLIMIT) &&	\
+    defined(RLIMIT_CPU)
 	rlim.rlim_cur = timeout;
 	rlim.rlim_max = timeout;
 	(void)setrlimit(RLIMIT_CPU, &rlim);
+#endif
 
-#if defined(RLIMIT_RTTIME)
+#if defined(HAVE_SETRLIMIT) &&	\
+    defined(RLIMIT_RTTIME)
 	rlim.rlim_cur = 1000000 * timeout;
 	rlim.rlim_max = 1000000 * timeout;
 	(void)setrlimit(RLIMIT_RTTIME, &rlim);

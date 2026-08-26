@@ -3931,16 +3931,19 @@ static const long int skip_syscalls[] = {
  */
 static void limit_procs(const unsigned long int procs)
 {
-#if defined(RLIMIT_CPU) || defined(RLIMIT_NPROC)
+#if defined(HAVE_SETRLIMIT) &&				\
+    (defined(RLIMIT_CPU) || defined(RLIMIT_NPROC))
 	struct rlimit lim;
 #endif
 
-#if defined(RLIMIT_CPU)
+#if defined(HAVE_SETRLIMIT) &&	\
+    defined(RLIMIT_CPU)
 	lim.rlim_cur = 1;
 	lim.rlim_max = 1;
 	(void)setrlimit(RLIMIT_CPU, &lim);
 #endif
-#if defined(RLIMIT_NPROC)
+#if defined(HAVE_SETRLIMIT) &&	\
+    defined(RLIMIT_NPROC)
 	lim.rlim_cur = (unsigned long int)procs;
 	lim.rlim_max = (unsigned long int)procs;
 	(void)setrlimit(RLIMIT_NPROC, &lim);

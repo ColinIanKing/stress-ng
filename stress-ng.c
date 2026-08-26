@@ -3239,7 +3239,8 @@ static inline void stress_exclude_unsupported(bool *unsupported)
  */
 static void stress_max_processes_limit_set(void)
 {
-#if defined(RLIMIT_NPROC)
+#if defined(HAVE_GETRLIMIT) &&	\
+    defined(RLIMIT_NPROC)
 	stress_list_item_t *item;
 	struct rlimit limit;
 

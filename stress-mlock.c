@@ -189,7 +189,8 @@ static size_t stress_mlock_max_lockable(void)
 		sysconf_max = (lockmax > 0) ? (size_t)lockmax : MLOCK_MAX;
 	}
 #endif
-#if defined(RLIMIT_MEMLOCK)
+#if defined(HAVE_GETRLIMIT) &&	\
+    defined(RLIMIT_MEMLOCK)
 	{
 		struct rlimit rlim;
 

@@ -97,7 +97,8 @@ static int stress_mlockmany_child(stress_args_t *args, void *context)
 {
 	stress_pid_t *s_pids;
 	int ret;
-#if defined(RLIMIT_MEMLOCK)
+#if defined(HAVE_GETRLIMIT) &&	\
+    defined(RLIMIT_MEMLOCK)
 	struct rlimit rlim;
 #endif
 	size_t mlock_size, mlockmany_procs = UNSET_MLOCKMANY_PROCS;
@@ -129,7 +130,8 @@ static int stress_mlockmany_child(stress_args_t *args, void *context)
 		return EXIT_NO_RESOURCE;
 	}
 
-#if defined(RLIMIT_MEMLOCK)
+#if defined(HAVE_GETRLIMIT) &&	\
+    defined(RLIMIT_MEMLOCK)
 	ret = getrlimit(RLIMIT_MEMLOCK, &rlim);
 	if (ret < 0) {
 		mlock_size = 8 * STRESS_MB;

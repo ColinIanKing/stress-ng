@@ -29,7 +29,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-#if defined(HAVE_SIGLONGJMP)
+#if defined(HAVE_GETRLIMIT) &&	\
+    defined(HAVE_SETRLIMIT) &&	\
+    defined(HAVE_SIGLONGJMP)
 
 static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
@@ -349,7 +351,7 @@ const stressor_info_t stress_rlimit_info = {
 	.classifier = CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
-	.unimplemented_reason = "built without siglongjmp() support"
+	.unimplemented_reason = "built without getrlimit(), setrlimit() or siglongjmp() support"
 };
 
 #endif

@@ -128,7 +128,8 @@ static int stress_bad_altstack_child(stress_args_t *args)
 	int ret;
 	stack_t ss;
 	stack_t	old_ss;
-#if defined(SIGXCPU) &&	\
+#if defined(SIGXCPU) &&		\
+    defined(HAVE_SETRLIMIT) &&	\
     defined(RLIMIT_CPU)
 	struct rlimit rlim;
 #endif
@@ -182,7 +183,8 @@ static int stress_bad_altstack_child(stress_args_t *args)
 	if (stress_signal_handler(args->name, SIGILL, stress_bad_altstack_signal_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 #endif
-#if defined(SIGXCPU) &&	\
+#if defined(SIGXCPU) &&		\
+    defined(HAVE_SETRLIMIT) &&	\
     defined(RLIMIT_CPU)
 	if (stress_signal_handler(args->name, SIGXCPU, stress_signal_exit_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;

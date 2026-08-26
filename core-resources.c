@@ -158,7 +158,8 @@ size_t stress_resources_allocate(
 	const bool do_fork)
 {
 	stress_memory_info_t info;
-#if defined(RLIMIT_MEMLOCK)
+#if defined(HAVE_GETRLIMIT) &&	\
+    defined(RLIMIT_MEMLOCK)
 	struct rlimit rlim;
 #endif
 	size_t mlock_size;
@@ -183,7 +184,8 @@ size_t stress_resources_allocate(
 	(void)pid;
 	(void)page_size;
 
-#if defined(RLIMIT_MEMLOCK)
+#if defined(HAVE_GETRLIMIT) &&	\
+    defined(RLIMIT_MEMLOCK)
 	{
 		int ret;
 

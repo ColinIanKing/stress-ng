@@ -6159,7 +6159,8 @@ static int syscall_setreuid(void)
 }
 #endif
 
-#define HAVE_SYSCALL_SETRLIMIT
+#define HAVE_SYSCALL_SETRLIMIT &&	\
+	HAVE_SYSCALL_GETRLIMIT
 static int syscall_setrlimit(void)
 {
 	static size_t i = 0;
@@ -8416,7 +8417,8 @@ static const syscall_t syscalls[] = {
 #if defined(HAVE_SYSCALL_SETREUID)
 	SYSCALL(syscall_setreuid),
 #endif
-#if defined(HAVE_SYSCALL_SETRLIMIT)
+#if defined(HAVE_SYSCALL_SETRLIMIT) &&	\
+    defined(HAVE_SYSCALL_GETRLIMIT)
 	SYSCALL(syscall_setrlimit),
 #endif
 #if defined(HAVE_SYSCALL_SET_ROBUST_LIST)
@@ -9957,7 +9959,8 @@ static const stress_exercises_t exercises[] = {
 #if defined(HAVE_SYSCALL_SETREUID)
 	STRESS_EX_SYSCALL("setreuid"),
 #endif
-#if defined(HAVE_SYSCALL_SETRLIMIT)
+#if defined(HAVE_SYSCALL_SETRLIMIT) &&	\
+    defined(HAVE_SYSCALL_GETRLIMIT)
 	STRESS_EX_SYSCALL("setrlimit"),
 #endif
 #if defined(HAVE_SYSCALL_SET_ROBUST_LIST)
