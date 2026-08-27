@@ -512,6 +512,7 @@ STRESS_SRC = \
 	stress-binderfs.c \
 	stress-bitonicsort.c \
 	stress-bitops.c \
+	stress-bpf.c \
 	stress-branch.c \
 	stress-brk.c \
 	stress-bsearch.c \

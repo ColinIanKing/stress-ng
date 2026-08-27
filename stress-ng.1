@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "14 August 2026"
+.TH STRESS-NG 1 "27 August 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -1693,6 +1693,23 @@ zerobyte	T{
 determine of a 32 bit unsigned integer contains one or more zero bytes. Computed two ways, one with per byte zero checking, one using bit masking.
 T}
 .TE
+.RE
+.TP
+.B Berkeley Packet Filter (BPF) stressor
+.RS 5
+.TQ
+.B \-\-bpf N
+start N workers that generates BPF instructions for the bpf(2) system
+call to verify and JIT. The BPF code generator recursively tries to extend
+a generated BPF program up to a default of 2048 bpf instructions. The code
+generation attempts to work through valid and invalid BPF instruction encodings.
+.TP
+.B \-\-bpf\-max N
+specify the maximum number of BPF instructions to generate for the BPF code,
+minimum is 2, maximum is 1048576.
+.TP
+.B \-\-bpf\-ops N
+stop after N bpf(2) system calls.
 .RE
 .TP
 .B Branch stressor

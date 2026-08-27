@@ -231,6 +231,10 @@ typedef enum {
 	OPT_bitops_method,
 	OPT_bitops_ops,
 
+	OPT_bpf,
+	OPT_bpf_max,
+	OPT_bpf_ops,
+
 	OPT_branch,
 	OPT_branch_jumps,
 	OPT_branch_ops,

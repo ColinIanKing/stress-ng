@@ -43,6 +43,7 @@
 	MACRO(bind_mount)	\
 	MACRO(bitonicsort)	\
 	MACRO(bitops)		\
+	MACRO(bpf)		\
 	MACRO(branch)		\
 	MACRO(brk)		\
 	MACRO(bsearch)		\

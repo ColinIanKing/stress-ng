@@ -104,6 +104,10 @@ const struct option stress_long_options[] = {
 	{ "bitops-method",	1,	NULL,	OPT_bitops_method },
 	{ "bitops-ops",		1,	NULL,	OPT_bitops_ops },
 
+	{ "bpf",		1,	NULL,	OPT_bpf },
+	{ "bpf-max",		1,	NULL,	OPT_bpf_max },
+	{ "bpf-ops",		1,	NULL,	OPT_bpf_ops },
+
 	{ "branch",		1,	NULL,	OPT_branch },
 	{ "branch-jumps",	1,	NULL,	OPT_branch_jumps },
 	{ "branch-ops",		1,	NULL,	OPT_branch_ops },
