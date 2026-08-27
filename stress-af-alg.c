@@ -1427,9 +1427,22 @@ static bool CONST bool_field(const char *buffer)
  *  stress_af_alg_add_crypto()
  *	add crypto algorithm to list if it is unique
  */
-static bool stress_af_alg_add_crypto(const stress_crypto_info_t *info)
+static bool stress_af_alg_add_crypto(
+	const int kernel_version,
+	const stress_crypto_info_t *info)
 {
 	stress_crypto_info_t *ci;
+
+	/*
+	 * Don't exercise AEAD pre-Linux 4.9 because the
+	 * AEAD recv sizes changed with kernel commit
+	 * 0c1e16cd1ec41987cc6671a2bff46ac958c41eb5 -
+	 * supporting this in this stressor for these older
+	 * kernels is not worth the effort.
+	 */
+	if ((info->crypto_type == CRYPTO_AEAD) &&
+	    (kernel_version < 40900))
+		return false;
 
 	/* Don't add info with empty text fields */
 	if ((info->name == NULL) || (info->type == NULL))
@@ -1492,11 +1505,12 @@ static bool stress_af_alg_add_crypto(const stress_crypto_info_t *info)
  */
 static void stress_af_alg_add_crypto_defconfigs(void)
 {
+	const int kernel_version = stress_kernel_release_get();
 	size_t i;
 
 	for (i = 0; i < SIZEOF_ARRAY(crypto_info_defconfigs); i++) {
 		crypto_info_defconfigs[i].source = SOURCE_DEFCONFIG;
-		stress_af_alg_add_crypto(&crypto_info_defconfigs[i]);
+		stress_af_alg_add_crypto(kernel_version, &crypto_info_defconfigs[i]);
 	}
 }
 
@@ -1521,6 +1535,7 @@ static void stress_af_alg_init(const uint32_t instances)
 	FILE *fp;
 	char buffer[1024];
 	stress_crypto_info_t info;
+	const int kernel_version = stress_kernel_release_get();
 
 	(void)instances;
 
@@ -1561,7 +1576,7 @@ static void stress_af_alg_init(const uint32_t instances)
 		else if (buffer[0] == '\n') {
 			if (info.crypto_type != CRYPTO_UNKNOWN) {
 				info.source = SOURCE_PROC_CRYPTO;
-				if (!stress_af_alg_add_crypto(&info)) {
+				if (!stress_af_alg_add_crypto(kernel_version, &info)) {
 					free(info.name);
 					free(info.type);
 				}
