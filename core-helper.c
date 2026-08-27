@@ -1289,7 +1289,7 @@ int stress_unused_uid_get(uid_t *uid)
  */
 int CONST stress_kernel_release(const int major, const int minor, const int patchlevel)
 {
-	return (major * 10000) + (minor * 100) + patchlevel;
+	return (major * 10000) + (minor * 100) + ((patchlevel > 99) ? 99 : patchlevel);
 }
 
 /*
