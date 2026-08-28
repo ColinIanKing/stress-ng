@@ -265,7 +265,7 @@ static int stress_yield(stress_args_t *args)
 	} else {
 		yielders = yield_procs;
 	}
-	max_ops_per_yielder = (yielders > 0) ? args->bogo.max_ops / yielders : 0;
+	max_ops_per_yielder = (yielders > 0) ? (args->bogo.max_ops + yielders - 1) / yielders : 0;
 
 	s_pids = (stress_pid_t *)calloc(yielders, sizeof(*s_pids));
 	if (!s_pids) {
@@ -331,20 +331,19 @@ static int stress_yield(stress_args_t *args)
 #else
 		(void)shim_usleep(100000);
 #endif
+		for (duration = 0.0, count = 0.0, i = 0; i < yielders; i++) {
+			if (s_pids[i].pid > 0) {
+				duration += metrics[i].duration;
+				count += metrics[i].count;
+			}
+		}
+		stress_bogo_set(args, (uint64_t)count);
 	} while (stress_continue(args));
 
 	/* Parent, wait for children */
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 	stress_kill_and_wait_many(args, s_pids, yielders, SIGKILL, false);
-
-	for (duration = 0.0, count = 0.0, i = 0; i < yielders; i++) {
-		if (s_pids[i].pid > 0) {
-			duration += metrics[i].duration;
-			count += metrics[i].count;
-		}
-	}
-	stress_bogo_add(args, (uint64_t)count);
 
 	ns = count > 0.0 ? (STRESS_DBL_NANOSECOND * duration) / count : 0.0;
 	stress_metrics_set(args, "ns duration per sched_yield call", ns, STRESS_METRIC_HARMONIC_MEAN);
