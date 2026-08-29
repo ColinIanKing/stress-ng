@@ -1441,7 +1441,7 @@ static bool stress_af_alg_add_crypto(
 	 * kernels is not worth the effort.
 	 */
 	if ((info->crypto_type == CRYPTO_AEAD) &&
-	    (kernel_version < 40900))
+	    (kernel_version < stress_kernel_release(4, 9, 0)))
 		return false;
 
 	/* Don't add info with empty text fields */

@@ -1285,17 +1285,17 @@ int stress_unused_uid_get(uid_t *uid)
 
 /*
  *  stress_kernel_release()
- *	turn release major.minor.patchlevel triplet into base 100 value
+ *	turn release major.minor.patchlevel triplet into base 1000 value
  */
 int CONST stress_kernel_release(const int major, const int minor, const int patchlevel)
 {
-	return (major * 10000) + (minor * 100) + ((patchlevel > 99) ? 99 : patchlevel);
+	return (major * 1000000) + (minor * 1000) + ((patchlevel > 999) ? 999 : patchlevel);
 }
 
 /*
  *  stress_kernel_release_get()
- *	return kernel release number in base 100, e.g.
- *	 4.15.2 -> 401502, return -1 if failed.
+ *	return kernel release number in base 1000, e.g.
+ *	 4.15.2 -> 40015002, return -1 if failed.
  */
 int stress_kernel_release_get(void)
 {
