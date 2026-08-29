@@ -136,8 +136,6 @@ static int stress_bpf_supported(const char *name)
     defined(__NR_bpf) &&		\
     defined(__linux__)
 
-static uint64_t stress_bpf_fail;
-static uint64_t stress_bpf_success;
 static int stress_bpf_size_max;
 static double stress_bpf_duration;
 static double stress_bpf_insns;
@@ -239,7 +237,6 @@ static int OPTIMIZE3 stress_bpf_push_op(
 					"skipping stressor\n", args->name, errno, strerror(errno));
 				return -1;
 			}
-			stress_bpf_fail++;
 		} else {
 			stress_bpf_duration += stress_time_now() - t;
 			stress_bpf_insns += (double)prog_len;
@@ -247,7 +244,6 @@ static int OPTIMIZE3 stress_bpf_push_op(
 			if (stress_bpf_size_max < prog_len)
 				stress_bpf_size_max = prog_len;
 			(void)close(fd);
-			stress_bpf_success++;
 
 			/* add new instruction if it wasn't already cached */
 			if (!get_cached)
@@ -352,8 +348,6 @@ static int stress_bpf(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
-	stress_bpf_fail = 0;
-	stress_bpf_success = 0;
 	stress_bpf_size_max = 0;
 	stress_bpf_duration = 0.0;
 	stress_bpf_insns = 0.0;
@@ -367,9 +361,6 @@ static int stress_bpf(stress_args_t *args)
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
-
-	rate = (stress_bpf_fail > 0) ? (double)stress_bpf_success * 100.0 / (double)(stress_bpf_fail + stress_bpf_success) : 0.0;
-	stress_metrics_set(args, "% BPF program success rate (should be around 50%)", rate, STRESS_METRIC_GEOMETRIC_MEAN);
 	rate = (stress_bpf_duration > 0.) ? stress_bpf_insns / stress_bpf_duration : 0.0;
 	stress_metrics_set(args, "loaded/verifed BPF instructions per second", rate, STRESS_METRIC_GEOMETRIC_MEAN);
 	stress_metrics_set(args, "maxiumum BPF code instructions", (double)stress_bpf_size_max, STRESS_METRIC_MAXIMUM);
