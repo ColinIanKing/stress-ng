@@ -139,6 +139,8 @@ static int stress_bpf_supported(const char *name)
 static uint64_t stress_bpf_fail;
 static uint64_t stress_bpf_success;
 static int stress_bpf_size_max;
+static double stress_bpf_duration;
+static double stress_bpf_insns;
 
 /*
  *  stress_sys_bpf()
@@ -202,6 +204,7 @@ static int OPTIMIZE3 stress_bpf_push_op(
 	for (i = 0; i < MAX_BPF_OPCODES; i++) {
 		int fd;
 		bool get_cached;
+		double t;
 
 		if (!stress_continue(args))
 			return 0;
@@ -227,6 +230,7 @@ static int OPTIMIZE3 stress_bpf_push_op(
 		insns[len + 1].off = 0;
 		insns[len + 1].imm = 0;
 
+		t = stress_time_now();
 		fd = stress_bpf_prog_load(BPF_PROG_TYPE_KPROBE, insns, prog_len, version);
 		stress_bogo_inc(args);
 		if (fd == -1) {
@@ -237,6 +241,9 @@ static int OPTIMIZE3 stress_bpf_push_op(
 			}
 			stress_bpf_fail++;
 		} else {
+			stress_bpf_duration += stress_time_now() - t;
+			stress_bpf_insns += (double)prog_len;
+
 			if (stress_bpf_size_max < prog_len)
 				stress_bpf_size_max = prog_len;
 			(void)close(fd);
@@ -284,7 +291,7 @@ static int stress_bpf_kernel_version_binary(void)
 static int stress_bpf(stress_args_t *args)
 {
 	int rc = EXIT_SUCCESS;
-	double percent;
+	double rate;
 	int version;
 	struct bpf_insn *insns;
 	size_t insns_max = DEFAULT_BPF_PROG_SIZE;
@@ -348,6 +355,8 @@ static int stress_bpf(stress_args_t *args)
 	stress_bpf_fail = 0;
 	stress_bpf_success = 0;
 	stress_bpf_size_max = 0;
+	stress_bpf_duration = 0.0;
+	stress_bpf_insns = 0.0;
 
 	do {
 		if (stress_bpf_push_op(args, insns, insns_max, version, 0, 0) < 0) {
@@ -359,9 +368,10 @@ static int stress_bpf(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
 
-	percent = (stress_bpf_fail > 0) ? (double)stress_bpf_success * 100.0 / (double)(stress_bpf_fail + stress_bpf_success) : 0.0;
-
-	stress_metrics_set(args, "% BPF program success rate (should be around 50%)", percent, STRESS_METRIC_GEOMETRIC_MEAN);
+	rate = (stress_bpf_fail > 0) ? (double)stress_bpf_success * 100.0 / (double)(stress_bpf_fail + stress_bpf_success) : 0.0;
+	stress_metrics_set(args, "% BPF program success rate (should be around 50%)", rate, STRESS_METRIC_GEOMETRIC_MEAN);
+	rate = (stress_bpf_duration > 0.) ? stress_bpf_insns / stress_bpf_duration : 0.0;
+	stress_metrics_set(args, "loaded/verifed BPF instructions per second", rate, STRESS_METRIC_GEOMETRIC_MEAN);
 	stress_metrics_set(args, "maxiumum BPF code instructions", (double)stress_bpf_size_max, STRESS_METRIC_MAXIMUM);
 	stress_metrics_set(args, "unique BPF instructions used", (double)unique_insns_count, STRESS_METRIC_MAXIMUM);
 
