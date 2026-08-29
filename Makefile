@@ -186,6 +186,7 @@ ifeq ($(BUILD_SMALL),1)
 ifneq ($(filter-out clang icc scan-build,$(COMPILER)),)
 override CFLAGS += $(foreach flag,-fipa-pta -fivopts,$(cc_supports_flag))
 override CFLAGS += $(foreach flag,-ftree-vectorize -ftree-slp-vectorize,$(cc_supports_flag))
+override CFLAGS += $(foreach flag,-fcode-hoisting,$(cc_supports_flag))
 ifeq ($(filter $(ARCH),s390),)
 override CFLAGS += $(foreach flag,-fmodulo-sched,$(cc_supports_flag))
 endif
