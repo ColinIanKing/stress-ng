@@ -29,7 +29,10 @@
 #define MAX_BPF_PROG_SIZE	(1024* 1024)
 #define DEFAULT_BPF_PROG_SIZE	(2048)
 
-/* number of unique bpf instruction to cache */
+/*
+ *  number of unique bpf instruction to cache, must not
+ *  be larger than 2^(stress_bpf_insn_node.next_idx * 8)
+ */
 #define MAX_UNIQUE_INSNS	(8192)
 
 /* prime size hash table of unique bpf instructions */
@@ -39,11 +42,25 @@
 #define MAX_BPF_OPCODES		(256)
 
 /*
+ *  we only cache the BPF opcode and
+ *  dst and src registers, so use
+ *  stress_bpf_cached_insn_t for storage
+ */
+typedef struct stress_bpf_cached_insn {
+	uint8_t	code;
+	uint8_t dst_reg:4;
+	uint8_t src_reg:4;
+} stress_bpf_cached_insn_t;
+
+/*
  *  hash table entry of a valid bpf instruction
+ *    next_idx indexes into unique_insns[] as this
+ *    is smaller than a pointer making this struct
+ *    small and more cache efficient.
  */
 typedef struct stress_bpf_insn_node {
-	struct stress_bpf_insn_node *next;
-	struct bpf_insn insn;
+	uint16_t next_idx;
+	stress_bpf_cached_insn_t insn;
 } stress_bpf_insn_node_t;
 
 static stress_bpf_insn_node_t **stress_bpf_insn_hash_table;
@@ -52,16 +69,13 @@ static size_t unique_insns_count;
 
 /*
  *  stress_bpf_hash_insn()
- *	bpf instruction -> hash index
+ *	bpf cached instruction -> hash index
  */
-static inline size_t ALWAYS_INLINE stress_bpf_hash_insn(struct bpf_insn *insn)
+static inline size_t ALWAYS_INLINE stress_bpf_hash_insn(stress_bpf_cached_insn_t *insn)
 {
-	register size_t hash = insn->code ^
-	       (((size_t)insn->dst_reg) << 8) ^
-	       (((size_t)insn->src_reg) << 12) ^
-	       (((size_t)insn->off << 16)) ^
-	       (((size_t)insn->imm << 24));
-
+	register size_t hash = insn->code |
+	       (((size_t)insn->dst_reg) << 8) |
+	       (((size_t)insn->src_reg) << 12);
 	return hash % (size_t)BPF_HASH_TABLE_SIZE;
 }
 
@@ -69,28 +83,31 @@ static inline size_t ALWAYS_INLINE stress_bpf_hash_insn(struct bpf_insn *insn)
  *  stress_bpf_insn_add()
  *	add a bpf instruction to the cache
  */
-static void OPTIMIZE3 stress_bpf_insn_add(struct bpf_insn *insn)
+static void OPTIMIZE3 stress_bpf_insn_add(stress_bpf_cached_insn_t *insn)
 {
 	register stress_bpf_insn_node_t *insn_node;
-	register size_t idx;
+	register uint32_t idx;
+	register uint32_t next_idx;
 
 	/* any free unqiue instructions in table? */
 	if (UNLIKELY(unique_insns_count >= MAX_UNIQUE_INSNS))
 		return;
 
 	idx = stress_bpf_hash_insn(insn);
+	insn_node = stress_bpf_insn_hash_table[idx];
 
-	for (insn_node = stress_bpf_insn_hash_table[idx]; insn_node; insn_node = insn_node->next) {
-		if (shim_memcmp(insn, &insn_node->insn, sizeof(struct bpf_insn)) == 0)
+	while (insn_node) {
+		next_idx = insn_node->next_idx;
+		if (shim_memcmp(insn, &insn_node->insn, sizeof(*insn)) == 0)
 			break;
+		insn_node = stress_bpf_insn_hash_table[next_idx];
 	}
 	if (insn_node)
 		return;	/* don't add duplicates */
 
-	insn_node = &unique_insns[unique_insns_count];
-	unique_insns_count++;
+	insn_node = &unique_insns[unique_insns_count++];
+	insn_node->next_idx = idx;
 	insn_node->insn = *insn;
-	insn_node->next = stress_bpf_insn_hash_table[idx];
 	stress_bpf_insn_hash_table[idx] = insn_node;
 	return;
 }
@@ -189,12 +206,12 @@ static int OPTIMIZE3 stress_bpf_push_op(
 	const size_t len,
 	const int next_opcode)
 {
-	register int opcode = next_opcode & 0xff;
+	register uint8_t opcode = next_opcode;
 	register int i;
 	struct bpf_insn saved;
 	const int prog_len = len + 2;
 
-	if (len >= insns_max - 1)
+	if (UNLIKELY(len >= insns_max - 1))
 		return 0;
 
 	saved = insns[len];
@@ -204,15 +221,20 @@ static int OPTIMIZE3 stress_bpf_push_op(
 		bool get_cached;
 		double t;
 
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			return 0;
 
 		get_cached = ((unique_insns_count > 0) && stress_mwc8() > 128);
 		if (get_cached) {
 			/* fetch an exisiting cached instruction */
 			register const size_t idx = stress_mwcsizemodn(unique_insns_count);
+			register stress_bpf_cached_insn_t *insn= &unique_insns[idx].insn;
 
-			insns[len] = unique_insns[idx].insn;
+			insns[len].code = insn->code;
+			insns[len].dst_reg = insn->dst_reg;
+			insns[len].src_reg = insn->src_reg;
+			insns[len].off = 0;
+			insns[len].imm = 0;
 		} else {
 			/* try and use a new one */
 			insns[len].code = opcode;
@@ -232,7 +254,7 @@ static int OPTIMIZE3 stress_bpf_push_op(
 		fd = stress_bpf_prog_load(BPF_PROG_TYPE_KPROBE, insns, prog_len, version);
 		stress_bogo_inc(args);
 		if (fd == -1) {
-			if (errno == ENOSYS) {
+			if (UNLIKELY(errno == ENOSYS)) {
 				pr_inf_skip("%s: bpf() system call not supported, errno=%d (%s), "
 					"skipping stressor\n", args->name, errno, strerror(errno));
 				return -1;
@@ -246,13 +268,19 @@ static int OPTIMIZE3 stress_bpf_push_op(
 			(void)close(fd);
 
 			/* add new instruction if it wasn't already cached */
-			if (!get_cached)
-				stress_bpf_insn_add(&insns[len]);
+			if (!get_cached) {
+				stress_bpf_cached_insn_t insn;
+
+				insn.code = insns[len].code;
+				insn.dst_reg = insns[len].dst_reg;
+				insn.src_reg = insns[len].src_reg;
+				stress_bpf_insn_add(&insn);
+			}
 
 			/* ..and try another instruction */
 			stress_bpf_push_op(args, insns, insns_max, version, len + 1, opcode + 1);
 		}
-		opcode = (opcode + 1) & 0xff;
+		opcode++;
 	}
 	insns[len] = saved;
 	return 0;
@@ -265,16 +293,13 @@ static int OPTIMIZE3 stress_bpf_push_op(
  */
 static int stress_bpf_kernel_version_binary(void)
 {
-	int major;
-	int minor;
-	int patch;
-	int version;
+	int version = stress_kernel_release_get();
 
-	version = stress_kernel_release_get();
-	if (version > 0) {
-		major = (version / 10000) % 100;
-		minor = (version / 100) % 100;
-		patch = (version) % 100;
+	if (LIKELY(version > 0)) {
+		const int major = (version / 10000) % 100;
+		const int minor = (version / 100) % 100;
+		const int patch = (version) % 100;
+
 		version = (major << 16) | (minor << 8) | patch;
 	}
 	return version;
@@ -298,7 +323,7 @@ static int stress_bpf(stress_args_t *args)
 	unique_insns_count = 0;
 
 	version = stress_bpf_kernel_version_binary();
-	if (version < 0) {
+	if (UNLIKELY(version < 0)) {
 		pr_inf_skip("%s: failed to determine kernel version, skipping stressor\n",
 			args->name);
 		return EXIT_NO_RESOURCE;
@@ -311,7 +336,6 @@ static int stress_bpf(stress_args_t *args)
 			insns_max = MIN_BPF_PROG_SIZE;
 	}
 	insns_sz = sizeof(*insns) * insns_max;
-
 	insns = (struct bpf_insn *)stress_mmap_populate(NULL,
 				insns_sz, PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
@@ -353,7 +377,7 @@ static int stress_bpf(stress_args_t *args)
 	stress_bpf_insns = 0.0;
 
 	do {
-		if (stress_bpf_push_op(args, insns, insns_max, version, 0, 0) < 0) {
+		if (UNLIKELY(stress_bpf_push_op(args, insns, insns_max, version, 0, 0) < 0)) {
 			rc = EXIT_NO_RESOURCE;
 			break;
 		}
