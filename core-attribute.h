@@ -70,6 +70,7 @@
 #endif
 /* force inlining hint */
 #if defined(HAVE_ATTRIBUTE_ALWAYS_INLINE) &&					\
+    !defined(BUILD_SMALL) &&							\
     ((defined(HAVE_COMPILER_GCC_OR_MUSL) && NEED_GNUC(3, 4, 0) 			\
      && ((!defined(__s390__) && !defined(__s390x__)) || NEED_GNUC(6, 0, 1))) ||	\
      (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 0, 0)))
@@ -89,6 +90,7 @@
 
 /* -O3 attribute support */
 #if defined(HAVE_COMPILER_GCC_OR_MUSL) &&	\
+    !defined(BUILD_SMALL) &&			\
     !defined(HAVE_COMPILER_CLANG) &&		\
     !defined(HAVE_COMPILER_ICC) &&		\
     NEED_GNUC(4, 6, 0)
