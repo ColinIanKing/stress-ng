@@ -33,8 +33,7 @@
 #define MAX_UNIQUE_INSNS	(8192)
 
 /* prime size hash table of unique bpf instructions */
-//#define BPF_HASH_TABLE_SIZE	(65537)
-#define BPF_HASH_TABLE_SIZE	(31)
+#define BPF_HASH_TABLE_SIZE	(65537)
 
 /* number of bpf opcodes */
 #define MAX_BPF_OPCODES		(256)
@@ -66,6 +65,10 @@ static inline size_t ALWAYS_INLINE stress_bpf_hash_insn(struct bpf_insn *insn)
 	return hash % (size_t)BPF_HASH_TABLE_SIZE;
 }
 
+/*
+ *  stress_bpf_insn_add()
+ *	add a bpf instruction to the cache
+ */
 static void OPTIMIZE3 stress_bpf_insn_add(struct bpf_insn *insn)
 {
 	register stress_bpf_insn_node_t *insn_node;
@@ -133,19 +136,27 @@ static int stress_bpf_supported(const char *name)
     defined(__NR_bpf) &&		\
     defined(__linux__)
 
-static uint64_t bpf_fail;
-static uint64_t bpf_success;
-static int bpf_size_max;
+static uint64_t stress_bpf_fail;
+static uint64_t stress_bpf_success;
+static int stress_bpf_size_max;
 
-static inline int sys_bpf(
+/*
+ *  stress_sys_bpf()
+ *  	bpf system call
+ */
+static inline int ALWAYS_INLINE stress_sys_bpf(
 	enum bpf_cmd cmd,
 	union bpf_attr *attr,
 	unsigned int size)
 {
-	return syscall(__NR_bpf, cmd, attr, size);
+	return (int)syscall(__NR_bpf, cmd, attr, size);
 }
 
-static inline int bpf_prog_load(
+/*
+ *  stress_bpf_prog_load()
+ *	load a bpf program
+ */
+static inline int ALWAYS_INLINE stress_bpf_prog_load(
 	enum bpf_prog_type type,
 	const struct bpf_insn *insns,
 	const int insn_cnt,
@@ -162,9 +173,14 @@ static inline int bpf_prog_load(
 		.kern_version = version,
 	};
 
-	return sys_bpf(BPF_PROG_LOAD, &attr, sizeof(attr));
+	return stress_sys_bpf(BPF_PROG_LOAD, &attr, sizeof(attr));
 }
 
+/*
+ *  stress_bpf_push_op()
+ *  	push a new bpf instruction onto end of
+ *  	bpf code and try and load it/JIT it.
+ */
 static int OPTIMIZE3 stress_bpf_push_op(
 	stress_args_t *args,
 	struct bpf_insn *insns,
@@ -197,7 +213,7 @@ static int OPTIMIZE3 stress_bpf_push_op(
 
 			insns[len] = unique_insns[idx].insn;
 		} else {
-			/* try and used a new one */
+			/* try and use a new one */
 			insns[len].code = opcode;
 			insns[len].dst_reg = 0;
 			insns[len].src_reg = stress_mwc8modn(11);
@@ -211,7 +227,7 @@ static int OPTIMIZE3 stress_bpf_push_op(
 		insns[len + 1].off = 0;
 		insns[len + 1].imm = 0;
 
-		fd = bpf_prog_load(BPF_PROG_TYPE_KPROBE, insns, prog_len, version);
+		fd = stress_bpf_prog_load(BPF_PROG_TYPE_KPROBE, insns, prog_len, version);
 		stress_bogo_inc(args);
 		if (fd == -1) {
 			if (errno == ENOSYS) {
@@ -219,16 +235,18 @@ static int OPTIMIZE3 stress_bpf_push_op(
 					"skipping stressor\n", args->name, errno, strerror(errno));
 				return -1;
 			}
-			bpf_fail++;
+			stress_bpf_fail++;
 		} else {
-			if (bpf_size_max < prog_len)
-				bpf_size_max = prog_len;
+			if (stress_bpf_size_max < prog_len)
+				stress_bpf_size_max = prog_len;
 			(void)close(fd);
-			bpf_success++;
+			stress_bpf_success++;
 
 			/* add new instruction if it wasn't already cached */
 			if (!get_cached)
 				stress_bpf_insn_add(&insns[len]);
+
+			/* ..and try another instruction */
 			stress_bpf_push_op(args, insns, insns_max, version, len + 1, opcode + 1);
 		}
 		opcode = (opcode + 1) & 0xff;
@@ -327,9 +345,9 @@ static int stress_bpf(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
-	bpf_fail = 0;
-	bpf_success = 0;
-	bpf_size_max = 0;
+	stress_bpf_fail = 0;
+	stress_bpf_success = 0;
+	stress_bpf_size_max = 0;
 
 	do {
 		if (stress_bpf_push_op(args, insns, insns_max, version, 0, 0) < 0) {
@@ -341,10 +359,10 @@ static int stress_bpf(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
 
-	percent = (bpf_fail > 0) ? (double)bpf_success * 100.0 / (double)(bpf_fail + bpf_success) : 0.0;
+	percent = (stress_bpf_fail > 0) ? (double)stress_bpf_success * 100.0 / (double)(stress_bpf_fail + stress_bpf_success) : 0.0;
 
 	stress_metrics_set(args, "% BPF program success rate (should be around 50%)", percent, STRESS_METRIC_GEOMETRIC_MEAN);
-	stress_metrics_set(args, "maxiumum BPF code instructions", (double)bpf_size_max, STRESS_METRIC_MAXIMUM);
+	stress_metrics_set(args, "maxiumum BPF code instructions", (double)stress_bpf_size_max, STRESS_METRIC_MAXIMUM);
 	stress_metrics_set(args, "unique BPF instructions used", (double)unique_insns_count, STRESS_METRIC_MAXIMUM);
 
 	(void)munmap((void *)stress_bpf_insn_hash_table, hash_table_sz);
