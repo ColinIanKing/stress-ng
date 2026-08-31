@@ -67,7 +67,6 @@ typedef struct {
 	stress_workload_info_t *info;	/* generic workload info */
 } stress_workload_thread_t;
 
-static stress_workload_thread_t stress_workload_threads[WORKLOAD_THREADS_MAX];
 #endif
 
 #define NUM_BUCKETS	(20)
@@ -542,6 +541,7 @@ static int stress_workload(stress_args_t *args)
 	size_t workload_sched = 0;		/* undefined */
 	size_t workload_dist_idx = 0;
 	size_t workload_method_idx = 0;
+	size_t threads_sz;
 	int workload_dist;
 	int workload_method;
 	stress_workload_t *workload;
@@ -555,6 +555,7 @@ static int stress_workload(stress_args_t *args)
 	mqd_t mq = (mqd_t)-1;
 	uint32_t i;
 #endif
+	stress_workload_thread_t *threads;
 
 	(void)stress_setting_get("workload-dist", &workload_dist_idx);
 	(void)stress_setting_get("workload-load", &workload_load);
@@ -566,7 +567,6 @@ static int stress_workload(stress_args_t *args)
 
 	workload_method = workload_methods[workload_method_idx].method;
 	workload_dist = workload_dists[workload_dist_idx].type;
-
 
 	if (stress_instance_zero(args)) {
 		uint32_t timer_slack_ns;
@@ -596,6 +596,23 @@ static int stress_workload(stress_args_t *args)
 	(void)stress_madvise_nohugepage(mapped_buffer, mapped_buffer_len);
 	stress_memory_anon_name_set(mapped_buffer, mapped_buffer_len, "workload-buffer");
 
+	threads_sz = (size_t)workload_threads * sizeof(*threads);
+	threads = (stress_workload_thread_t *)
+			stress_mmap_populate(NULL, threads_sz,
+				PROT_READ | PROT_WRITE,
+				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	if (threads == MAP_FAILED) {
+		pr_inf_skip("%s: failed to mmap %zu byte threads array%s, "
+			"errno=%d (%s), skipping stressor\n",
+			args->name, mapped_buffer_len,
+			stress_memory_free_get(), errno, strerror(errno));
+		rc = EXIT_NO_RESOURCE;
+		goto exit_unmap_buffer;
+	}
+
+	for (i = 0; i < workload_threads; i++)
+		threads[i].ret = -1;
+
 	if (workload_threads > 0) {
 #if defined(WORKLOAD_THREADED)
 		struct mq_attr attr;
@@ -614,7 +631,7 @@ static int stress_workload(stress_args_t *args)
 				"skipping stressor\n", args->name,
 				errno, strerror(errno));
 			rc = EXIT_NO_RESOURCE;
-			goto exit_free_buffer;
+			goto exit_unmap_threads;
 		}
 
 		info.args = args;
@@ -622,18 +639,18 @@ static int stress_workload(stress_args_t *args)
 		info.workload_method = workload_method;
 		info.mq = mq;
 		for (i = 0; i < workload_threads; i++) {
-			stress_workload_threads[i].buffer = mapped_buffer + ((1 + i) * buffer_len);
-			stress_workload_threads[i].info = &info;
-			stress_workload_threads[i].ret = pthread_create(&stress_workload_threads[i].pthread, NULL,
-                                stress_workload_thread, (void *)&stress_workload_threads[i]);
-			if (stress_workload_threads[i].ret == 0)
+			threads[i].buffer = mapped_buffer + ((1 + i) * buffer_len);
+			threads[i].info = &info;
+			threads[i].ret = pthread_create(&threads[i].pthread, NULL,
+                                stress_workload_thread, (void *)&threads[i]);
+			if (threads[i].ret == 0)
 				threads_started++;
 		}
 		if (threads_started == 0) {
 			pr_inf_skip("%s: no threads started, skipping stressor\n",
 				args->name);
 			rc = EXIT_NO_RESOURCE;
-			goto exit_free_threads;
+			goto exit_cancel_threads;
 		}
 #else
 		if (stress_instance_zero(args)) {
@@ -655,9 +672,9 @@ static int stress_workload(stress_args_t *args)
 			args->name, workload_quanta_us, workload_slice_us);
 		rc =  EXIT_FAILURE;
 #if defined(WORKLOAD_THREADED)
-		goto exit_free_threads;
+		goto exit_cancel_threads;
 #else
-		goto exit_free_buffer;
+		goto exit_unnap_buffer;
 #endif
 	}
 
@@ -675,9 +692,9 @@ static int stress_workload(stress_args_t *args)
 			stress_memory_free_get());
 		rc = EXIT_NO_RESOURCE;
 #if defined(WORKLOAD_THREADED)
-		goto exit_free_threads;
+		goto exit_cancel_threads;
 #else
-		goto exit_free_buffer;
+		goto exit_unmap_buffer;
 #endif
 	}
 
@@ -713,11 +730,11 @@ static int stress_workload(stress_args_t *args)
 	free(workload);
 
 #if defined(WORKLOAD_THREADED)
-exit_free_threads:
+exit_cancel_threads:
 	for (i = 0; i < workload_threads; i++) {
-		if (stress_workload_threads[i].ret == 0) {
-			VOID_RET(int, pthread_cancel(stress_workload_threads[i].pthread));
-			VOID_RET(int, pthread_join(stress_workload_threads[i].pthread, NULL));
+		if (threads[i].ret == 0) {
+			VOID_RET(int, pthread_cancel(threads[i].pthread));
+			VOID_RET(int, pthread_join(threads[i].pthread, NULL));
 		}
 	}
 
@@ -726,7 +743,10 @@ exit_free_threads:
 		(void)mq_unlink(mq_name);
 	}
 #endif
-exit_free_buffer:
+exit_unmap_threads:
+	(void)munmap((void *)threads, threads_sz);
+
+exit_unmap_buffer:
 	(void)munmap((void *)mapped_buffer, mapped_buffer_len);
 	return rc;
 }
