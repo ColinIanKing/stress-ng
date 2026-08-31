@@ -75,8 +75,6 @@ static shim_pthread_spinlock_t spinlock;
 static volatile bool keep_thread_running_flag;
 static volatile bool keep_running_flag;
 static uint64_t pthread_count;
-static stress_pthread_info_t pthreads[MAX_PTHREAD];
-static stress_pthread_args_t pthread_args[MAX_PTHREAD];
 
 #endif
 
@@ -447,6 +445,8 @@ static int stress_pthread(stress_args_t *args)
 	pthread_mutexattr_t mutex_attr;
 	bool mutex_attr_init;
 #endif
+	stress_pthread_info_t pthreads[MAX_PTHREAD];
+	stress_pthread_args_t pthread_args[MAX_PTHREAD];
 
 	keep_running_flag = true;
 
