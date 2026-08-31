@@ -1388,15 +1388,13 @@ static const stress_opt_t opts[] = {
  *  stress_zlib_err()
  *	turn a zlib error to something human readable
  */
-static const char *stress_zlib_err(const int zlib_err)
+static const char *stress_zlib_err(const int zlib_err, char *buf, const size_t buf_len)
 {
-	static char buf[1024];
-
 	switch (zlib_err) {
 	case Z_OK:
 		return "no error";
 	case Z_ERRNO:
-		(void)snprintf(buf, sizeof(buf), "system error, errno=%d (%s)\n",
+		(void)snprintf(buf, buf_len, "system error, errno=%d (%s)\n",
 			errno, strerror(errno));
 		return buf;
 	case Z_STREAM_ERROR:
@@ -1408,7 +1406,7 @@ static const char *stress_zlib_err(const int zlib_err)
 	case Z_VERSION_ERROR:
 		return "zlib version mismatch (Z_VERSION_ERROR)";
 	default:
-		(void)snprintf(buf, sizeof(buf), "unknown zlib error %d\n", zlib_err);
+		(void)snprintf(buf, buf_len, "unknown zlib error %d\n", zlib_err);
 		return buf;
 	}
 }
@@ -1458,6 +1456,7 @@ static int stress_zlib_inflate(
 	z_stream stream_inf;
 	unsigned char ALIGN64 in[DATA_SIZE];
 	unsigned char ALIGN64 out[DATA_SIZE];
+	char err_buf[1024];
 	stress_zlib_args_t zlib_args;
 
 	(void)stress_zlib_get_args(&zlib_args);
@@ -1484,7 +1483,7 @@ static int stress_zlib_inflate(
 		ret = inflateInit2(&stream_inf, zlib_args.window_bits);
 		if (UNLIKELY(ret != Z_OK)) {
 			pr_fail("%s: zlib inflateInit error, %s\n",
-				args->name, stress_zlib_err(ret));
+				args->name, stress_zlib_err(ret, err_buf, sizeof(err_buf)));
 			zlib_checksum->error = true;
 			goto zlib_checksum_error;
 		}
@@ -1545,7 +1544,7 @@ static int stress_zlib_inflate(
 				case Z_DATA_ERROR:
 				case Z_MEM_ERROR:
 					pr_fail("%s: zlib inflate error, %s\n",
-						args->name, stress_zlib_err(ret));
+						args->name, stress_zlib_err(ret, err_buf, sizeof(err_buf)));
 					(void)inflateEnd(&stream_inf);
 					goto zlib_checksum_error;
 				default:
@@ -1596,6 +1595,7 @@ static int stress_zlib_deflate(
 	stress_zlib_args_t zlib_args;
 	double t1, duration, rate, ratio;
 	const stress_zlib_method_t *method;
+	char err_buf[1024];
 
 	(void)stress_zlib_get_args(&zlib_args);
 	method = &zlib_rand_data_methods[zlib_args.method];
@@ -1628,7 +1628,7 @@ static int stress_zlib_deflate(
 				zlib_args.mem_level, zlib_args.strategy);
 		if (UNLIKELY(ret != Z_OK)) {
 			pr_fail("%s: zlib deflateInit error, %s\n",
-				args->name, stress_zlib_err(ret));
+				args->name, stress_zlib_err(ret, err_buf, sizeof(err_buf)));
 			zlib_checksum->error = true;
 			(void)deflateEnd(&stream_def);
 			stream_def.zalloc = Z_NULL;
@@ -1683,7 +1683,7 @@ static int stress_zlib_deflate(
 				ret = deflate(&stream_def, flush);
 				if (UNLIKELY(ret == Z_STREAM_ERROR)) {
 					pr_fail("%s: zlib deflate error, %s\n",
-						args->name, stress_zlib_err(ret));
+						args->name, stress_zlib_err(ret, err_buf, sizeof(err_buf)));
 					(void)deflateEnd(&stream_def);
 					ret = EXIT_FAILURE;
 					goto zlib_checksum_error;
