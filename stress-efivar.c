@@ -411,7 +411,7 @@ static int efi_vars_get(
 	double *duration,
 	double *count)
 {
-	static char data[4096];
+	char data[4096];
 	int i;
 	int rc = 0;
 
@@ -448,10 +448,8 @@ static int efi_vars_get(
 			rc = -1;
 			continue;
 		}
-
 		stress_bogo_inc(args);
 	}
-
 	return rc;
 }
 
