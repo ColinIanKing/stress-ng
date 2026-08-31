@@ -1456,8 +1456,8 @@ static int stress_zlib_inflate(
 	ssize_t sz;
 	int ret;
 	z_stream stream_inf;
-	static unsigned char ALIGN64 in[DATA_SIZE];
-	static unsigned char ALIGN64 out[DATA_SIZE];
+	unsigned char ALIGN64 in[DATA_SIZE];
+	unsigned char ALIGN64 out[DATA_SIZE];
 	stress_zlib_args_t zlib_args;
 
 	(void)stress_zlib_get_args(&zlib_args);
@@ -1640,7 +1640,7 @@ static int stress_zlib_deflate(
 
 		stream_bytes_out = 0;
 		do {
-			static uint64_t ALIGN64 in[DATA_SIZE / sizeof(uint64_t)];
+			uint64_t ALIGN64 in[DATA_SIZE / sizeof(uint64_t)];
 			uint64_t *in_end = (uint64_t *)((uintptr_t)&in + sizeof(in));
 			const unsigned char *zlib_checksum_in = (unsigned char *)in;
 			const uint64_t diff = zlib_args.stream_bytes - stream_bytes_out;
@@ -1673,7 +1673,7 @@ static int stress_zlib_deflate(
 
 			bytes_in += DATA_SIZE;
 			do {
-				static unsigned char ALIGN64 out[DATA_SIZE];
+				unsigned char ALIGN64 out[DATA_SIZE];
 				ssize_t sz;
 				int def_size;
 
