@@ -38,7 +38,7 @@ UNEXPECTED
 
 typedef struct {
 	stress_args_t *args;
-	uint64_t sleep_max;
+	size_t sleep_max;
 	pthread_t pthread;
 	uint64_t underruns;
 } stress_ctxt_t;
@@ -61,7 +61,7 @@ static const stress_help_t help[] = {
 };
 
 static const stress_opt_t opts[] = {
-	{ OPT_sleep_max, "sleep-max", TYPE_ID_UINT64, MIN_SLEEP, MAX_SLEEP, NULL },
+	{ OPT_sleep_max, "sleep-max", TYPE_ID_SIZE_T, MIN_SLEEP, MAX_SLEEP, NULL },
 	END_OPT,
 };
 
@@ -381,9 +381,9 @@ static int stress_sleep(stress_args_t *args)
 	uint64_t i;
 	uint64_t n;
 	uint64_t limited = 0;
-	uint64_t sleep_max = DEFAULT_SLEEP;
+	size_t sleep_max = DEFAULT_SLEEP;
 	uint64_t underruns = 0;
-	static stress_ctxt_t ctxts[MAX_SLEEP];
+	stress_ctxt_t *ctxts;
 	int ret = EXIT_SUCCESS;
 
 	if (!stress_setting_get("sleep-max", &sleep_max)) {
@@ -393,16 +393,25 @@ static int stress_sleep(stress_args_t *args)
 			sleep_max = MIN_SLEEP;
 	}
 
-	stress_sleep_counter_lock = stress_lock_create("counter");
-	if (!stress_sleep_counter_lock) {
-		pr_inf("%s: create counter lock failed, skipping stressor\n", args->name);
+	ctxts = calloc(sleep_max, sizeof(*ctxts));
+	if (!ctxts) {
+		pr_inf_skip("%s: failed to allocate %zu sleep contexts, skipping stressor\n",
+			args->name, sleep_max);
 		return EXIT_NO_RESOURCE;
 	}
 
-	if (stress_signal_handler(args->name, SIGALRM, stress_sigalrm_handler, NULL) < 0)
-		return EXIT_FAILURE;
+	stress_sleep_counter_lock = stress_lock_create("counter");
+	if (!stress_sleep_counter_lock) {
+		pr_inf("%s: create counter lock failed, skipping stressor\n", args->name);
+		free(ctxts);
+		return EXIT_NO_RESOURCE;
+	}
 
-	(void)shim_memset(ctxts, 0, sizeof(ctxts));
+	if (stress_signal_handler(args->name, SIGALRM, stress_sigalrm_handler, NULL) < 0) {
+		return EXIT_FAILURE;
+		free(ctxts);
+	}
+
 	(void)sigfillset(&set);
 
 	stress_proc_state_set(args->name, STRESS_STATE_SYNC_WAIT);
@@ -463,6 +472,8 @@ tidy:
 	}
 
 	stress_lock_destroy(stress_sleep_counter_lock);
+
+	free(ctxts);
 
 	return ret;
 }
