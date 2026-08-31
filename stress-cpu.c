@@ -23,6 +23,7 @@
 #include "core-bitops.h"
 #include "core-builtin.h"
 #include "core-cpu.h"
+#include "core-mmap.h"
 #include "core-net.h"
 #include "core-pragma.h"
 #include "core-put.h"
@@ -99,8 +100,26 @@ static const stress_help_t help[] = {
 	{ NULL,	 NULL,			NULL }
 };
 
-/* Don't make this static to ensure dithering does not get optimised out */
-uint8_t pixels[STRESS_CPU_DITHER_X][STRESS_CPU_DITHER_Y];
+typedef struct stress_cpu_data {
+	uint8_t pixels[STRESS_CPU_DITHER_X][STRESS_CPU_DITHER_Y];
+#if defined(HAVE_COMPLEX_H) &&		\
+    defined(HAVE_COMPLEX) &&		\
+    defined(__STDC_IEC_559_COMPLEX__) &&\
+    !defined(__UCLIBC__)
+	double complex fft_buf[FFT_SIZE] ALIGN64;
+	double complex fft_tmp[FFT_SIZE] ALIGN64;
+#endif
+	long double a[MATRIX_PROD_SIZE][MATRIX_PROD_SIZE] ALIGN64;
+	long double b[MATRIX_PROD_SIZE][MATRIX_PROD_SIZE] ALIGN64;
+	long double r[MATRIX_PROD_SIZE][MATRIX_PROD_SIZE] ALIGN64;
+
+	double corr_data[CORRELATE_DATA_LEN] ALIGN64;
+	double corr_result[CORRELATE_LEN + 1] ALIGN64;
+
+	uint32_t sieve[(SIEVE_SIZE + 31) / 32] ALIGN64;
+} stress_cpu_data_t;
+
+static stress_cpu_data_t *cpu_data;
 
 /*
  *  stress_cpu_sqrt()
@@ -620,16 +639,15 @@ static void OPTIMIZE3 fft_partial(
  */
 static int TARGET_CLONES stress_cpu_fft(const char *name)
 {
-	static double complex buf[FFT_SIZE] ALIGN64, tmp[FFT_SIZE] ALIGN64;
 	int i;
 
 	(void)name;
 
 	for (i = 0; i < FFT_SIZE; i++)
-		buf[i] = (double complex)(i % 63);
+		cpu_data->fft_buf[i] = (double complex)(i % 63);
 
-	(void)shim_memcpy(tmp, buf, sizeof(*tmp) * FFT_SIZE);
-	fft_partial(buf, tmp, FFT_SIZE, 1);
+	(void)shim_memcpy(cpu_data->fft_tmp, cpu_data->fft_buf, sizeof(cpu_data->fft_tmp));
+	fft_partial(cpu_data->fft_buf, cpu_data->fft_tmp, FFT_SIZE, 1);
 	return EXIT_SUCCESS;
 }
 #else
@@ -1337,9 +1355,6 @@ static int OPTIMIZE3 TARGET_CLONES stress_cpu_matrix_prod(const char *name)
 	int j;
 	int k;
 
-	static long double a[MATRIX_PROD_SIZE][MATRIX_PROD_SIZE] ALIGN64;
-	static long double b[MATRIX_PROD_SIZE][MATRIX_PROD_SIZE] ALIGN64;
-	static long double r[MATRIX_PROD_SIZE][MATRIX_PROD_SIZE] ALIGN64;
 	const long double v = 1 / (long double)((uint32_t)~0);
 	long double sum = 0.0L;
 
@@ -1350,16 +1365,16 @@ static int OPTIMIZE3 TARGET_CLONES stress_cpu_matrix_prod(const char *name)
 			const uint32_t r1 = stress_mwc32();
 			const uint32_t r2 = stress_mwc32();
 
-			a[i][j] = (long double)r1 * v;
-			b[i][j] = (long double)r2 * v;
-			r[i][j] = 0.0L;
+			cpu_data->a[i][j] = (long double)r1 * v;
+			cpu_data->b[i][j] = (long double)r2 * v;
+			cpu_data->r[i][j] = 0.0L;
 		}
 	}
 
 	for (i = 0; i < MATRIX_PROD_SIZE; i++) {
 		for (j = 0; j < MATRIX_PROD_SIZE; j++) {
 			for (k = 0; k < MATRIX_PROD_SIZE; k++) {
-				r[i][j] += a[i][k] * b[k][j];
+				cpu_data->r[i][j] += cpu_data->a[i][k] * cpu_data->b[k][j];
 			}
 		}
 	}
@@ -1367,7 +1382,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_cpu_matrix_prod(const char *name)
 	for (i = 0; i < MATRIX_PROD_SIZE; i++)
 PRAGMA_UNROLL_N(8)
 		for (j = 0; j < MATRIX_PROD_SIZE; j++)
-			sum += r[i][j];
+			sum += cpu_data->r[i][j];
 	stress_put_long_double(sum);
 	return EXIT_SUCCESS;
 }
@@ -1777,8 +1792,6 @@ static int OPTIMIZE3 stress_cpu_correlate(const char *name)
 	size_t i;
 	size_t j;
 	double data_average = 0.0;
-	static double data[CORRELATE_DATA_LEN];
-	static double corr[CORRELATE_LEN + 1];
 
 	(void)name;
 
@@ -1786,20 +1799,21 @@ static int OPTIMIZE3 stress_cpu_correlate(const char *name)
 	for (i = 0; i < CORRELATE_DATA_LEN; i++) {
 		const uint64_t r = stress_mwc64();
 
-		data[i] = (double)r;
-		data_average += data[i];
+		cpu_data->corr_data[i] = (double)r;
+		data_average += cpu_data->corr_data[i];
 	}
 	data_average /= (double)CORRELATE_DATA_LEN;
 
 	/* And correlate */
 	for (i = 0; i <= CORRELATE_LEN; i++) {
-		corr[i] = 0.0;
+		cpu_data->corr_result[i] = 0.0;
 		for (j = 0; j < CORRELATE_DATA_LEN - i; j++) {
-			corr[i] += (data[i + j] - data_average) *
-				   (data[j] - data_average);
+			cpu_data->corr_result[i] +=
+				(cpu_data->corr_data[i + j] - data_average) *
+				(cpu_data->corr_data[j] - data_average);
 		}
-		corr[i] /= (double)CORRELATE_LEN;
-		stress_put_double(corr[i]);
+		cpu_data->corr_result[i] /= (double)CORRELATE_LEN;
+		stress_put_double(cpu_data->corr_result[i]);
 	}
 	return EXIT_SUCCESS;
 }
@@ -1812,20 +1826,19 @@ static int OPTIMIZE3 stress_cpu_sieve(const char *name)
 {
 	const double dsqrt = shim_sqrt(SIEVE_SIZE);
 	const uint32_t nsqrt = (uint32_t)dsqrt;
-	static uint32_t sieve[(SIEVE_SIZE + 31) / 32];
 	uint32_t i;
 	uint32_t j;
 
-	(void)shim_memset(sieve, 0xff, sizeof(sieve));
+	(void)shim_memset(cpu_data->sieve, 0xff, sizeof(cpu_data->sieve));
 	for (i = 2; i < nsqrt; i++)
-		if (STRESS_GETBIT(sieve, i))
+		if (STRESS_GETBIT(cpu_data->sieve, i))
 			for (j = i * i; j < SIEVE_SIZE; j += i)
-				STRESS_CLRBIT(sieve, j);
+				STRESS_CLRBIT(cpu_data->sieve, j);
 
 	/* And count up number of primes */
 PRAGMA_UNROLL_N(8)
 	for (j = 0, i = 2; i < SIEVE_SIZE; i++) {
-		if (STRESS_GETBIT(sieve, i))
+		if (STRESS_GETBIT(cpu_data->sieve, i))
 			j++;
 	}
 	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (j != 10000)) {
@@ -2510,6 +2523,7 @@ static int TARGET_CLONES stress_cpu_dither(const char *name)
 
 	(void)name;
 
+
 	/*
 	 *  Generate some random 8 bit image
 	 */
@@ -2520,22 +2534,22 @@ PRAGMA_UNROLL_N(8)
 			register uint32_t v2;
 
 			v1 = stress_mwc32();
-			pixels[x][y + 0] = (uint8_t)v1;
+			cpu_data->pixels[x][y + 0] = (uint8_t)v1;
 			v1 >>= 8;
-			pixels[x][y + 1] = (uint8_t)v1;
+			cpu_data->pixels[x][y + 1] = (uint8_t)v1;
 			v1 >>= 8;
-			pixels[x][y + 2] = (uint8_t)v1;
+			cpu_data->pixels[x][y + 2] = (uint8_t)v1;
 			v1 >>= 8;
-			pixels[x][y + 3] = (uint8_t)v1;
+			cpu_data->pixels[x][y + 3] = (uint8_t)v1;
 
 			v2 = stress_mwc32();
-			pixels[x][y + 4] = (uint8_t)v2;
+			cpu_data->pixels[x][y + 4] = (uint8_t)v2;
 			v2 >>= 8;
-			pixels[x][y + 5] = (uint8_t)v2;
+			cpu_data->pixels[x][y + 5] = (uint8_t)v2;
 			v2 >>= 8;
-			pixels[x][y + 6] = (uint8_t)v2;
+			cpu_data->pixels[x][y + 6] = (uint8_t)v2;
 			v2 >>= 8;
-			pixels[x][y + 7] = (uint8_t)v2;
+			cpu_data->pixels[x][y + 7] = (uint8_t)v2;
 		}
 	}
 
@@ -2544,7 +2558,7 @@ PRAGMA_UNROLL_N(8)
 	 */
 	for (y = 0; y < STRESS_CPU_DITHER_Y; y++) {
 		for (x = 0; x < STRESS_CPU_DITHER_X; x++) {
-			const uint8_t pixel = pixels[x][y];
+			const uint8_t pixel = cpu_data->pixels[x][y];
 			const uint8_t quant = (pixel < 128) ? 0 : 255;
 			const int32_t error = pixel - quant;
 
@@ -2553,16 +2567,16 @@ PRAGMA_UNROLL_N(8)
 			const bool yok1 = y < (STRESS_CPU_DITHER_Y - 1);
 
 			if (xok1)
-				pixels[x + 1][y] +=
+				cpu_data->pixels[x + 1][y] +=
 					(error * 7) >> 4;
 			if (xok2 && yok1)
-				pixels[x - 1][y + 1] +=
+				cpu_data->pixels[x - 1][y + 1] +=
 					(error * 3) >> 4;
 			if (yok1)
-				pixels[x][y + 1] +=
+				cpu_data->pixels[x][y + 1] +=
 					(error * 5) >> 4;
 			if (xok1 && yok1)
-				pixels[x + 1][y + 1] +=
+				cpu_data->pixels[x + 1][y + 1] +=
 					error >> 4;
 		}
 	}
@@ -3220,6 +3234,15 @@ static int OPTIMIZE3 stress_cpu(stress_args_t *args)
 
 	stress_signal_catch_sigill();
 
+	cpu_data = (stress_cpu_data_t *)stress_mmap_populate(NULL, sizeof(*cpu_data),
+					PROT_READ | PROT_WRITE,
+					MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (cpu_data == MAP_FAILED) {
+		pr_inf_skip("%s: failed to mmap %zu bytes, errno=%d (%s), skipping stressor\n",
+			args->name, sizeof(*cpu_data), errno, strerror(errno));
+		return EXIT_NO_RESOURCE;
+	}
+
 	(void)stress_setting_get("cpu-load-slice", &cpu_load_slice);
 	(void)stress_setting_get("cpu-old-metrics", &cpu_old_metrics);
 	(void)stress_setting_get("cpu-method", &cpu_method);
@@ -3248,15 +3271,13 @@ static int OPTIMIZE3 stress_cpu(stress_args_t *args)
 	 */
 	if (cpu_load == 0) {
 		(void)sleep((unsigned int)g_opt_timeout);
-
-		stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
-		return EXIT_SUCCESS;
+		rc = EXIT_SUCCESS;
+		goto unmap_cpu_data;
 	}
 
 	stress_proc_state_set(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
-
 
 	/*
 	 * Normal use case, 100% load, simple spinning on CPU
@@ -3268,8 +3289,7 @@ static int OPTIMIZE3 stress_cpu(stress_args_t *args)
 		} while ((rc == EXIT_SUCCESS) && stress_continue(args));
 		stress_cpu_fp_subnormals_enable();
 
-		stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
-		return rc;
+		goto unmap_cpu_data;
 	}
 
 	/*
@@ -3368,7 +3388,9 @@ static int OPTIMIZE3 stress_cpu(stress_args_t *args)
 			args->name);
 	}
 
+unmap_cpu_data:
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
+	(void)munmap((void *)cpu_data, sizeof(*cpu_data));
 
 	return rc;
 }
