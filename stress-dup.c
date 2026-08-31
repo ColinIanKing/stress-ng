@@ -212,9 +212,10 @@ static int stress_dup2_race(stress_args_t *args, info_t *info)
  */
 static int stress_dup(stress_args_t *args)
 {
-	static int fds[STRESS_FD_MAX];
-	int rc = EXIT_SUCCESS;
 	size_t max_fd = stress_fs_file_limit_get();
+	int *fds;
+	int rc = EXIT_SUCCESS;
+	size_t fds_sz;
 	bool do_dup3 = true;
 	const int bad_fd = stress_fs_bad_fd_get();
 	double dup_duration = 0.0;
@@ -222,10 +223,25 @@ static int stress_dup(stress_args_t *args)
 	double rate;
 #if defined(STRESS_DUP2_RACE)
 	info_t *info;
+#endif
 
+	if (max_fd > STRESS_FD_MAX)
+		max_fd = STRESS_FD_MAX;
+	fds_sz = sizeof(*fds) * max_fd;
+	fds = (int *)stress_mmap_populate(NULL, fds_sz,
+			PROT_READ | PROT_WRITE,
+			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	if (fds == MAP_FAILED) {
+		pr_inf_skip("%s: failed to mmap %zu file descriptors, errno=%d (%s), "
+			"skipping stressor\n",
+			args->name, max_fd, errno, strerror(errno));
+		return EXIT_NO_RESOURCE;
+	}
+
+#if defined(STRESS_DUP2_RACE)
 	info = (info_t *)stress_mmap_populate(NULL, sizeof(*info),
-		PROT_READ | PROT_WRITE,
-		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+			PROT_READ | PROT_WRITE,
+			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (info != MAP_FAILED) {
 		stress_memory_anon_name_set(info, sizeof(*info), "dup-race-context");
 		if (stress_fs_temp_dir_make(args->name, args->pid, args->instance) < 0) {
@@ -237,8 +253,6 @@ static int stress_dup(stress_args_t *args)
 			sizeof(info->fifoname), stress_mwc32());
 	}
 #endif
-	if (max_fd > SIZEOF_ARRAY(fds))
-		max_fd = SIZEOF_ARRAY(fds);
 
 	fds[0] = open("/dev/zero", O_RDONLY);
 	if (fds[0] < 0) {
@@ -410,6 +424,12 @@ tidy_fds:
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 	(void)close(fds[0]);
 
+	rate = (dup_count > 0.0) ? dup_duration / dup_count : 0.0;
+	stress_metrics_set(args, "nanosecs per dup call",
+		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
+	stress_metrics_set(args, "dup calls",
+		dup_count, STRESS_METRIC_TOTAL);
+
 #if defined(STRESS_DUP2_RACE)
 	if (info != MAP_FAILED) {
 		if (info->fifoname[0])
@@ -427,11 +447,7 @@ tidy_mmap:
 		(void)munmap((void *)info, sizeof(*info));
 	}
 #endif
-	rate = (dup_count > 0.0) ? dup_duration / dup_count : 0.0;
-	stress_metrics_set(args, "nanosecs per dup call",
-		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
-	stress_metrics_set(args, "dup calls",
-		dup_count, STRESS_METRIC_TOTAL);
+	(void)munmap((void *)fds, fds_sz);
 
 	return rc;
 }
