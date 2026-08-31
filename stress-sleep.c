@@ -408,8 +408,8 @@ static int stress_sleep(stress_args_t *args)
 	}
 
 	if (stress_signal_handler(args->name, SIGALRM, stress_sigalrm_handler, NULL) < 0) {
-		return EXIT_FAILURE;
 		free(ctxts);
+		return EXIT_FAILURE;
 	}
 
 	(void)sigfillset(&set);
