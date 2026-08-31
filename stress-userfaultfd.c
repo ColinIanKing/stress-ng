@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-killpid.h"
+#include "core-mmap.h"
 #include "core-out-of-memory.h"
 #include "core-signal.h"
 
@@ -231,13 +232,13 @@ static inline int handle_page_fault(
  */
 static int stress_userfaultfd_child(stress_args_t *args, void *context)
 {
-	static uint8_t stack[STACK_SIZE]; /* Child clone stack */
+	uint8_t *stack;
+	uint8_t *stack_top;
 	struct uffdio_api api;
 	struct uffdio_register reg;
 	stress_context_t c;
 	void *zero_page = NULL;
 	uint8_t *data;
-	uint8_t *stack_top = (uint8_t *)stress_stack_top((void *)stack, STACK_SIZE);
 	const size_t page_size = args->page_size;
 	size_t sz;
 	size_t userfaultfd_bytes;
@@ -254,11 +255,20 @@ static int stress_userfaultfd_child(stress_args_t *args, void *context)
 	double duration = 0.0;
 	double rate;
 
+	(void)context;
+
 	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
-	(void)context;
-	(void)shim_memset(stack, 0, sizeof(stack));
+	stack = (uint8_t *)stress_mmap_populate(NULL, STACK_SIZE,
+				PROT_READ | PROT_WRITE,
+				MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+	if (stack == MAP_FAILED) {
+		pr_inf_skip("%s: failed to mmap %d byte stack, errno=%d (%s), skipping stressor\n",
+			args->name, STACK_SIZE, errno, strerror(errno));
+		return EXIT_NO_RESOURCE;
+	}
+	stack_top = (uint8_t *)stress_stack_top((void *)stack, STACK_SIZE);
 
 	if (!stress_setting_get("userfaultfd-bytes", &userfaultfd_bytes_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -279,9 +289,10 @@ static int stress_userfaultfd_child(stress_args_t *args, void *context)
 	if (posix_memalign(&zero_page, page_size, page_size)) {
 		pr_err("%s: allocate %zu byte zero page failed%s\n",
 			args->name, page_size, stress_memory_free_get());
-		return EXIT_NO_RESOURCE;
+		goto unmap_stack;
 	}
 
+	/* don't mmap populate this mapping */
 	data = (uint8_t *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (data == MAP_FAILED) {
@@ -479,6 +490,7 @@ unreg:
 		rc = EXIT_FAILURE;
 		goto unmap_data;
 	}
+
 unmap_data:
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 	(void)munmap((void *)data, sz);
@@ -487,6 +499,9 @@ free_zeropage:
 	free(zero_page);
 	if (fd > -1)
 		(void)close(fd);
+unmap_stack:
+	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
+	(void)munmap((void *)stack, STACK_SIZE);
 
 	return rc;
 }
