@@ -21,6 +21,7 @@
 #include "core-affinity.h"
 #include "core-builtin.h"
 #include "core-killpid.h"
+#include "core-mmap.h"
 #include "core-out-of-memory.h"
 #include "core-pragma.h"
 #include "core-signal.h"
@@ -32,6 +33,8 @@
 #define MIN_SOCKPAIR_MAX_SIZE		(1)
 #define MAX_SOCKPAIR_MAX_SIZE		(65535)
 #define DEFAULT_SOCKPAIR_MAX_SIZE	(4096)
+
+typedef int sockpair_fds_t[2];
 
 static const stress_help_t help[] = {
 	{ NULL,	"sockpair N",	       "start N workers exercising socket pair I/O activity" },
@@ -84,11 +87,11 @@ PRAGMA_UNROLL_N(4)
 }
 
 static void socket_pair_close(
-	int fds[MAX_SOCKET_PAIRS][2],
-	const int max,
+	sockpair_fds_t *fds,
+	const size_t max,
 	const int which)
 {
-	int i;
+	size_t i;
 
 	for (i = 0; i < max; i++) {
 		(void)close(fds[i][which]);
@@ -126,12 +129,13 @@ static int stress_sockpair_oomable(stress_args_t *args, void *context)
 {
 	uint64_t low_memory_count = 0;
 	pid_t pid;
-	static int socket_pair_fds[MAX_SOCKET_PAIRS][2];
+	sockpair_fds_t *sockpair_fds;
 	const size_t low_mem_size = args->page_size * 32 * args->instances;
 	size_t sockpair_max_size = DEFAULT_SOCKPAIR_MAX_SIZE;
-	int socket_pair_fds_bad[2];
-	int i;
-	int max;
+	size_t sockpair_fds_sz;
+	size_t max;
+	size_t i;
+	int sockpair_fds_bad[2];
 	int ret;
 	int parent_cpu;
 	double t;
@@ -149,42 +153,53 @@ static int stress_sockpair_oomable(stress_args_t *args, void *context)
 			sockpair_max_size = MIN_SOCKPAIR_MAX_SIZE;
 	}
 
+	sockpair_fds_sz = sizeof(*sockpair_fds) * sockpair_max_size;
+	sockpair_fds = stress_mmap_populate(NULL, sockpair_fds_sz,
+				PROT_READ | PROT_WRITE,
+				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (sockpair_fds == MAP_FAILED) {
+		pr_inf_skip("%s: failed to mmap %zu socket pair file descriptors, "
+			"errno=%d (%s), skipping stressor\n",
+			args->name, sockpair_fds_sz, errno, strerror(errno));
+		return EXIT_NO_RESOURCE;
+	}
+
 	/* exercise invalid socketpair domain */
-	socket_pair_fds_bad[0] = -1;
-	socket_pair_fds_bad[1] = -1;
-	ret = socketpair(~0, SOCK_STREAM, 0, socket_pair_fds_bad);
+	sockpair_fds_bad[0] = -1;
+	sockpair_fds_bad[1] = -1;
+	ret = socketpair(~0, SOCK_STREAM, 0, sockpair_fds_bad);
 	if (UNLIKELY(ret == 0)) {
-		(void)close(socket_pair_fds_bad[0]);
-		(void)close(socket_pair_fds_bad[1]);
+		(void)close(sockpair_fds_bad[0]);
+		(void)close(sockpair_fds_bad[1]);
 	}
 
 	/* exercise invalid socketpair type domain */
-	socket_pair_fds_bad[0] = -1;
-	socket_pair_fds_bad[1] = -1;
-	ret = socketpair(AF_UNIX, ~0, 0, socket_pair_fds_bad);
+	sockpair_fds_bad[0] = -1;
+	sockpair_fds_bad[1] = -1;
+	ret = socketpair(AF_UNIX, ~0, 0, sockpair_fds_bad);
 	if (UNLIKELY(ret == 0)) {
-		(void)close(socket_pair_fds_bad[0]);
-		(void)close(socket_pair_fds_bad[1]);
+		(void)close(sockpair_fds_bad[0]);
+		(void)close(sockpair_fds_bad[1]);
 	}
 
 	/* exercise invalid socketpair type protocol */
-	ret = socketpair(AF_UNIX, SOCK_STREAM, ~0, socket_pair_fds_bad);
+	ret = socketpair(AF_UNIX, SOCK_STREAM, ~0, sockpair_fds_bad);
 	if (UNLIKELY(ret == 0)) {
-		(void)close(socket_pair_fds_bad[0]);
-		(void)close(socket_pair_fds_bad[1]);
+		(void)close(sockpair_fds_bad[0]);
+		(void)close(sockpair_fds_bad[1]);
 	}
 
-	(void)shim_memset(socket_pair_fds, 0, sizeof(socket_pair_fds));
 	errno = 0;
 
 	t = stress_time_now();
-	for (max = 0; max < MAX_SOCKET_PAIRS; max++) {
+	for (max = 0; max < sockpair_max_size; max++) {
 		if (UNLIKELY(!stress_continue(args))) {
-			socket_pair_close(socket_pair_fds, max, 0);
-			socket_pair_close(socket_pair_fds, max, 1);
+			socket_pair_close(sockpair_fds, max, 0);
+			socket_pair_close(sockpair_fds, max, 1);
+			(void)munmap((void *)sockpair_fds, sockpair_fds_sz);
 			return EXIT_SUCCESS;
 		}
-		if (socketpair(AF_UNIX, SOCK_STREAM, 0, socket_pair_fds[max]) < 0)
+		if (socketpair(AF_UNIX, SOCK_STREAM, 0, sockpair_fds[max]) < 0)
 			break;
 	}
 	duration = stress_time_now() - t;
@@ -225,21 +240,23 @@ static int stress_sockpair_oomable(stress_args_t *args, void *context)
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 		}
-		socket_pair_close(socket_pair_fds, max, 0);
-		socket_pair_close(socket_pair_fds, max, 1);
+		socket_pair_close(sockpair_fds, max, 0);
+		socket_pair_close(sockpair_fds, max, 1);
+		(void)munmap((void *)sockpair_fds, sockpair_fds_sz);
 		return rc;
 	}
 
 	parent_cpu = stress_cpu_get();
 	pid = stress_retry_fork(args, 0);
 	if (pid < 0) {
-		socket_pair_close(socket_pair_fds, max, 0);
-		socket_pair_close(socket_pair_fds, max, 1);
+		socket_pair_close(sockpair_fds, max, 0);
+		socket_pair_close(sockpair_fds, max, 1);
 
 		if (UNLIKELY(!stress_continue(args)))
 			goto finish;
 		pr_err("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
+		(void)munmap((void *)sockpair_fds, sockpair_fds_sz);
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
@@ -251,7 +268,7 @@ static int stress_sockpair_oomable(stress_args_t *args, void *context)
 		stress_parent_died_alarm();
 		(void)stress_sched_settings_apply(true);
 
-		socket_pair_close(socket_pair_fds, max, 1);
+		socket_pair_close(sockpair_fds, max, 1);
 		while (stress_continue(args)) {
 			uint8_t buf[MAX_SOCKPAIR_MAX_SIZE] ALIGN64;
 			ssize_t n;
@@ -259,7 +276,7 @@ static int stress_sockpair_oomable(stress_args_t *args, void *context)
 			for (i = 0; LIKELY(stress_continue(args) && (i < max)); i++) {
 				errno = 0;
 
-				n = read(socket_pair_fds[i][0], buf, sockpair_max_size);
+				n = read(sockpair_fds[i][0], buf, sockpair_max_size);
 				if (UNLIKELY(n <= 0)) {
 					switch (errno) {
 					case 0:		/* OKAY */
@@ -287,7 +304,8 @@ static int stress_sockpair_oomable(stress_args_t *args, void *context)
 			}
 		}
 abort:
-		socket_pair_close(socket_pair_fds, max, 0);
+		socket_pair_close(sockpair_fds, max, 0);
+		(void)munmap((void *)sockpair_fds, sockpair_fds_sz);
 		_exit(EXIT_SUCCESS);
 	} else {
 		uint8_t buf[MAX_SOCKPAIR_MAX_SIZE] ALIGN64;
@@ -298,7 +316,7 @@ abort:
 		(void)stress_sched_settings_apply(true);
 
 		/* Parent */
-		socket_pair_close(socket_pair_fds, max, 0);
+		socket_pair_close(sockpair_fds, max, 0);
 
 		duration = 0.0;
 		do {
@@ -317,7 +335,7 @@ abort:
 
 				socket_pair_memset(buf, (uint8_t)val++, sockpair_max_size);
 				t = stress_time_now();
-				wret = write(socket_pair_fds[i][1], buf, sockpair_max_size);
+				wret = write(sockpair_fds[i][1], buf, sockpair_max_size);
 				if (LIKELY(wret > 0)) {
 					bytes += (double)wret;
 					duration += stress_time_now() - t;
@@ -356,16 +374,17 @@ tidy:
 		}
 
 		for (i = 0; i < max; i++) {
-			if (shutdown(socket_pair_fds[i][1], SHUT_RDWR) < 0)
+			if (shutdown(sockpair_fds[i][1], SHUT_RDWR) < 0)
 				if (errno != ENOTCONN) {
 					pr_fail("%s: shutdown failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				}
 		}
 		(void)stress_kill_pid_wait(pid, NULL);
-		socket_pair_close(socket_pair_fds, max, 1);
+		socket_pair_close(sockpair_fds, max, 1);
 	}
 finish:
+	(void)munmap((void *)sockpair_fds, sockpair_fds_sz);
 
 	return EXIT_SUCCESS;
 }
