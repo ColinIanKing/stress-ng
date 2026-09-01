@@ -432,7 +432,7 @@ static int stress_acl(stress_args_t *args)
 					MAP_ANONYMOUS | MAP_PRIVATE,
 					-1, 0);
 	if (acls == MAP_FAILED) {
-		pr_inf("%s: cannot mmap %zu bytes for valid acl cache%s, errno=%d (%s), skipping stressor\n",
+		pr_inf_skip("%s: cannot mmap %zu bytes for valid acl cache%s, errno=%d (%s), skipping stressor\n",
 			args->name, acls_size, stress_memory_free_get(), errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
@@ -443,7 +443,7 @@ static int stress_acl(stress_args_t *args)
 					MAP_ANONYMOUS | MAP_PRIVATE,
 					-1, 0);
 	if (acls_tested == MAP_FAILED) {
-		pr_inf("%s: cannot mmap %zu bytes for acls tested array%s, errno=%d (%s), skipping stressor\n",
+		pr_inf_skip("%s: cannot mmap %zu bytes for acls tested array%s, errno=%d (%s), skipping stressor\n",
 			args->name, acls_tested_size, stress_memory_free_get(), errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
 		goto tidy_unmap_acls;
