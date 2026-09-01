@@ -340,7 +340,7 @@ static int stress_fpunch(stress_args_t *args)
 			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buf == MAP_FAILED) {
-		pr_inf("%s: failed to mmap %zu sized buffer%s, errno=%d (%s), skipping stressor\n",
+		pr_inf_skip("%s: failed to mmap %zu sized buffer%s, errno=%d (%s), skipping stressor\n",
 			args->name, sizeof(*buf), stress_memory_free_get(),
 			errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
