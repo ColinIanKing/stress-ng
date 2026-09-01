@@ -721,13 +721,13 @@ static int stress_cacheline(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 
 	if (!g_shared->cacheline.lock) {
-		pr_inf("%s: failed to initialize cacheline lock, skipping stressor\n", args->name);
+		pr_inf_skip("%s: failed to initialize cacheline lock, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 
 	idx = stress_cacheline_next_idx();
 	if (idx < 0) {
-		pr_inf("%s: failed to get cacheline idx, skipping stressor\n", args->name);
+		pr_inf_skip("%s: failed to get cacheline idx, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -770,7 +770,7 @@ static int stress_cacheline(stress_args_t *args)
 
 			child_idx = stress_cacheline_next_idx();
 			if (child_idx < 0) {
-				pr_inf("%s: failed to get cacheline idx, skipping stressor\n", args->name);
+				pr_inf_skip("%s: failed to get cacheline idx, skipping stressor\n", args->name);
 				rc = EXIT_NO_RESOURCE;
 				goto finish;
 			}
