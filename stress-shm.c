@@ -416,7 +416,7 @@ static int stress_shm(stress_args_t *args)
 	 *  be writeable, if not shm_open will fail
 	 */
 	if (access("/dev/shm", W_OK) < 0) {
-		pr_inf("%s: access '/dev/shm' for writes failed', errno=%d (%s) skipping stressor\n",
+		pr_inf_skip("%s: access '/dev/shm' for writes failed', errno=%d (%s) skipping stressor\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
