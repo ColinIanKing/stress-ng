@@ -508,7 +508,7 @@ static int OPTIMIZE3 stress_far_branch(stress_args_t *args)
 	}
 
 	if (n_pages_mapped == 0) {
-		pr_inf("%s: failed to mmap pages%s, skipping stressor\n",
+		pr_inf_skip("%s: failed to mmap pages%s, skipping stressor\n",
 			args->name, stress_memory_free_get());
 	}
 	if (n_pages_failed > 0) {
