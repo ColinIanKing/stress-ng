@@ -193,7 +193,7 @@ static int32_t stress_swap_zero(
 	for (i = 0; i < npages; i++) {
 		if (write(fd, page, args->page_size) < 0) {
 			if (errno == ENOSPC) {
-				pr_inf("%s: out of free space creating swap "
+				pr_inf_skip("%s: out of free space creating swap "
 					"file, skipping stressor\n", args->name);
 				return (int32_t)i;
 			}
