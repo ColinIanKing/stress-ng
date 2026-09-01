@@ -922,6 +922,9 @@ static void stress_usage_help(const stress_help_t help_info[])
 		const char *space = NULL;
 		const char *start = help_info[i].description;
 
+		if (UNLIKELY(!start))
+			continue;
+
 		if (help_info[i].opt_s)
 			(void)snprintf(opt_s, sizeof(opt_s), "-%s,",
 					help_info[i].opt_s);
@@ -938,7 +941,8 @@ static void stress_usage_help(const stress_help_t help_info[])
 					(void)printf("%-30s", "");
 				first = false;
 				(void)printf("%*.*s\n", (int)n, (int)n, start);
-				start = space + 1;
+				if (space)
+					start = space + 1;
 				wd = 0;
 			}
 		}
