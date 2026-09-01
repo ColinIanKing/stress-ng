@@ -104,7 +104,7 @@ static int stress_vm_segv(stress_args_t *args)
 		int fd[2];
 
 		if (UNLIKELY(pipe(fd) < 0)) {
-			pr_inf("%s: pipe failed, errno=%d (%s), skipping stressor\n",
+			pr_inf_skip("%s: pipe failed, errno=%d (%s), skipping stressor\n",
 				args->name, errno, strerror(errno));
 			stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 			return EXIT_NO_RESOURCE;
