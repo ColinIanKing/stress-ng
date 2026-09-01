@@ -203,7 +203,7 @@ static int stress_hrtimers(stress_args_t *args)
 
 	counter_lock = stress_lock_create("counter");
 	if (!counter_lock) {
-		pr_inf("%s: create lock failed, skipping stressor\n", args->name);
+		pr_inf_skip("%s: create lock failed, skipping stressor\n", args->name);
 		rc = EXIT_NO_RESOURCE;
 		goto tidy_s_pids;
 	}
