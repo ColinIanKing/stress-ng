@@ -242,7 +242,7 @@ static int stress_mmapfiles(stress_args_t *args)
 	mmapfile_info = (stress_mmapfile_info_t *)stress_mmap_anon_shared(sizeof(*mmapfile_info),
 				PROT_READ | PROT_WRITE);
 	if (mmapfile_info == MAP_FAILED) {
-		pr_inf("%s: mmap %zu byte mmap file information failed%s, "
+		pr_inf_skip("%s: mmap %zu byte mmap file information failed%s, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, sizeof(*mmapfile_info),
 			stress_memory_free_get(),
