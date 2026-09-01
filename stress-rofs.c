@@ -885,17 +885,17 @@ static int stress_rofs(stress_args_t *args)
 	if (stress_setting_get("rofs-dir", &paths[n_paths])) {
 		/* rofs-dir provided, check if exists, readable, not-writable */
 		if (access(paths[n_paths], F_OK) != 0) {
-			pr_inf("%s: rofs-dir '%s' is not accessible, errno=%d (%s), skipping stressor\n",
+			pr_inf_skip("%s: rofs-dir '%s' is not accessible, errno=%d (%s), skipping stressor\n",
 				args->name, paths[n_paths], errno, strerror(errno));
 			return EXIT_NO_RESOURCE;
 		}
 		if (access(paths[n_paths], R_OK) != 0) {
-			pr_inf("%s: rofs-dir '%s' is not readable, errno=%d (%s), skipping stressor\n",
+			pr_inf_skip("%s: rofs-dir '%s' is not readable, errno=%d (%s), skipping stressor\n",
 				args->name, paths[n_paths], errno, strerror(errno));
 			return EXIT_NO_RESOURCE;
 		}
 		if (access(paths[n_paths], W_OK) == 0) {
-			pr_inf("%s: rofs-dir '%s' is not read-only, skipping stressor\n",
+			pr_inf_skip("%s: rofs-dir '%s' is not read-only, skipping stressor\n",
 				args->name, paths[n_paths]);
 			return EXIT_NO_RESOURCE;
 		}
@@ -927,7 +927,7 @@ static int stress_rofs(stress_args_t *args)
 				paths[n_paths++] = mnts[j];
 		}
 		if (n_paths == 0) {
-			pr_inf("%s: specify read-only file systems using --rofs-dir "
+			pr_inf_skip("%s: specify read-only file systems using --rofs-dir "
 			       "and/or mount one or more read-only file systems, "
 			       "skipping stressor\n", args->name);
 			stress_mount_free(mnts, n_mnts);
@@ -936,7 +936,7 @@ static int stress_rofs(stress_args_t *args)
 	}
 #else
 	if (n_paths == 0) {
-		pr_inf("%s: specify read-only file systems using --rofs-dir, "
+		pr_inf_skip("%s: specify read-only file systems using --rofs-dir, "
 		       "skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
