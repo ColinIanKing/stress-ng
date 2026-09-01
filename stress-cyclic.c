@@ -724,7 +724,8 @@ static int stress_cyclic(stress_args_t *args)
 						PROT_READ | PROT_WRITE,
 						MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (rt_stats == MAP_FAILED) {
-		pr_inf_skip("%s: mmap of shared statistics data failed%s, errno=%d (%s)\n",
+		pr_inf_skip("%s: mmap of shared statistics data failed%s, errno=%d (%s), "
+			"skipping stressor\n",
 			args->name, stress_memory_free_get(),
 			errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
@@ -737,7 +738,8 @@ static int stress_cyclic(stress_args_t *args)
 						PROT_READ | PROT_WRITE,
 						MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (rt_stats->latencies == MAP_FAILED) {
-		pr_inf_skip("%s: mmap of %zu samples failed%s, errno=%d (%s)\n",
+		pr_inf_skip("%s: mmap of %zu samples failed%s, errno=%d (%s), "
+			"skipping stressor\n",
 			args->name, cyclic_samples, stress_memory_free_get(),
 			errno, strerror(errno));
 		(void)munmap((void *)rt_stats, size);
