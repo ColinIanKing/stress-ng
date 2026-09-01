@@ -1192,7 +1192,7 @@ static int stress_iomix(stress_args_t *args)
 					iomix_bytes >>= 1;
 					iomix_bytes_shrunk = true;
 				} else {
-					pr_fail("%s: fallocate failed, no free space, errno=%d (%s)%s, skipping stressor\n",
+					pr_inf_skip("%s: fallocate failed, no free space, errno=%d (%s)%s, skipping stressor\n",
 						args->name, errno, strerror(errno), fs_type);
 					rc = EXIT_NO_RESOURCE;
 					goto tidy;
