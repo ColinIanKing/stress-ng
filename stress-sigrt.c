@@ -56,7 +56,7 @@ static int stress_sigrt(stress_args_t *args)
 			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (stress_sigrt_metrics == MAP_FAILED) {
-		pr_inf("%s: mmap %zu bytes failed%s, errno=%d (%s), "
+		pr_inf_skip("%s: mmap %zu bytes failed%s, errno=%d (%s), "
 			"skipping stressor\n",
 			args->name, stress_sigrt_metrics_size,
 			stress_memory_free_get(), errno, strerror(errno));
