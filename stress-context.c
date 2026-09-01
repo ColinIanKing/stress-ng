@@ -184,7 +184,7 @@ static int stress_context(stress_args_t *args)
 					PROT_READ | PROT_WRITE,
 					MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (context == MAP_FAILED) {
-		pr_inf("%s: failed to allocate %d x %zu bytes for context buffers%s, skipping stressor\n",
+		pr_inf_skip("%s: failed to allocate %d x %zu bytes for context buffers%s, skipping stressor\n",
 			args->name, STRESS_CONTEXTS, sizeof(context_data_t),
 			stress_memory_free_get());
 		return EXIT_NO_RESOURCE;
