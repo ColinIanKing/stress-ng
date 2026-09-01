@@ -80,7 +80,7 @@ static int stress_ptr_chase(stress_args_t *args)
 
 	ptrs_heap = (stress_ptrs_t *)calloc(1, alloc_size);
 	if (!ptrs_heap) {
-		pr_inf("%s: allocate heap of %zu bytes failed%s, "
+		pr_inf_skip("%s: allocate heap of %zu bytes failed%s, "
 			"skipping stressor\n",
 			args->name, alloc_size, stress_memory_free_get());
 		return EXIT_NO_RESOURCE;
