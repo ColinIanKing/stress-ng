@@ -451,7 +451,7 @@ static int stress_prio_inv(stress_args_t *args)
 
 		pid = fork();
 		if (pid < 0) {
-			pr_inf("%s: fork child process failed, errno=%d (%s), skipping stressor\n",
+			pr_inf_skip("%s: fork child process failed, errno=%d (%s), skipping stressor\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_NO_RESOURCE;
 			goto reap;
