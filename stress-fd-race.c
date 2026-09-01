@@ -843,7 +843,7 @@ static int stress_fd_race(stress_args_t *args)
 	(void)stress_fs_temp_filename_args(args, filename, sizeof(filename), stress_mwc32());
 	fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 	if (fd < 0) {
-		pr_inf("%s: open '%s' failed, errno=%d (%s), skipping stressor\n",
+		pr_inf_skip("%s: open '%s' failed, errno=%d (%s), skipping stressor\n",
 			args->name, filename, errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
 		goto tidy_file;
@@ -856,7 +856,7 @@ static int stress_fd_race(stress_args_t *args)
 		stress_fd_race_filename_dir("/proc", &list);
 
 	if (!stress_fd_race_filename_add(&list, filename, O_RDWR)) {
-		pr_inf("%s: failed to add filename to list, skipping stressor\n", args->name);
+		pr_inf_skip("%s: failed to add filename to list, skipping stressor\n", args->name);
 		rc = EXIT_NO_RESOURCE;
 		goto tidy_file;
 	}
