@@ -135,7 +135,7 @@ static inline int stress_eigen_exercise(
 			&eigen_metrics[eigen_method].count);
 
 		if (ret < 0) {
-			pr_inf("%s: eigen matrix library failure with %s, skipping stressor\n", args->name, name);
+			pr_inf_skip("%s: eigen matrix library failure with %s, skipping stressor\n", args->name, name);
 			rc = EXIT_NO_RESOURCE;
 			break;
 		} else {
