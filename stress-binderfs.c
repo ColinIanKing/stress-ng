@@ -109,13 +109,13 @@ static int stress_binderfs_supported(const char *name)
 #endif
 
 unsupported:
-	pr_inf_skip("%s stressor will be skipped, binderfs not supported\n", name);
+	pr_inf_skip("%s binderfs not supported, skipping stressor\n", name);
 	/* umount just in case it got mounted and mount was lying */
 	(void)umount(path);
 	(void)rmdir(path);
 	return -1;
 #else
-	pr_inf_skip("%s stressor will be skipped, binderfs not supported\n", name);
+	pr_inf_skip("%s binderfs not supported, skipping stressor\n", name);
 	return -1;
 #endif
 }
