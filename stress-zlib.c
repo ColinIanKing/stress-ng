@@ -1787,11 +1787,11 @@ static int stress_zlib(stress_args_t *args)
 			PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (shared_checksums == MAP_FAILED) {
-		pr_inf("%s: mmap %zu bytes failed%s, "
+		pr_inf_skip("%s: mmap %zu bytes failed%s, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, sizeof(*shared_checksums),
 			stress_memory_free_get(), errno, strerror(errno));
-		return EXIT_FAILURE;
+		return EXIT_NO_RESOURCE;
 	}
 	stress_memory_anon_name_set(shared_checksums, sizeof(*shared_checksums), "zlib-checksums");
 	if (pipe(fds) < 0) {
