@@ -101,7 +101,7 @@ static int stress_pkey(stress_args_t *args)
 		if (UNLIKELY(ret < 0)) {
 			if (errno == ENOSYS) {
 				if (stress_instance_zero(args)) {
-					pr_inf_skip("%s: pkey system calls not implemented, skipping\n",
+					pr_inf_skip("%s: pkey system calls not implemented, skipping stressor\n",
 						args->name);
 				}
 				if (pkey >= 0)
