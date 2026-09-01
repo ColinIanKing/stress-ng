@@ -460,7 +460,7 @@ static int stress_varyload(stress_args_t *args)
 
 	pids = (pid_t *)calloc((size_t)args->instances, sizeof(*pids));
 	if (!pids) {
-		pr_inf("%s: allocate %" PRIu32 " pids failed, skipping stressor\n",
+		pr_inf_skip("%s: allocate %" PRIu32 " pids failed, skipping stressor\n",
 			args->name, args->instances);
 		return EXIT_NO_RESOURCE;
 	}
@@ -485,7 +485,7 @@ redo:
 			}
 		}
 		if (sync_fail) {
-			pr_inf("%s: pid_t %" PRIu32 " read error during process synchronisation, "
+			pr_inf_skip("%s: pid_t %" PRIu32 " read error during process synchronisation, "
 				"errno=%d (%s), skipping stressor\n",
 				args->name, i, errno, strerror(errno));
 			free(pids);
