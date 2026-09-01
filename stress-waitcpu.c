@@ -333,7 +333,7 @@ static int stress_waitcpu(stress_args_t *args)
 	}
 	if (!supported) {
 		if (stress_instance_zero(args))
-			pr_inf("%s: no CPU wait/pause instructions available, skipping stressor\n",
+			pr_inf_skip("%s: no CPU wait/pause instructions available, skipping stressor\n",
 				args->name);
 		return EXIT_NO_RESOURCE;
 	}
