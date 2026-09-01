@@ -167,7 +167,7 @@ static int stress_unshare(stress_args_t *args)
 				PROT_READ | PROT_WRITE,
 				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (unshare_info == MAP_FAILED) {
-		pr_inf("%s: mmap %zu bytes for unshare metrics failed%s, "
+		pr_inf_skip("%s: mmap %zu bytes for unshare metrics failed%s, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, unshare_info_size,
 			stress_memory_free_get(), errno, strerror(errno));
