@@ -333,7 +333,7 @@ static int stress_inode_flags(stress_args_t *args)
 
 	inode_flags_counter_lock = stress_lock_create("counter");
 	if (!inode_flags_counter_lock) {
-		pr_inf("%s: create lock failed, skipping stressor\n", args->name);
+		pr_inf_skip("%s: create lock failed, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 
