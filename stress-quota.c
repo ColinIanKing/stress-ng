@@ -456,7 +456,7 @@ static int stress_quota(stress_args_t *args)
 			 * then do a non-fatal skip test
 			 */
 			if (skipped == n_devs) {
-				pr_inf("%s: cannot test accounting on available devices, "
+				pr_inf_skip("%s: cannot test accounting on available devices, "
 					"skipping stressor\n", args->name);
 				rc = EXIT_NO_RESOURCE;
 				goto tidy;
