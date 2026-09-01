@@ -84,14 +84,14 @@ static int stress_sigxcpu(stress_args_t *args)
 
 #if defined(RLIMIT_CPU)
 	if (getrlimit(RLIMIT_CPU, &limit_cpu) < 0) {
-		pr_inf("%s: getrlimit RLIMIT_CPU failed, errno=%d (%s), skipping stressor\n",
+		pr_inf_skip("%s: getrlimit RLIMIT_CPU failed, errno=%d (%s), skipping stressor\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 #endif
 #if defined(RLIMIT_RTTIME)
 	if (getrlimit(RLIMIT_CPU, &limit_rttime) < 0) {
-		pr_inf("%s: getrlimit RLIMIT_RTTIME failed, errno=%d (%s), skipping stressor\n",
+		pr_inf_skip("%s: getrlimit RLIMIT_RTTIME failed, errno=%d (%s), skipping stressor\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
