@@ -52,17 +52,17 @@ static int stress_rawsock_open(const char *name, int *fd)
 	if ((*fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_ICMP)) < 0) {
 		*fd = -1;
 		if (errno == EPROTONOSUPPORT) {
-			pr_inf_skip("%s: stressor will be skipped, protocol not supported\n", name);
+			pr_inf_skip("%s: socket(): protocol not supported, skipping stressor\n", name);
 			return EXIT_NOT_IMPLEMENTED;
 		}
 		if ((errno == EPERM) || (errno == EACCES)) {
-			pr_inf_skip("%s: stressor will be skipped, permission denied\n", name);
+			pr_inf_skip("%s: socket(): permission denied, skipping stressor", name);
 #if defined(__linux__)
 			pr_inf("%s: writing 0 0 to '/proc/sys/net/ipv4/ping_group_range' may help\n", name);
 #endif
 			return EXIT_NOT_IMPLEMENTED;
 		}
-		pr_fail("%s: stressor will be skipped, errno=%d (%s)\n",
+		pr_fail("%s: socket() failed, errno=%d (%s)\n",
 			name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
