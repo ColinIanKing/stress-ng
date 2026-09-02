@@ -262,6 +262,7 @@ static int stress_sigfpe(stress_args_t *args)
 #else
 		UNEXPECTED
 #endif
+		{ SNG_RAISE,	0 },
 	};
 
 	(void)shim_memset(&action, 0, sizeof action);
