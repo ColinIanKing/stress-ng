@@ -222,6 +222,7 @@
  * [Benchmarking of CPU-intensive Stream Data Processing in The Edge Computing Systems](https://arxiv.org/html/2505.07755v2)
  * [Beyond Thread States: Diagnosing Performance Degradation with eBPF and Thread Dynamics](https://arxiv.org/html/2605.25298v1)
  * [Causal Inference for Quantifying Noisy Neighbor Effects in Multi-Tenant Cloud Environments](https://arxiv.org/html/2604.03145v1)
+ * [Characterizing the Variance Envelope: A Multi-Dimensional Analysis of Spectre Telemetry Across Architectures and Workloads](https://arxiv.org/html/2608.13920v1)
  * [CINERGY: Deterministic Power Monitoring for Carbon Accounting in the Cloud](https://hal.science/hal-05551692v1/file/Cinergy.pdf)
  * [Colored Huge Pages: A Hardware-Software Approach for Enhanced Isolation and Performance](https://past.date-conference.com/proceedings-archive/2026/DATA/1222.pdf)
  * [Comparative Analysis of eBPF-Based Runtime Security Monitoring Tools in Monitoring and Threat Detection on Kubernetes](https://pdfs.semanticscholar.org/d06b/7f69910d814902c3aa61990e1d81fdac2ba3.pdf)
