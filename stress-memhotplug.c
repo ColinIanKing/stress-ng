@@ -142,6 +142,51 @@ static void stress_memhotplug_set_timer(const unsigned int secs)
 	(void)setitimer(ITIMER_PROF, &timer, NULL);
 }
 
+/*
+ *  stress_memhotplug_sysfs_read()
+ *  	read sysfs files related to the mem_info file
+ */
+static void stress_memhotplug_sysfs_read(stress_mem_info_t *mem_info)
+{
+	char path[sizeof(sys_memory_path) + 256 + 1];
+	DIR *dp;
+	struct dirent *de;
+
+	(void)snprintf(path, sizeof(path), "%s/%s",
+		sys_memory_path, mem_info->name);
+
+	dp = opendir(path);
+	if (!dp)
+		return;
+
+	while ((de = readdir(dp)) != NULL) {
+		char filename[PATH_MAX];
+		int fd;
+		struct stat statbuf;
+
+		if (stress_fs_filename_dotty(de->d_name))
+			continue;
+
+		(void)snprintf(filename, sizeof(filename), "%s/%s", path, de->d_name);
+		fd = open(filename, O_RDONLY);
+		if (fd < 0)
+			continue;
+
+		/* we only want to read regular sysfs files */
+		if (fstat(fd, &statbuf) < 0) {
+			(void)close(fd);
+			continue;
+		}
+		if ((statbuf.st_mode & S_IFMT) == S_IFREG) {
+			char buf[1024];
+
+			VOID_RET(ssize_t, read(fd, buf, sizeof(buf)));
+		}
+		(void)close(fd);
+	}
+	(void)closedir(dp);
+}
+
 static void stress_memhotplug_mem_toggle(
 	void **mmap_ptr,
 	size_t *mmap_size,
@@ -322,6 +367,7 @@ static int stress_memhotplug(stress_args_t *args)
 		for (i = 0; LIKELY(stress_continue(args) && (i < max)); i++) {
 			stress_memhotplug_mem_toggle(&mmap_ptr, &mmap_size,
 					memhotplug_mmap, &mem_info[i], &metrics);
+			stress_memhotplug_sysfs_read(&mem_info[i]);
 			if (!mem_info[i].timeout)
 				ok = true;
 			stress_bogo_inc(args);
