@@ -51,6 +51,7 @@ static const stress_help_t help[] = {
     defined(HAVE_FLOAT_H) &&		\
     defined(HAVE_SIGLONGJMP)
 
+#define SNG_RAISE	(0x00000000)
 #define SNG_INTDIV	(0x40000000)
 #define SNG_FLTDIV	(0x80000000)
 
@@ -370,6 +371,10 @@ static int stress_sigfpe(stress_args_t *args)
 				break;
 			case SNG_INTDIV:
 				stress_int_div_by_zero();
+				break;
+			case SNG_RAISE:
+				/* Raise SIGFPE */
+				(void)raise(SIGFPE);
 				break;
 			default:
 				/* Raise fault otherwise */
