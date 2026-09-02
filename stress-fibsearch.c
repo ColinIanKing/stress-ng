@@ -47,7 +47,7 @@ static void OPTIMIZE3 * fibsearch(
 	register void *ptr;
 	register ssize_t offset = -1;
 
-PRAGMA_UNROLL
+PRAGMA_UNROLL_N(8)
 	while (fib0 < nmemb) {
 		fib2 = fib1;
 		fib1 = fib0;
