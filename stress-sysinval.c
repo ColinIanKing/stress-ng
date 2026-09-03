@@ -4723,7 +4723,7 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_SYSCALL("vmsplice"),
 #endif
 #if DEFSYS(vserver)
-	STRESS_EX_SYSCALL("verver"),
+	/* STRESS_EX_SYSCALL("verver"), */
 #endif
 #if DEFSYS(wait)
 	STRESS_EX_SYSCALL("wait"),
