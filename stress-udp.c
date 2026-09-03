@@ -290,6 +290,7 @@ static int OPTIMIZE3 stress_udp_server(
 	socklen_t addr_len = 0;
 	struct sockaddr_storage addr;
 	int rc = EXIT_FAILURE;
+	int count = 0;
 
 	(void)shim_memset(&addr, 0, sizeof(addr));
 	if (stress_signal_stop_stressing(args->name, SIGALRM) < 0)
@@ -389,6 +390,14 @@ static int OPTIMIZE3 stress_udp_server(
 			}
 			stress_bogo_inc(args);
 		}
+#if defined(__linux__)
+		if ((count++ & 0xffff) == 0) {
+			/* Periodically read udp files */
+			stress_fs_discard("/proc/net/udp");
+			stress_fs_discard("/proc/net/udp6");
+		}
+#endif
+
 	} while (stress_continue(args));
 
 	rc = EXIT_SUCCESS;
