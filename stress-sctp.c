@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-affinity.h"
 #include "core-builtin.h"
+#include "core-filesystem.h"
 #include "core-killpid.h"
 #include "core-net.h"
 #include "core-signal.h"
@@ -463,6 +464,8 @@ retry:
 				}
 			}
 		} while (stress_continue_flag());
+
+		stress_fs_dir_files_read("/proc/net/sctp/");
 		(void)shutdown(fd, SHUT_RDWR);
 		(void)close(fd);
 	} while (stress_continue(args));
