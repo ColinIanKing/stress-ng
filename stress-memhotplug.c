@@ -149,42 +149,11 @@ static void stress_memhotplug_set_timer(const unsigned int secs)
 static void stress_memhotplug_sysfs_read(stress_mem_info_t *mem_info)
 {
 	char path[sizeof(sys_memory_path) + 256 + 1];
-	DIR *dp;
-	struct dirent *de;
 
 	(void)snprintf(path, sizeof(path), "%s/%s",
 		sys_memory_path, mem_info->name);
 
-	dp = opendir(path);
-	if (!dp)
-		return;
-
-	while ((de = readdir(dp)) != NULL) {
-		char filename[PATH_MAX];
-		int fd;
-		struct stat statbuf;
-
-		if (stress_fs_filename_dotty(de->d_name))
-			continue;
-
-		(void)snprintf(filename, sizeof(filename), "%s/%s", path, de->d_name);
-		fd = open(filename, O_RDONLY);
-		if (fd < 0)
-			continue;
-
-		/* we only want to read regular sysfs files */
-		if (fstat(fd, &statbuf) < 0) {
-			(void)close(fd);
-			continue;
-		}
-		if ((statbuf.st_mode & S_IFMT) == S_IFREG) {
-			char buf[1024];
-
-			VOID_RET(ssize_t, read(fd, buf, sizeof(buf)));
-		}
-		(void)close(fd);
-	}
-	(void)closedir(dp);
+	stress_fs_dir_files_read(path);
 }
 
 static void stress_memhotplug_mem_toggle(

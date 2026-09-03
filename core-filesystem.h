@@ -94,5 +94,6 @@ extern int stress_fs_drop_caches(const int flags);
 extern void stress_fs_io_stats_begin(stress_io_stats_t *io_stats);
 extern void stress_fs_io_stats_end(stress_io_stats_t *io_stats);
 extern void stress_fs_dentry_state_get(stress_fs_dentry_stat_t *dentry_stat);
+extern void stress_fs_dir_files_read(const char *path);
 
 #endif

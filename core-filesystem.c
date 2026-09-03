@@ -1901,3 +1901,48 @@ void stress_fs_dentry_state_get(stress_fs_dentry_stat_t *dentry_stat)
 	(void)shim_memset(dentry_stat, 0, sizeof(*dentry_stat));
 	return;
 }
+
+/*
+ *  stress_fs_dir_files_read
+ *	read regular files in a directory,
+ *	normally used for reading procfs files
+ */
+void stress_fs_dir_files_read(const char *path)
+{
+	DIR *dp;
+	struct dirent *de;
+
+	if (!path)
+		return;
+
+	dp = opendir(path);
+	if (!dp)
+		return;
+
+	while ((de = readdir(dp)) != NULL) {
+		char filename[PATH_MAX];
+		int fd;
+		struct stat statbuf;
+
+		if (stress_fs_filename_dotty(de->d_name))
+			continue;
+
+		(void)snprintf(filename, sizeof(filename), "%s/%s", path, de->d_name);
+		fd = open(filename, O_RDONLY);
+		if (fd < 0)
+			continue;
+
+		/* we only want to read regular sysfs files */
+		if (fstat(fd, &statbuf) < 0) {
+			(void)close(fd);
+			continue;
+		}
+		if ((statbuf.st_mode & S_IFMT) == S_IFREG) {
+			char buf[1024];
+
+			VOID_RET(ssize_t, read(fd, buf, sizeof(buf)));
+		}
+		(void)close(fd);
+	}
+	(void)closedir(dp);
+}

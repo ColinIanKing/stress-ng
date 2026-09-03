@@ -225,38 +225,23 @@ static void stress_hugepage_sysfs_read(void)
 {
 	char sysfs_hugepages[] = "/sys/kernel/mm/hugepages";
 
-	DIR *dp1;
-	struct dirent *de1;
+	DIR *dp;
+	struct dirent *de;
 
-	dp1 = opendir(sysfs_hugepages);
-	if (!dp1)
+	dp = opendir(sysfs_hugepages);
+	if (!dp)
 		return;
 
-	while ((de1 = readdir(dp1)) != NULL) {
+	while ((de = readdir(dp)) != NULL) {
 		char path[sizeof(sysfs_hugepages) + 256 + 1];
-		DIR *dp2;
-		struct dirent *de2;
 
-		if (stress_fs_filename_dotty(de1->d_name))
+		if (stress_fs_filename_dotty(de->d_name))
 			continue;
 
-		(void)snprintf(path, sizeof(path), "%s/%s", sysfs_hugepages, de1->d_name);
-		dp2 = opendir(path);
-		if (!dp2)
-			continue;
-
-		while ((de2 = readdir(dp2)) != NULL) {
-			char filename[PATH_MAX];
-
-			if (stress_fs_filename_dotty(de2->d_name))
-				continue;
-
-			(void)snprintf(filename, sizeof(filename), "%s/%s", path, de2->d_name);
-			(void)stress_fs_discard(filename);
-		}
-		(void)closedir(dp2);
+		(void)snprintf(path, sizeof(path), "%s/%s", sysfs_hugepages, de->d_name);
+		stress_fs_dir_files_read(path);
 	}
-	(void)closedir(dp1);
+	(void)closedir(dp);
 }
 
 /*
