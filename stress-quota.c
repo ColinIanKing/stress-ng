@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
+#include "core-filesystem.h"
 #include "core-mounts.h"
 
 #if defined(HAVE_SYS_QUOTA_H)
@@ -465,6 +466,8 @@ static int stress_quota(stress_args_t *args)
 			/* All failed, then give up */
 			if (failed == n_devs)
 				goto tidy;
+
+			stress_fs_dir_files_read("/proc/sys/fs/quota");
 		} while (stress_continue(args));
 	}
 abort:
