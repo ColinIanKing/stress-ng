@@ -863,9 +863,17 @@ retry:
 #endif
 			}
 #endif
-			/*  Periodically exercise invalid recv calls */
+			/* Periodically exercise invalid recv calls */
 			if (UNLIKELY((count & 0x7ff) == 0))
 				stress_sock_invalid_recv(fd, bad_fd, opt);
+
+#if defined(__linux__)
+			/* Periodically read sockstat files */
+			if (UNLIKELY((count & 0xffff) == 0)) {
+				stress_fs_discard("/proc/net/sockstat");
+				stress_fs_discard("/proc/net/sockstat6");
+			}
+#endif
 
 			/*
 			 *  Receive using equivalent receive method
