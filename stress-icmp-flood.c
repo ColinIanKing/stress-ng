@@ -172,9 +172,11 @@ static int stress_icmp_flood(stress_args_t *args)
 		}
 		stress_bogo_inc(args);
 
+#if defined(__linux__)
 		/* preriodically exercise /proc/net/icmp */
 		if ((seq++ & 0x3ffff) == 0)
 			stress_fs_discard("/proc/net/icmp");
+#endif
 	} while (stress_continue(args));
 	duration = stress_time_now() - t_start;
 
