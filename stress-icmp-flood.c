@@ -88,7 +88,7 @@ static int stress_icmp_flood(stress_args_t *args)
 	double duration;
 	double rate;
 	const uint16_t id = htons((uint16_t)args->instance);
-	uint16_t seq = 0;
+	uint32_t seq = 0;
 	char ALIGN64 pkt[MAX_PKT_LEN];
 	struct iphdr *const ip_hdr = (struct iphdr *)shim_assume_aligned(pkt, 1);
 	struct icmphdr *const icmp_hdr = (struct icmphdr *)shim_assume_aligned((pkt + sizeof(struct iphdr)), 1);
@@ -158,7 +158,7 @@ static int stress_icmp_flood(stress_args_t *args)
 
 		ip_hdr->tot_len = htons(pkt_len);
 		icmp_hdr->un.echo.id = id;
-		icmp_hdr->un.echo.sequence = htons(seq);
+		icmp_hdr->un.echo.sequence = htons((uint16_t)seq);
 
 		payload[0]++;
 		icmp_hdr->checksum = stress_net_ipv4_checksum((uint16_t *)icmp_hdr,
@@ -171,7 +171,10 @@ static int stress_icmp_flood(stress_args_t *args)
 			bytes += (double)ret;
 		}
 		stress_bogo_inc(args);
-		seq++;
+
+		/* preriodically exercise /proc/net/icmp */
+		if ((seq++ & 0x3ffff) == 0)
+			stress_fs_discard("/proc/net/icmp");
 	} while (stress_continue(args));
 	duration = stress_time_now() - t_start;
 
