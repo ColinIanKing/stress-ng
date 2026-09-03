@@ -141,6 +141,9 @@ static int stress_pty(stress_args_t *args)
 			if (UNLIKELY(!stress_continue_flag()))
 				goto clean;
 		}
+#if defined(__linux__)
+		stress_fs_dir_files_read("/proc/sys/kernel/pty");
+#endif
 		/*
 		 *  ... and exercise ioctls ...
 		 */
