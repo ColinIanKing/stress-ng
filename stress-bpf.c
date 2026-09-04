@@ -89,7 +89,7 @@ static void OPTIMIZE3 stress_bpf_insn_add(stress_bpf_cached_insn_t *insn)
 	register uint32_t idx;
 	register uint32_t next_idx;
 
-	/* any free unqiue instructions in table? */
+	/* any free unique instructions in table? */
 	if (UNLIKELY(unique_insns_count >= MAX_UNIQUE_INSNS))
 		return;
 
@@ -226,7 +226,7 @@ static int OPTIMIZE3 stress_bpf_push_op(
 
 		get_cached = ((unique_insns_count > 0) && stress_mwc8() > 128);
 		if (get_cached) {
-			/* fetch an exisiting cached instruction */
+			/* fetch an existing cached instruction */
 			register const size_t idx = stress_mwcsizemodn(unique_insns_count);
 			register stress_bpf_cached_insn_t *insn= &unique_insns[idx].insn;
 
@@ -387,7 +387,7 @@ static int stress_bpf(stress_args_t *args)
 
 	rate = (stress_bpf_duration > 0.) ? stress_bpf_insns / stress_bpf_duration : 0.0;
 	stress_metrics_set(args, "loaded/verifed BPF instructions per second", rate, STRESS_METRIC_GEOMETRIC_MEAN);
-	stress_metrics_set(args, "maxiumum BPF code instructions", (double)stress_bpf_size_max, STRESS_METRIC_MAXIMUM);
+	stress_metrics_set(args, "maximum BPF code instructions", (double)stress_bpf_size_max, STRESS_METRIC_MAXIMUM);
 	stress_metrics_set(args, "unique BPF instructions used", (double)unique_insns_count, STRESS_METRIC_MAXIMUM);
 
 	(void)munmap((void *)stress_bpf_insn_hash_table, hash_table_sz);
