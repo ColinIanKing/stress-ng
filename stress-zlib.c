@@ -1254,7 +1254,7 @@ static void stress_rand_data_objcode(
 		text_start = (char *)stress_rand_data_objcode;
 		text_end = (char *)stress_rand_data_bcd;
 	}
-	text = text_start + (stress_mwc64modn((uint64_t)(text_end - text_start)));
+	text = text_start + (stress_mwc64modn((uint64_t)((uintptr_t)text_end - (uintptr_t)text_start)));
 
 	for (dataptr = (char *)data; dataptr < (char *)data_end; dataptr++) {
 		*dataptr = *text;
