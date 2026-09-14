@@ -120,6 +120,11 @@ endif
 cc_supports_flag = $(shell $(CC) -Werror $(flag) -E -xc /dev/null > /dev/null 2>&1 && echo $(flag))
 
 #
+# Check if compiler supports flag set in $(flag)
+#
+cc_supports_flag = $(shell $(CC) -Werror $(flag) -E -xc /dev/null > /dev/null 2>&1 && echo $(flag))
+
+#
 # Pedantic flags
 #
 ifeq ($(PEDANTIC),1)
@@ -915,9 +920,21 @@ build_info:
 
 .o: Makefile
 
+#
+#  Extra CFLAGS detected by the configure step, e.g. the aarch64
+#  SVE2 -O3 -march option.  The 'config' file is written by the
+#  configure step which always runs before any compilation (it
+#  generates the config.h prerequisite), so by the time any .o
+#  rule recipe runs the file exists and the flags can be read.
+#  Reading it at recipe time (rather than Makefile parse time)
+#  means a fresh 'make clean && make' picks the flags up in the
+#  same run, avoiding a chicken-and-egg on the first build.
+#
+CFLAGS_CONFIG_EXTRACT = $(shell grep '^CONFIG_CFLAGS' config 2>/dev/null | sed 's/^CONFIG_CFLAGS +=//' | tr '\n' ' ')
+
 %.o: %.c $(HEADERS) $(HEADERS_GEN)
 	$(PRE_Q)echo "CC $<"
-	$(PRE_V)$(CC) $(CFLAGS) -DHAVE_CFLAGS='"$(CFLAGS)"' -DHAVE_LDFLAGS='"$(LDFLAGS)"' -DHAVE_CXXFLAGS='"$(CXXFLAGS)"' -c -o $@ $<
+	$(PRE_V)$(CC) $(CFLAGS) $(CFLAGS_CONFIG_EXTRACT) -DHAVE_CFLAGS='"$(CFLAGS) $(CFLAGS_CONFIG_EXTRACT)"' -DHAVE_LDFLAGS='"$(LDFLAGS)"' -DHAVE_CXXFLAGS='"$(CXXFLAGS)"' -c -o $@ $<
 
 stress-vnni.o: stress-vnni.c $(HEADERS) $(HEADERS_GEN)
 	$(PRE_Q)echo "CC $<"
