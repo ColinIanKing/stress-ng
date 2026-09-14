@@ -827,6 +827,7 @@ STRESS_SRC = \
 	stress-stream.c \
 	stress-strnum.c \
 	stress-swap.c \
+	stress-sve2.c \
 	stress-switch.c \
 	stress-sync-file.c \
 	stress-syncload.c \

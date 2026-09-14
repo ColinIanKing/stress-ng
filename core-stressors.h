@@ -352,6 +352,7 @@
 	MACRO(stream)		\
 	MACRO(strnum)		\
 	MACRO(swap)		\
+	MACRO(sve2)		\
 	MACRO(switch)		\
 	MACRO(symlink)		\
 	MACRO(sync_file)	\

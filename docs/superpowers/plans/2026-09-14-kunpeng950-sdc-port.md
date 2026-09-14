@@ -70,11 +70,20 @@
 - [x] 回归：`--fma 1 --verify -t 3` passed、`--zombie 1 -t 3` passed
 - [x] 修复的构建错误（诚实记录）：vecfp 忘 include core-bitops.h/core-builtin.h → undefined reference（shim_memcpy / popcount）
 
-### Patch 6: 新 stressor stress-sve2.c（SVE2 数据通路）
-- [ ] 新文件：`__ARM_FEATURE_SVE2` guard；使用 arm_sve.h intrinsics（svmla/svld1_f64/svptrue_b64/svwhilelt、svebitperm BEXT/BGRP、bf16 SVMMLA、i8mm SUDOT/USDOT）；软件 golden 自校验（标量参考实现比对）；无 SVE2 硬件 `.supported` 返回 -1 + unimplemented_reason 诚实跳过
-- [ ] 5 点注册：stress-sve2.c / Makefile STRESS_SRC / core-stressors.h MACRO / core-opts.h OPT_ / core-opts.c long_options（--sve2, --sve2-ops, --sve2-method）
-- [ ] 验证（本机 920 无 SVE2）：`./stress-ng --sve2 1 -t 5` → skipped with reason；构建零新警告
-- [ ] 回归：`--zombie 1 -t 5` passed
+### Patch 6: 新 stressor stress-sve2.c（SVE2 数据通路） — DONE
+- [x] 新文件：`STRESS_ARCH_ARM && __ARM_FEATURE_SVE2` guard；sve2_fmla（svmla_f64_m 谓词化 FMA 链 ×64）+ sve2_bitperm（svbext_u64 位提取，单独 `__ARM_FEATURE_SVE2_BITPERM` guard）；标量 golden 参考实现比对（fma() / BEXT 压缩语义）；CORE179 风格位级失败诊断；`.supported` 检查 HWCAP_SVE；无 SVE2 → `stress_unimplemented` + unimplemented_reason
+- [x] 5 点注册完成：Makefile STRESS_SRC（strnum 与 switch 之间）/ core-stressors.h MACRO(sve2) / core-opts.h OPT_sve2+OPT_sve2_ops / core-opts.c long_options（sve2, sve2-ops）
+- [x] Makefile.config 的 SVE2 march 串扩展 `+sve2-bitperm`（BEXT 需要；950 cpuinfo 有 svebitperm）
+- [x] 验证实测（本机 920 无 SVE，诚实跳过 + 编译级验证）：
+  - `--sve2 1 -t 3` → `sve2 stressor will be skipped, it is not implemented ... (built for non-aarch64 target or compiler without SVE2 support)`，skipped: 1 ✅
+  - **编译级功能验证**（本机无法运行 SVE2）：`gcc -march=armv8.6-a+sve2+sve2-bitperm -c stress-sve2.c` → objdump 确认真实指令 `ptrue p0.b` / `ld1d {z0.d}` / `fmla z0.d, p0/m, z3.d, z1.d` / `bext z0.d, z0.d, z1.d`
+  - **全链路验证**：`make MARCH_AARCH64_SVE2=1` 全量构建成功（0 warning 0 error），最终二进制含 `bext z`（1 处）与 `fmla z`（多处）
+  - 回归（正常构建）：`--zombie 1` passed、`--cpu 2 --cpu-method crc32` passed、`--fma 1 --verify` passed
+- [x] 发现并修正的 bug（诚实记录）：
+  1. guard 宏名写错：`STRESS_ARCH_ARM64` 不存在（正确为 `STRESS_ARCH_ARM`），导致整个实现被静默跳过、编译的是 stub（objdump 0 条 z 寄存器指令暴露了问题）
+  2. 缺 `#include <math.h>`（fma 隐式声明警告）
+  3. `svbext_u64` 在 gcc 12 要求 `+sve2-bitperm` 扩展标志；BEXT 语义为"掩码选中的位按序压缩到底部"（非逐位条件选择），golden 参考已按 ARM ARM 语义实现
+- [x] 目标机待验证：950 上 `--sve2 N -t 60` 应 passed（golden 比对通过 = SVE2 fmla/bext 数据通路正确）；如失败即 SDC 证据
 
 ### Patch 7: 新 stressor stress-ls64.c（64B 原子访存 LD64B/ST64B）
 - [ ] 新文件：`__ARM_FEATURE_LS64` guard + HWCAP 检查；LD64B/ST64B 内联汇编压 LSU+一致性；无 ls64 诚实跳过
