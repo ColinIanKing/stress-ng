@@ -31,7 +31,7 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"regs N",	"start N workers exercising CPU generic registers" },
-	{ NULL, "regs-bitflip",	"flip bits in regsisters to consume more power" },
+	{ NULL, "regs-bitflip",	"flip bits in registers to consume more power" },
 	{ NULL,	"regs-ops N",	"stop after N x 1000 rounds of register shuffling" },
 	{ NULL,	NULL,		NULL }
 };
