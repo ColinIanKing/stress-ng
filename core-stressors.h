@@ -182,6 +182,7 @@
 	MACRO(logmath)		\
 	MACRO(longjmp)		\
 	MACRO(loop)		\
+	MACRO(ls64)		\
 	MACRO(lsearch)		\
 	MACRO(lsm)		\
 	MACRO(madvise)		\

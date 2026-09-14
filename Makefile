@@ -657,6 +657,7 @@ STRESS_SRC = \
 	stress-logmath.c \
 	stress-longjmp.c \
 	stress-loop.c \
+	stress-ls64.c \
 	stress-lsearch.c \
 	stress-lsm.c \
 	stress-madvise.c \

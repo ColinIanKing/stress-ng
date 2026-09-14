@@ -85,10 +85,16 @@
   3. `svbext_u64` 在 gcc 12 要求 `+sve2-bitperm` 扩展标志；BEXT 语义为"掩码选中的位按序压缩到底部"（非逐位条件选择），golden 参考已按 ARM ARM 语义实现
 - [x] 目标机待验证：950 上 `--sve2 N -t 60` 应 passed（golden 比对通过 = SVE2 fmla/bext 数据通路正确）；如失败即 SDC 证据
 
-### Patch 7: 新 stressor stress-ls64.c（64B 原子访存 LD64B/ST64B）
-- [ ] 新文件：`__ARM_FEATURE_LS64` guard + HWCAP 检查；LD64B/ST64B 内联汇编压 LSU+一致性；无 ls64 诚实跳过
-- [ ] 5 点注册同上（--ls64, --ls64-ops）
-- [ ] 验证（本机无 ls64）：skipped with reason；回归 passed
+### Patch 7: 新 stressor stress-ls64.c（64B 原子访存 LD64B/ST64B） — DONE
+- [x] 新文件：`STRESS_ARCH_ARM && __ARM_FEATURE_LS64` guard；`__arm_ld64b`/`__arm_st64b`（ACLE intrinsics，data512_t）64B 原子读改写循环（每 64 位 lane 旋转 7 位，每轮所有位都动）；标量 golden 比对 + CORE179 位级诊断；`.supported` 检查 HWCAP2 bit15（老内核）与 HWCAP3 bit0（新内核，AT_HWCAP3=29，asm/hwcap.h 的 HWCAP3_LS64）；无 ls64 → 诚实跳过
+- [x] 5 点注册：Makefile（loop 之后）/ core-stressors.h MACRO(ls64) / core-opts.h OPT_ls64+OPT_ls64_ops / core-opts.c long_options
+- [x] 验证实测（本机 920 无 ls64）：
+  - `--ls64 1 -t 3` → `ls64 stressor will be skipped, ... (built for non-aarch64 target or compiler without the ls64 ... extension)`，skipped: 1 ✅
+  - **编译级功能验证**：`gcc -march=armv8.6-a+ls64 -c` → objdump 确认 `ld64b x10, [x8]` / `st64b x0, [x8]` 真实指令
+  - 本机 `getauxval(AT_HWCAP3=29)` = 0（无 ls64，与 920 spec 一致）
+  - 回归：`--zombie 1` passed、`--longjmp 1` passed、`--sve2 1` skipped（诚实）、构建 0 warning 0 error
+- [x] 排查记录（诚实）：`--loop 1` passed:0 疑似回归 → git stash 干净 HEAD 验证为上游固有行为（需要 CAP_SYS_ADMIN），非本 patch 引入
+- [x] 目标机待验证：950（有 ls64/ls64_v）上 `--ls64 N -t 60` 应 passed
 
 ### Patch 8: cpu-method crc32（硬件 CRC32C vs 软件双路径） — DONE（提前于 4/5/6/7 完成，因本机可全验证）
 - [x] `test/test-crc32-acle.c` 探测：`__aarch64__` + `__attribute__((target("+crc")))` + `__crc32cd` 可编译（`HAVE_CRC32_ACLE`）

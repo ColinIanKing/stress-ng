@@ -764,6 +764,9 @@ const struct option stress_long_options[] = {
 	{ "loop-bytes",		1,	NULL,	OPT_loop_bytes },
 	{ "loop-ops",		1,	NULL,	OPT_loop_ops },
 
+	{ "ls64",		1,	NULL,	OPT_ls64 },
+	{ "ls64-ops",		1,	NULL,	OPT_ls64_ops },
+
 	{ "lsearch",		1,	NULL,	OPT_lsearch },
 	{ "lsearch-method",	1,	NULL,	OPT_lsearch_method },
 	{ "lsearch-ops",	1,	NULL,	OPT_lsearch_ops },
