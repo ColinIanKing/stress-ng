@@ -5684,6 +5684,24 @@ specify the size of the loop device in bytes, range 1MB to 1GB, the default is 2
 stop after N bogo loopback creation/deletion operations.
 .RE
 .TP
+.B 64 byte atomic load/store stressor (aarch64 ls64 only)
+.RS 5
+.TQ
+.B \-\-ls64 N
+start N workers exercising the aarch64 64 byte atomic load and store
+instructions (LD64B/ST64B, the ls64 extension). Each round performs a
+read\-modify\-write pass over 256 x 64 byte chunks using __arm_ld64b and
+__arm_st64b, rotating every 64 bit lane by 7 bits so every bit moves each
+round, and compares the results against a scalar golden reference. A
+mismatch is reported with the chunk and lane index, the expected and actual
+bit patterns and the number of flipped bits, so this stressor doubles as a
+silent data corruption (SDC) detector for the 64 byte atomic datapath.
+Verification is always enabled.
+.TP
+.B \-\-ls64\-ops N
+stop after N ls64 bogo operations.
+.RE
+.TP
 .B Linear search stressor
 .RS 5
 .TQ
@@ -10089,6 +10107,23 @@ T}
 .TP
 .B \-\-switch\-ops N
 stop context switching workers after N bogo operations.
+.RE
+.TP
+.B SVE2 vector stressor (aarch64 only)
+.RS 5
+.TQ
+.B \-\-sve2 N
+start N workers exercising the SVE2 vector datapaths. Each round performs
+64 iterations of predicated svmla (fused multiply\-add) on a 256 element
+double vector and 64 iterations of svbext (SVE2 bit extract, where the
+sve2\-bitperm extension is available), then compares every element against
+a scalar golden reference implementation. A mismatch is reported with the
+element index, the expected and actual bit patterns and the number of
+flipped bits, so this stressor doubles as a silent data corruption (SDC)
+detector for the SVE2 pipelines. Verification is always enabled.
+.TP
+.B \-\-sve2\-ops N
+stop after N sve2 bogo operations.
 .RE
 .TP
 .B Symlink stressor

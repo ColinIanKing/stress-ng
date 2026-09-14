@@ -112,6 +112,19 @@ kFreeBSD, OpenBSD, NetBSD, FreeBSD, Debian kFreeBSD, DragonFly BSD, OS X, Minix,
 Solaris 11.3, OpenIndiana and Hiaku. Ports to other POSIX/UNIX like operating
 systems should be relatively easy.
 
+On aarch64 systems the build also auto-detects if the toolchain supports the
+SVE2 instruction set (with the bf16, i8mm and sve2-bitperm extensions) and if
+the build host has SVE capable hardware; when both hold the compute stressors
+are compiled with `-O3 -march=armv8.6-a+sve2+bf16+i8mm+sve2-bitperm` so the
+auto-vectorized hot loops exercise the SVE2 pipelines rather than only NEON.
+Note that `-O3` is required: at `-O2` GCC keeps using the NEON 128-bit vectors
+even with SVE2 enabled in the `-march` option. Cross builds can force the
+decision with `make MARCH_AARCH64_SVE2=1` (emit SVE2 code regardless of the
+build host) or `MARCH_AARCH64_SVE2=0` (never emit SVE2 code). The `sve2`
+stressor provides a dedicated SVE2 workload with golden-value checking, and
+the `ls64` stressor exercises the 64 byte atomic load/store (LD64B/ST64B)
+extension where the hardware has it.
+
 NOTE: ALWAYS run ```make clean``` after fetching changes from the git repository
 to force the build to regenerate the build configuration file. Parallel builds using
 make -j are supported.

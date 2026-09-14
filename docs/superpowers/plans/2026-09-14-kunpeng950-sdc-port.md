@@ -113,9 +113,24 @@
   2. **多项式用错**：`__crc32c*` 是 Castagnoli CRC-32C（0x1EDC6F41/反射 0x82f63b78），初版软件参考用了 Ethernet CRC-32（0xEDB88320）→ 四种模式全 mismatch（`hardware crc32 0x1f0b5b06 does not match software crc32 0xcbaacf84`）；修正后全一致
 - [x] x86 无回归论证：`HAVE_CRC32_ACLE` 只在 aarch64 上被定义（probe `#if defined(__aarch64__)` 守卫），x86 上无 crc32 方法表项以外改动；`sw_crc32` 无害（纯 C）
 
-### Patch 9: README.md / 文档同步（大颗粒度修改的文档纪律）
-- [ ] README.md 构建章节补 aarch64 SVE2 构建说明；stress-ng.1 已在 Patch 2/6/7/8 就地更新，此处查漏
-- [ ] 验证：man 渲染 `man ./stress-ng.1 | grep -A3 physical` 正确
+### Patch 9: README.md / 文档同步 — DONE
+- [x] `stress-ng.1`：新增 SVE2 vector stressor（Symlink 前插入）与 64 byte atomic load/store stressor（lsearch 前插入）完整条目（--sve2/--sve2-ops/--ls64/--ls64-ops + SDC 检测语义说明）；crc32/physical 已在 Patch 2/8 就地更新
+- [x] `README.md`：构建章节补 aarch64 SVE2 自动探测说明（-O3 必要性、MARCH_AARCH64_SVE2=0/1 跨编译控制、sve2/ls64 stressor 提示）
+- [x] 验证：`man ./stress-ng.1` 渲染 sve2/ls64 条目正常（实测输出确认）；`--zombie 1`、`--cpu-method crc32` 回归 passed
+
+## 全部完成 ✅ 9/9 patches pushed to port/kunpeng950-sdc-stress
+
+| Patch | commit | 内容 | 本机验证 | 目标机待验证 |
+|---|---|---|---|---|
+| 1 | 0fd4437b5 | SVE2 march 探测 + CONFIG_CFLAGS 注入 | 3 路径全测（auto=no/force=1 yes 904 SVE 指令/force=0 no） | 950 上 auto 应 yes |
+| 2 | a23c294d5 | --taskset physical | 128 核全选（=all 语义） | 950 上应选 191 核 |
+| 3 | 7a0fc24f1 | scripts/sdc-scan.sh | 4 核小规模全流程跑通 | 950 全量 191 核 sweep |
+| 4 | fb9fd9cb6 | fma verify 位级诊断 | 故障注入验证输出正确 | — |
+| 5 | 6af367f39 | vecfp/matrix 同款 | matrix 故障注入验证 | — |
+| 6 | 774d5b81d | stress-sve2.c | 编译级（真实 fmla/bext z 指令）+ 诚实跳过 | `--sve2 N` 应 passed |
+| 7 | ae954f194 | stress-ls64.c | 编译级（ld64b/st64b 指令）+ 诚实跳过 | `--ls64 N` 应 passed |
+| 8 | 39408bda9 | cpu-method crc32 | **全功能验证**（hw 指令 + 双路径比对 passed） | — |
+| 9 | (this) | README/man 文档 | man 渲染确认 | — |
 
 ## 执行纪律
 - 每单元：plan 勾选 → 编码 → 自验证（引用真实输出）→ commit → push 到 `port/kunpeng950-sdc-stress`
