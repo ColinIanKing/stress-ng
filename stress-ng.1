@@ -1120,6 +1120,9 @@ T}
 coreN	T{
 CPUs in package N as specified by /sys/devices/system/cpu/cpu*/topology/core_cpus_list
 T}
+physical	T{
+one thread per physical core: for each cpu only the lowest numbered thread from /sys/devices/system/cpu/cpu*/topology/thread_siblings_list is selected, so SMT sibling threads never both appear in the set. On non\-SMT machines this selects all the CPUs.
+T}
 .TE
 .TP
 .B \-\-taskset\-random

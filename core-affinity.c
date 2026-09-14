@@ -193,6 +193,59 @@ static void stress_topology_set_get(
 }
 
 /*
+ *  stress_topology_physical_set()
+ *	build a cpu set of one thread per physical core:  for each
+ *  cpu's thread_siblings_list keep only the lowest numbered
+ *  sibling, so that SMT sibling threads never both appear in
+ *  the set.  On non-SMT machines (thread_siblings_list only
+ *  contains the cpu itself) this selects all the cpus, i.e.
+ *  the same as the "all" keyword.
+ */
+static void stress_topology_physical_set(cpu_set_t *set, int *setbits)
+{
+	static const char path[] = "/sys/devices/system/cpu";
+	DIR *dir;
+	const struct dirent *d;
+
+	dir = opendir(path);
+	if (!dir) {
+		(void)fprintf(stderr, "%s: cannot scan '%s', %s option not available\n",
+			option, path, option);
+		_exit(EXIT_FAILURE);
+	}
+
+	while ((d = readdir(dir)) != NULL) {
+		char filename[PATH_MAX];
+		char str[1024];
+		int cpu;
+
+		if (shim_strncmp(d->d_name, "cpu", 3))
+			continue;
+		if (!isdigit((int)d->d_name[3]))
+			continue;
+
+		(void)snprintf(filename, sizeof(filename), "%s/%s/topology/thread_siblings_list", path, d->d_name);
+
+		if (stress_fs_file_read(filename, str, sizeof(str)) < 1)
+			continue;
+
+		/* Only add this cpu if it is the lowest numbered sibling */
+		if (sscanf(str, "%d", &cpu) == 1) {
+			char cpu_name[32];
+
+			(void)snprintf(cpu_name, sizeof(cpu_name), "cpu%d", cpu);
+			if (shim_strcmp(cpu_name, d->d_name) == 0) {
+				if (cpu >= 0 && cpu < CPU_SETSIZE && !CPU_ISSET(cpu, set)) {
+					CPU_SET(cpu, set);
+					(*setbits)++;
+				}
+			}
+		}
+	}
+	(void)closedir(dir);
+}
+
+/*
  * stress_affinity_parse_cpu()
  *	parse cpu affinity options
  */
@@ -272,6 +325,9 @@ int stress_affinity_parse_cpu(const char *arg, cpu_set_t *set, int *setbits)
 			continue;
 		} else if (!shim_strncmp(token, "core", 4)) {
 			stress_topology_set_get("core_cpus_list", "core", token, set, setbits);
+			continue;
+		} else if (!shim_strcmp(token, "physical")) {
+			stress_topology_physical_set(set, setbits);
 			continue;
 		}
 

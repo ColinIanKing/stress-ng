@@ -28,12 +28,17 @@
   2. **构建主机硬件门禁缺失会 SIGILL**：第一版只有编译期探测，本机 920（无 SVE）构建出的二进制 `--fma --verify` 直接 Illegal instruction (core dumped) → 探测必须"编译+运行"双条件（probe 程序运行检查 HWCAP_SVE）
 - [x] x86 无回归论证：探测程序 `#if defined(__aarch64__)` 守卫，x86 上编译失败 → no 路径，不注入任何 flag；Makefile 改动仅 `%.o` 规则追加（可能为空的）`$(CFLAGS_CONFIG_EXTRACT)`，x86 上 config 无 CONFIG_CFLAGS 行 → 展开为空 → 编译命令与改动前完全一致
 
-### Patch 2: core-affinity: 新增 --taskset physical 关键字（SMT 感知）
-- [ ] `core-affinity.c`：`stress_affinity_cpu_set()` token 解析加 `physical` 分支——遍历 `/sys/devices/system/cpu/cpu*/topology/thread_siblings_list`，每对 sibling 只保留最小 CPU 号（无 SMT 机器 = 全部在线核，行为等同 all）
-- [ ] `stress-ng.1` man 手册：taskset 关键字表加 physical 条目
-- [ ] bash-completion 同步（如有关键字列表）
-- [ ] 验证（本机无 SMT）：`./stress-ng --taskset physical --cpu 1 -t 2` passed 且绑定的 CPU 集 = 全部核（-v 观察或对比 `--taskset all` 行为一致）；单元级：构造 mock 无法做，靠本机"无 SMT = all"语义 + 目标机验证计划
-- [ ] 回归：`--taskset all/odd/even/package0/core0` 各跑 2s 全 passed
+### Patch 2: core-affinity: 新增 --taskset physical 关键字（SMT 感知） — DONE
+- [x] `core-affinity.c`：新增 `stress_topology_physical_set()`（遍历 `/sys/devices/system/cpu/cpu*/topology/thread_siblings_list`，每对 sibling 只保留最小 CPU 号；目录项名与"最小 sibling"匹配才加入，天然处理乱序迭代与范围解析）；token 解析加 `physical` 分支（在 core 关键字之后）
+- [x] `stress-ng.1`：taskset 关键字表加 physical 条目（man 渲染实测可见）
+- [x] bash-completion：确认只列选项名不列关键字值，无需改动
+- [x] 验证实测（本机无 SMT）：
+  - `--taskset physical --cpu 2 -t 3` → passed: 2
+  - 独立模拟程序验证选择逻辑：physical 选出全部 128 CPU（每 CPU 自身即最小 sibling），与 all 语义一致 ✅
+  - `--taskset physical --cpu 4 --cpu-method matrixprod -t 5` → passed: 4
+  - man 渲染：`man ./stress-ng.1 | grep -A3 physical` 输出正确条目
+- [x] 回归实测：`--taskset all/odd/even/core0/package0 --cpu 1 -t 1` 全部 passed；构建 0 warning 0 error
+- [x] 目标机待验证：950（SMT2）上 `--taskset physical` 应选 191 核（每物理核 1 线程）——需真机确认（本机无法构造 SMT 拓扑）
 
 ### Patch 3: 逐物理核 sweep 编排脚本 scripts/sdc-scan.sh
 - [ ] 新增 `scripts/sdc-scan.sh`：阶段 0 取证（topology/isolated/offline/EDAC/dmesg 快照）→ 跳过 isolated 核 → 遍历 thread_siblings_list 物理核代表线程 → 每核 `--taskset <pair> --cpu 2 --cpu-method all --fma 2 --verify` N 秒 → 汇总 verify fail / bogo 离群核清单
