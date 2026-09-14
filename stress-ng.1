@@ -2284,6 +2284,9 @@ T}
 crc16	T{
 compute 1024 rounds of CCITT CRC16 on random data
 T}
+crc32	T{
+compute CRC\-32C over a 4K random buffer using both the aarch64 hardware CRC32 instructions (when available) and a software table driven implementation and compare the results; a mismatch indicates silent data corruption in either path
+T}
 decimal32	T{
 1000 iterations of a mix of 32 bit decimal floating point operations (GCC only)
 T}

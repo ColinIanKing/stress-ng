@@ -65,10 +65,22 @@
 - [ ] 5 点注册同上（--ls64, --ls64-ops）
 - [ ] 验证（本机无 ls64）：skipped with reason；回归 passed
 
-### Patch 8: cpu-method crc32（硬件 CRC32 vs 软件双路径）
-- [ ] `stress-cpu.c`：新 method `crc32`，用 `__ARM_FEATURE_CRC32` 的 `__crc32cd` 算大块数据，与逐字节软件参考实现比对（本机 920 有 crc32 flag，可真验证！）
-- [ ] 验证：`./stress-ng --cpu 1 --cpu-method crc32 --verify -t 10` passed
-- [ ] 回归：`--cpu-method all -t 30` passed
+### Patch 8: cpu-method crc32（硬件 CRC32C vs 软件双路径） — DONE（提前于 4/5/6/7 完成，因本机可全验证）
+- [x] `test/test-crc32-acle.c` 探测：`__aarch64__` + `__attribute__((target("+crc")))` + `__crc32cd` 可编译（`HAVE_CRC32_ACLE`）
+- [x] `Makefile.config`：`CRC32_ACLE` check 挂入 cpufeatures
+- [x] `stress-cpu.c`：`sw_crc32()`（Castagnoli 多项式 0x82f63b78 表驱动软件参考）+ `hw_crc32()`（ACLE intrinsics，`target("+crc")` 局部生效不改全局 march）+ `stress_cpu_crc32()`（双路径比对，mismatch → pr_fail + EXIT_FAILURE）；方法表加 `{ "crc32", ... }`
+- [x] `stress-ng.1`：cpu-method 表加 crc32 条目
+- [x] 验证实测（本机 920 有 crc32 硬件）：
+  - `using aarch64 acle crc32 intrinsics ... yes`，`#define HAVE_CRC32_ACLE`
+  - `objdump stress-cpu.o`：真实 `crc32cx w2,w2,x3` 指令内联（非 bl 调用）
+  - `--cpu 1 --cpu-method crc32 --verify -t 10` → passed: 1
+  - `--cpu 4 --cpu-method crc32 -t 5` → passed: 4
+  - 独立调试程序确认 hw/sw 在全零/全 FF/递增/标准串四种模式全一致
+- [x] 回归：`--cpu 2 --cpu-method all -t 30` → passed: 2；构建 0 warning 0 error
+- [x] 发现并修正的两个 bug（诚实记录）：
+  1. **忘记 #include <arm_acle.h>**：`__crc32cd` 隐式声明 → 链接失败（undefined reference）；修正后真实指令内联
+  2. **多项式用错**：`__crc32c*` 是 Castagnoli CRC-32C（0x1EDC6F41/反射 0x82f63b78），初版软件参考用了 Ethernet CRC-32（0xEDB88320）→ 四种模式全 mismatch（`hardware crc32 0x1f0b5b06 does not match software crc32 0xcbaacf84`）；修正后全一致
+- [x] x86 无回归论证：`HAVE_CRC32_ACLE` 只在 aarch64 上被定义（probe `#if defined(__aarch64__)` 守卫），x86 上无 crc32 方法表项以外改动；`sw_crc32` 无害（纯 C）
 
 ### Patch 9: README.md / 文档同步（大颗粒度修改的文档纪律）
 - [ ] README.md 构建章节补 aarch64 SVE2 构建说明；stress-ng.1 已在 Patch 2/6/7/8 就地更新，此处查漏

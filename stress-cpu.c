@@ -1629,6 +1629,101 @@ static uint16_t CONST OPTIMIZE3 ccitt_crc16(const uint8_t *data, size_t n)
 }
 
 /*
+ *  sw_crc32()
+ *	software table driven CRC-32C (Castagnoli polynomial,
+ *	reflected 0x82f63b78), the reference implementation for
+ *	comparing against the aarch64 hardware CRC32
+ *	instructions (the __crc32c* ACLE intrinsics implement
+ *	CRC-32C, not the Ethernet CRC-32 polynomial).
+ */
+static uint32_t OPTIMIZE3 sw_crc32(const uint8_t *data, const size_t len)
+{
+	static uint32_t table[256];
+	static bool table_computed;
+	register uint32_t crc = 0xffffffff;
+	register size_t i;
+
+	if (!table_computed) {
+		register uint32_t j, k, c;
+
+		for (j = 0; j < 256; j++) {
+			c = j;
+			for (k = 0; k < 8; k++)
+				c = (c >> 1) ^ (0x82f63b78 & (0u - (c & 1)));
+			table[j] = c;
+		}
+		table_computed = true;
+	}
+	for (i = 0; i < len; i++)
+		crc = table[(crc ^ data[i]) & 0xff] ^ (crc >> 8);
+
+	return crc ^ 0xffffffff;
+}
+
+/*
+ *  hw_crc32()
+ *	aarch64 hardware CRC32 via the ARM ACLE __crc32cd
+ *	intrinsic (the CRC32 extension instructions).  The
+ *	function is annotated with target("+crc") so the
+ *	instructions are only emitted for this function and
+ *	no global -march change is required.  Callers must
+ *	have checked the crc32 CPU feature before calling.
+ */
+#if defined(HAVE_CRC32_ACLE)
+#include <arm_acle.h>
+
+__attribute__((target("+crc")))
+static uint32_t OPTIMIZE3 hw_crc32(const uint8_t *data, const size_t len)
+{
+	register uint32_t crc = 0xffffffff;
+	register size_t i = 0;
+	register const uint64_t *data64 = (const uint64_t *)(const void *)data;
+
+	for (; i < (len & ~(size_t)7); i += 8)
+		crc = __crc32cd(crc, data64[i >> 3]);
+	for (; i < len; i++)
+		crc = __crc32cb(crc, data[i]);
+
+	return crc ^ 0xffffffff;
+}
+#endif
+
+/*
+ *   stress_cpu_crc32
+ *	compute CRC32 over a random buffer using both the
+ *	aarch64 hardware CRC32 instruction (when available)
+ *	and the software table driven implementation, and
+ *	compare the results.  A mismatch indicates silent
+ *	data corruption in either the hardware CRC path or
+ *	the ALU/software path, so this doubles as a cheap
+ *	SDC detector.
+ */
+static int stress_cpu_crc32(const char *name)
+{
+	uint8_t buffer[4096];
+
+	(void)name;
+
+	random_buffer(buffer, sizeof(buffer));
+	stress_put_uint64(sw_crc32(buffer, sizeof(buffer)));
+#if defined(HAVE_CRC32_ACLE)
+	{
+		const uint32_t hw = hw_crc32(buffer, sizeof(buffer));
+		const uint32_t sw = sw_crc32(buffer, sizeof(buffer));
+
+		stress_put_uint64(hw);
+		if (UNLIKELY(hw != sw)) {
+			pr_fail("%s: hardware crc32 0x%8.8" PRIx32
+				" does not match software crc32 0x%8.8" PRIx32 "\n",
+				name, hw, sw);
+			return EXIT_FAILURE;
+		}
+	}
+#endif
+	return EXIT_SUCCESS;
+}
+
+/*
  *   stress_cpu_crc16
  *	compute 1024 rounds of CCITT CRC16
  */
@@ -3035,6 +3130,7 @@ static const stress_cpu_method_info_t stress_cpu_methods[] = {
 	{ "collatz",		stress_cpu_collatz,		860193.45 },
 	{ "correlate",		stress_cpu_correlate,		216.02 },
 	{ "crc16",		stress_cpu_crc16,		249.93 },
+	{ "crc32",		stress_cpu_crc32,		249.93 },
 #if defined(HAVE_Decimal32) &&	\
     !defined(HAVE_COMPILER_CLANG)
 	{ "decimal32",		stress_cpu_decimal32,		724.47 },
