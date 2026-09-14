@@ -41,7 +41,7 @@ static bool stress_stack_check_flag;
 static ssize_t NOINLINE OPTIMIZE0 stress_stack_direction_helper(const uint8_t *val1)
 {
 	const uint8_t val2 = *val1;
-	const ssize_t diff = &val2 - (const uint8_t *)val1;
+	const ssize_t diff = (uintptr_t)&val2 - (uintptr_t)val1;
 
 	return (diff > 0) - (diff < 0);
 }
