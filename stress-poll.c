@@ -124,6 +124,10 @@ static int OPTIMIZE3 stress_poll(stress_args_t *args)
 			args->name, max_fds, stress_memory_free_get());
 		return EXIT_NO_RESOURCE;
 	}
+	for (i = 0; i < max_fds; i++) {
+		pipe_fds[i].fd[0] = -1;
+		pipe_fds[i].fd[1] = -1;
+	}
 	poll_fds = (struct pollfd *)calloc(max_fds, sizeof(*poll_fds));
 	if (!poll_fds) {
 		pr_inf_skip("%s: allocating %zu poll file descriptors failed%s, "
@@ -168,8 +172,10 @@ static int OPTIMIZE3 stress_poll(stress_args_t *args)
 				args->name, errno, strerror(errno));
 
 			for (j = 0; j < i; j++) {
-				(void)close(pipe_fds[j].fd[0]);
-				(void)close(pipe_fds[j].fd[1]);
+				if (pipe_fds[j].fd[0] != -1)
+					(void)close(pipe_fds[j].fd[0]);
+				if (pipe_fds[j].fd[1] != -1)
+					(void)close(pipe_fds[j].fd[1]);
 			}
 			free(rnd_fds_index);
 			free(poll_fds);
@@ -224,8 +230,10 @@ static int OPTIMIZE3 stress_poll(stress_args_t *args)
 			}
 		 } while (stress_continue(args));
 abort:
-		for (i = 0; i < max_fds; i++)
-			(void)close(pipe_fds[i].fd[1]);
+		for (i = 0; i < max_fds; i++) {
+			if (pipe_fds[i].fd[1] != -1)
+				(void)close(pipe_fds[i].fd[1]);
+		}
 		exit(EXIT_SUCCESS);
 	} else {
 		/* Parent read */
@@ -430,8 +438,10 @@ tidy:
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
 	for (i = 0; i < max_fds; i++) {
-		(void)close(pipe_fds[i].fd[0]);
-		(void)close(pipe_fds[i].fd[1]);
+		if (pipe_fds[i].fd[0] != -1)
+			(void)close(pipe_fds[i].fd[0]);
+		if (pipe_fds[i].fd[1] != -1)
+			(void)close(pipe_fds[i].fd[1]);
 	}
 
 	free(rnd_fds_index);
