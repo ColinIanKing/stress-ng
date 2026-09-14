@@ -40,10 +40,14 @@
 - [x] 回归实测：`--taskset all/odd/even/core0/package0 --cpu 1 -t 1` 全部 passed；构建 0 warning 0 error
 - [x] 目标机待验证：950（SMT2）上 `--taskset physical` 应选 191 核（每物理核 1 线程）——需真机确认（本机无法构造 SMT 拓扑）
 
-### Patch 3: 逐物理核 sweep 编排脚本 scripts/sdc-scan.sh
-- [ ] 新增 `scripts/sdc-scan.sh`：阶段 0 取证（topology/isolated/offline/EDAC/dmesg 快照）→ 跳过 isolated 核 → 遍历 thread_siblings_list 物理核代表线程 → 每核 `--taskset <pair> --cpu 2 --cpu-method all --fma 2 --verify` N 秒 → 汇总 verify fail / bogo 离群核清单
-- [ ] `bash -n` 语法校验；本机小规模实测（`--cpus 0-3 --secs 5`）
-- [ ] 验证：本机跑通全流程且输出 suspects 汇总（应为空 = 无嫌疑）
+### Patch 3: 逐物理核 sweep 编排脚本 scripts/sdc-scan.sh — DONE
+- [x] 新增 `scripts/sdc-scan.sh`（可执行）：阶段 0 取证（topology/isolated/offline/EDAC/dmesg 快照）→ SMT sibling 映射（每物理核取代表线程，sibling 对合成 `--taskset` 参数）→ 逐核 `--cpu 2 --cpu-method all --fma 2 --verify --metrics-brief -Y <yaml>` → 可选 `--sdcshield` 同核交叉验证 → suspects.txt 汇总 + EDAC 前后 delta
+- [x] 参数：`--cpus LIST / --secs N / --method M / --out DIR / --sdcshield CMD`，`NG=` 环境变量指定 stress-ng
+- [x] 验证实测（本机）：
+  - `bash -n` 通过
+  - `NG=./stress-ng ./scripts/sdc-scan.sh --cpus 0-3 --secs 3 --out /tmp/sdctest2` 全流程跑通：4 核扫描、0 suspects、每核 yaml（bogo-ops 数据在，可用于离群检测）、每核 log（`passed: 4: cpu (2) fma (2)`）
+- [x] 修复的 bug（诚实记录）：`set -u` 下关联数组 `${rep_of_pair[$lowest]}` 未绑定变量崩溃 → 改 `${rep_of_pair[$lowest]:-}` 默认值
+- [x] 目标机用法：`NG=./stress-ng ./scripts/sdc-scan.sh --secs 120 --sdcshield "./run-sdcshield.sh"`（950 上每核会是 SMT 对如 "192,193"）
 
 ### Patch 4: stress-fma: verify 失败路径位级诊断（CORE179 对齐）
 - [ ] `stress-fma.c`：verify memcmp 失败时，找出首个不一致下标，输出 expected/actual 十六进制 + xor + popcount（翻转 bit 数），逐 double/float 段
