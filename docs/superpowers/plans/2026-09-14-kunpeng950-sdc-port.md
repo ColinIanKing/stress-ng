@@ -60,9 +60,15 @@
 - [x] 回归：`--fma 2 --verify -t 5` passed、`--zombie 1 -t 5` passed
 - [x] 修复的构建错误（诚实记录）：忘 include core-bitops.h → undefined reference to stress_bitops_popcount64
 
-### Patch 5: stress-vecfp/stress-matrix 同款位级诊断
-- [ ] 同 Patch 4 模式扩展到 stress-vecfp.c、stress-matrix.c
-- [ ] 验证 + 回归同上
+### Patch 5: stress-vecfp/stress-matrix 同款位级诊断 — DONE
+- [x] `stress-matrix.c`：memcmp 失败后扫描 r/s（uint32 float 位型），输出首个不一致元素的下标 + 行/列 + expected/actual 十六进制 + popcount 翻转位数
+- [x] `stress-vecfp.c`：double/float mismatch 消息增强为"元素下标 + got/expected 十进制(位型十六进制) + 翻转位数"（保留原 %f 数值，追加位型——原消息只有数值，1-bit 翻转在小数位上不直观）；memcpy 取位型避免 strict-aliasing 违规
+- [x] 验证实测（含故障注入）：
+  - matrix 注入 `s[7] ^= 1u<<19` → 输出 `first difference at element 7 (row 0, column 7): expected 0x479c2bd6, actual 0x47942bd6, 1 bit(s) flipped (xor 0x00080000)` ✅（注入位=翻转位=19）
+  - 注入已还原（grep TEMP INJECTION = 0），干净构建 0 warning 0 error
+  - 正常路径：`--vecfp 2 --verify` passed、`--matrix 2 --verify` passed、`--matrix-method all` passed
+- [x] 回归：`--fma 1 --verify -t 3` passed、`--zombie 1 -t 3` passed
+- [x] 修复的构建错误（诚实记录）：vecfp 忘 include core-bitops.h/core-builtin.h → undefined reference（shim_memcpy / popcount）
 
 ### Patch 6: 新 stressor stress-sve2.c（SVE2 数据通路）
 - [ ] 新文件：`__ARM_FEATURE_SVE2` guard；使用 arm_sve.h intrinsics（svmla/svld1_f64/svptrue_b64/svwhilelt、svebitperm BEXT/BGRP、bf16 SVMMLA、i8mm SUDOT/USDOT）；软件 golden 自校验（标量参考实现比对）；无 SVE2 硬件 `.supported` 返回 -1 + unimplemented_reason 诚实跳过

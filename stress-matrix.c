@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-bitops.h"
 #include "core-builtin.h"
 #include "core-madvise.h"
 #include "core-mmap.h"
@@ -935,8 +936,29 @@ static inline int stress_matrix_exercise(
 			stress_bogo_inc(args);
 
 			if (shim_memcmp(r, s, matrix_byte_size)) {
+				const uint32_t *rp = (const uint32_t *)(const void *)r;
+				const uint32_t *sp = (const uint32_t *)(const void *)s;
+				size_t k, nelems = matrix_byte_size / sizeof(*rp);
+				bool reported = false;
+
 				pr_fail("%s: %s: data difference between identical matrix computations\n",
 					args->name, current_method);
+				for (k = 0; k < nelems; k++) {
+					if (rp[k] != sp[k]) {
+						const uint32_t xor = rp[k] ^ sp[k];
+
+						pr_fail("%s:   first difference at element %zu (row %zu, column %zu): "
+							"expected 0x%8.8" PRIx32 ", actual 0x%8.8" PRIx32 ", "
+							"%u bit(s) flipped (xor 0x%8.8" PRIx32 ")\n",
+							args->name, k, k / n, k % n, rp[k], sp[k],
+							stress_bitops_popcount32(xor), xor);
+						reported = true;
+						break;
+					}
+				}
+				if (!reported)
+					pr_fail("%s:   difference not localised to a single element\n",
+						args->name);
 				ret = EXIT_FAILURE;
 			}
 		}

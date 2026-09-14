@@ -18,6 +18,8 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-bitops.h"
+#include "core-builtin.h"
 #include "core-mmap.h"
 #include "core-put.h"
 #include "core-signal.h"
@@ -367,16 +369,32 @@ static void OPTIMIZE3 stress_vecfp_call_method(
 
 		for (i = 0; i < func->elements; i++) {
 			if (fabs(vecfp_init[i].d.r1 - vecfp_init[i].d.r2) > (double)0.0001) {
-				pr_fail("%s: %s double vector operation result mismatch, got %f, expected %f\n",
-					args->name, stress_vecfp_funcs[method].name,
-					vecfp_init[i].d.r2, vecfp_init[i].d.r1);
+				uint64_t b1, b2, xor;
+
+				(void)shim_memcpy(&b1, &vecfp_init[i].d.r1, sizeof(b1));
+				(void)shim_memcpy(&b2, &vecfp_init[i].d.r2, sizeof(b2));
+				xor = b1 ^ b2;
+				pr_fail("%s: %s double vector operation result mismatch at element %zu, "
+					"got %f (0x%16.16" PRIx64 "), expected %f (0x%16.16" PRIx64 "), "
+					"%u bit(s) flipped (xor 0x%16.16" PRIx64 ")\n",
+					args->name, stress_vecfp_funcs[method].name, i,
+					vecfp_init[i].d.r2, b2, vecfp_init[i].d.r1, b1,
+					stress_bitops_popcount64(xor), xor);
 				*success = false;
 				break;
 			}
 			if (fabsf(vecfp_init[i].f.r1 - vecfp_init[i].f.r2) > (float)0.0001) {
-				pr_fail("%s: %s float vector operation result mismatch, got %f, expected %f\n",
-					args->name, stress_vecfp_funcs[method].name,
-					(double)vecfp_init[i].f.r2, (double)vecfp_init[i].f.r1);
+				uint32_t b1, b2, xor;
+
+				(void)shim_memcpy(&b1, &vecfp_init[i].f.r1, sizeof(b1));
+				(void)shim_memcpy(&b2, &vecfp_init[i].f.r2, sizeof(b2));
+				xor = b1 ^ b2;
+				pr_fail("%s: %s float vector operation result mismatch at element %zu, "
+					"got %f (0x%8.8" PRIx32 "), expected %f (0x%8.8" PRIx32 "), "
+					"%u bit(s) flipped (xor 0x%8.8" PRIx32 ")\n",
+					args->name, stress_vecfp_funcs[method].name, i,
+					(double)vecfp_init[i].f.r2, b2, (double)vecfp_init[i].f.r1, b1,
+					stress_bitops_popcount32(xor), xor);
 				*success = false;
 				break;
 			}
