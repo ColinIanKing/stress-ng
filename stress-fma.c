@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-bitops.h"
 #include "core-builtin.h"
 #include "core-madvise.h"
 #include "core-mmap.h"
@@ -501,6 +502,40 @@ static inline void OPTIMIZE3 TARGET_CLONES stress_fma_reset_a(stress_fma_t *pfma
 	(void)shim_memcpy(pfma->float_a2, pfma->float_init, sizeof(pfma->float_init));
 }
 
+/*
+ *  stress_fma_verify_fail()
+ *	report the first differing element between the two identical
+ *	computations with bit level diagnostics: element index, the
+ *	expected (first run) and actual (second run) bit patterns and
+ *	the number of flipped bits (hamming distance of the xor).
+ *	This mirrors the CORE179 style diagnosis used to identify
+ *	which datapath produced the silent data corruption.
+ */
+static void stress_fma_verify_fail(
+	const char *name,
+	const char *type,
+	const size_t nelems,
+	const uint64_t *expected,
+	const uint64_t *actual)
+{
+	size_t i;
+
+	for (i = 0; i < nelems; i++) {
+		if (expected[i] != actual[i]) {
+			const uint64_t xor = expected[i] ^ actual[i];
+
+			pr_fail("%s: data difference between identical %s fma computations\n",
+				name, type);
+			pr_fail("%s:   first difference at element %zu: "
+				"expected 0x%16.16" PRIx64 ", actual 0x%16.16" PRIx64 ", "
+				"%u bit(s) flipped (xor 0x%16.16" PRIx64 ")\n",
+				name, i, expected[i], actual[i],
+				stress_bitops_popcount64(xor), xor);
+			return;
+		}
+	}
+}
+
 static int stress_fma(stress_args_t *args)
 {
 	stress_fma_t *pfma;
@@ -581,11 +616,17 @@ static int stress_fma(stress_args_t *args)
 			stress_bogo_inc(args);
 
 			if (shim_memcmp(pfma->double_a1, pfma->double_a2, sizeof(pfma->double_a1))) {
-				pr_fail("%s: data difference between identical double fma computations\n", args->name);
+				stress_fma_verify_fail(args->name, "double",
+					SIZEOF_ARRAY(pfma->double_a1),
+					(const uint64_t *)pfma->double_a1,
+					(const uint64_t *)pfma->double_a2);
 				rc = EXIT_FAILURE;
 			}
 			if (shim_memcmp(pfma->float_a1, pfma->float_a2, sizeof(pfma->float_a1))) {
-				pr_fail("%s: data difference between identical float fma computations\n", args->name);
+				stress_fma_verify_fail(args->name, "float",
+					SIZEOF_ARRAY(pfma->float_a1),
+					(const uint64_t *)pfma->float_a1,
+					(const uint64_t *)pfma->float_a2);
 				rc = EXIT_FAILURE;
 			}
 		}

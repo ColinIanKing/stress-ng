@@ -49,10 +49,16 @@
 - [x] 修复的 bug（诚实记录）：`set -u` 下关联数组 `${rep_of_pair[$lowest]}` 未绑定变量崩溃 → 改 `${rep_of_pair[$lowest]:-}` 默认值
 - [x] 目标机用法：`NG=./stress-ng ./scripts/sdc-scan.sh --secs 120 --sdcshield "./run-sdcshield.sh"`（950 上每核会是 SMT 对如 "192,193"）
 
-### Patch 4: stress-fma: verify 失败路径位级诊断（CORE179 对齐）
-- [ ] `stress-fma.c`：verify memcmp 失败时，找出首个不一致下标，输出 expected/actual 十六进制 + xor + popcount（翻转 bit 数），逐 double/float 段
-- [ ] 验证：临时注入错误（本地改一份数据副本比对）观察输出格式（或用 -Werror 干净构建+代码走查论证 + 目标机计划）；正常路径输出不变：`--fma 1 --verify -t 5` passed
-- [ ] 回归：`--fma 1 --verify -t 5` passed、`--vecfp 1 --verify -t 5` passed
+### Patch 4: stress-fma: verify 失败路径位级诊断（CORE179 对齐） — DONE
+- [x] `stress-fma.c`：新增 `stress_fma_verify_fail()`（首个不一致元素下标 + expected/actual 十六进制 + xor + popcount 翻转位数）；double/float 两段 memcmp 失败路径改调它；首行错误信息文案保持不变（`data difference between identical ... fma computations`），只追加诊断行
+- [x] include `core-bitops.h`（`stress_bitops_popcount64`）
+- [x] 验证实测（含故障注入）：
+  - **故障注入验证**：临时在 double_a2 memcmp 前注入 `p[3] ^= 1ULL<<41`，构建后 `--fma 1 --verify -t 3` 输出：
+    `first difference at element 3: expected 0x4004ddae4df2018e, actual 0x4004dfae4df2018e, 1 bit(s) flipped (xor 0x0000020000000000)` ✅（注入位=翻转位=41，xor=0x200000000000，完全对应）
+  - 注入代码已还原（diff 确认），干净构建 0 warning 0 error
+  - 正常路径：`--fma 2 --verify -t 5` → passed: 2（输出格式不变）
+- [x] 回归：`--fma 2 --verify -t 5` passed、`--zombie 1 -t 5` passed
+- [x] 修复的构建错误（诚实记录）：忘 include core-bitops.h → undefined reference to stress_bitops_popcount64
 
 ### Patch 5: stress-vecfp/stress-matrix 同款位级诊断
 - [ ] 同 Patch 4 模式扩展到 stress-vecfp.c、stress-matrix.c
