@@ -151,9 +151,28 @@ endif
 #
 ifeq ($(SANITIZE),1)
 SANITIZE_FLAGS := \
-	-fsanitize=null -fsanitize=bounds-strict -fsanitize=bounds \
-	-fsanitize=object-size -fsanitize=pointer-overflow -fsanitize=builtin \
-	-fsanitize=alignment -fsanitize=object-size
+	-fsanitize=alignment \
+	-fsanitize=bool \
+	-fsanitize=builtin \
+	-fsanitize=bounds \
+	-fsanitize=bounds-strict \
+	-fsanitize=enum \
+	-fsanitize=float-cast-overflow \
+	-fsanitize=float-divide-by-zero \
+	-fsanitize=function \
+	-fsanitize=integer-divide-by-zero \
+	-fsanitize=implicit-bitfield-conversion \
+	-fsanitize=nonnull-attribute \
+	-fsanitize=null \
+	-fsanitize=nullability-arg \
+	-fsanitize=nullability-assign \
+	-fsanitize=nullability-return \
+	-fsanitize=object-size \
+	-fsanitize=pointer-overflow \
+	-fsanitize=returns-nonnull-attribute \
+	-fsanitize=unsigned-shift-base \
+	-fsanitize=unreachable \
+	-fsanitize=vla-bound
 override CFLAGS += $(foreach flag,$(SANITIZE_FLAGS),$(cc_supports_flag))
 endif
 
