@@ -32,12 +32,15 @@ static const stress_help_t help[] = {
     defined(O_NONBLOCK) &&	\
     defined(F_SETFL)
 
+typedef int pipe_fds_t[2];
+
 typedef struct {
 	size_t max_fd;		/* Maximum allowed open file descriptors */
+	size_t max_pipes;	/* Maximum allowed pipes (max_fd / 2) */
 	size_t max_pipe_size;	/* Maximum pipe buffer size */
 	void *rd_buffer;	/* Read buffer */
 	void *wr_buffer;	/* Write buffer */
-	int *fds;		/* File descriptors */
+	pipe_fds_t *fds;	/* Pipe file descriptors */
 } stress_oom_pipe_context_t;
 
 /*
@@ -87,12 +90,11 @@ static void pipe_fill(
 static int stress_oom_pipe_child(stress_args_t *args, void *ctxt)
 {
 	stress_oom_pipe_context_t *context = (stress_oom_pipe_context_t *)ctxt;
-	const size_t max_pipes = context->max_fd / 2;
+	const size_t max_pipes = context->max_pipes;
 	const size_t page_size = args->page_size;
 
 	size_t i;
-	int *fds = context->fds;
-	const int *fd;
+	pipe_fds_t *fds = context->fds;
 	int pipes_open = 0;
 	const bool aggressive = (g_opt_flags & OPT_FLAGS_AGGRESSIVE);
 	uint32_t *rd_buffer = (uint32_t *)context->rd_buffer;
@@ -103,83 +105,83 @@ static int stress_oom_pipe_child(stress_args_t *args, void *ctxt)
 	/* Explicitly drop capabilities, makes it more OOM-able */
 	VOID_RET(int, stress_capabilities_drop(args->name));
 
-	for (i = 0; i < context->max_fd; i++)
-		fds[i] = -1;
+	for (i = 0; i < max_pipes; i++) {
+		fds[i][0] = -1;
+		fds[i][1] = -1;
+	}
 
 	for (i = 0; LIKELY(stress_continue(args) && (i < max_pipes)); i++) {
-		int *pfd = fds + (2 * i);
-
 		if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_memory_low_check(page_size))
 			break;
 
-		if (pipe(pfd) < 0) {
-			pfd[0] = -1;
-			pfd[1] = -1;
-			break;
-		} else {
-			if (fcntl(pfd[0], F_SETFL, O_NONBLOCK) < 0) {
+		if (pipe(fds[i]) == 0) {
+			if (fcntl(fds[i][0], F_SETFL, O_NONBLOCK) < 0) {
 				pr_fail("%s: fcntl F_SET_FL O_NONBLOCK failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				goto clean;
 			}
-			if (fcntl(pfd[1], F_SETFL, O_NONBLOCK) < 0) {
+			if (fcntl(fds[i][1], F_SETFL, O_NONBLOCK) < 0) {
 				pr_fail("%s: fcntl F_SET_FL O_NONBLOCK failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				goto clean;
 			}
 			pipes_open++;
+		} else {
+			break;
 		}
 	}
 
 	if (!pipes_open) {
 		pr_dbg("%s: opening pipes failed, aborted\n",
 			args->name);
-		return EXIT_NO_RESOURCE;
+		goto clean;
 	}
 
 	do {
 		/* Set to maximum size */
-		for (i = 0, fd = fds; LIKELY(stress_continue(args) && (i < max_pipes)); i++, fd += 2) {
+		for (i = 0; LIKELY(stress_continue(args) && (i < max_pipes)); i++) {
 			size_t max_size = context->max_pipe_size;
 
-			if ((fd[0] < 0) || (fd[1] < 0))
+			if ((fds[i][0] < 0) || (fds[i][1] < 0))
 				continue;
 			if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_memory_low_check(max_size * 2))
 				break;
-			if (fcntl(fd[0], F_SETPIPE_SZ, max_size) < 0)
+			if (fcntl(fds[i][0], F_SETPIPE_SZ, max_size) < 0)
 				max_size = page_size;
-			if (fcntl(fd[1], F_SETPIPE_SZ, max_size) < 0)
+			if (fcntl(fds[i][1], F_SETPIPE_SZ, max_size) < 0)
 				max_size = page_size;
-			pipe_fill(fd[1], max_size, page_size, wr_buffer);
+			pipe_fill(fds[i][1], max_size, page_size, wr_buffer);
 			if (!aggressive)
-				pipe_empty(fd[0], max_size, page_size, rd_buffer);
+				pipe_empty(fds[i][0], max_size, page_size, rd_buffer);
 		}
 		/* Set to invalid size */
-		for (i = 0, fd = fds; LIKELY(stress_continue(args) && (i < max_pipes)); i++, fd += 2) {
-			if ((fd[0] < 0) || (fd[1] < 0))
+		for (i = 0; LIKELY(stress_continue(args) && (i < max_pipes)); i++) {
+			if ((fds[i][0] < 0) || (fds[i][1] < 0))
 				continue;
-			(void)fcntl(fd[0], F_SETPIPE_SZ, -1);
-			(void)fcntl(fd[1], F_SETPIPE_SZ, -1);
+			(void)fcntl(fds[i][0], F_SETPIPE_SZ, -1);
+			(void)fcntl(fds[i][1], F_SETPIPE_SZ, -1);
 		}
 
 		/* Set to minimum size */
-		for (i = 0, fd = fds; LIKELY(stress_continue(args) && (i < max_pipes)); i++, fd += 2) {
-			if ((fd[0] < 0) || (fd[1] < 0))
+		for (i = 0; LIKELY(stress_continue(args) && (i < max_pipes)); i++) {
+			if ((fds[i][0] < 0) || (fds[i][1] < 0))
 				continue;
-			(void)fcntl(fd[0], F_SETPIPE_SZ, page_size);
-			(void)fcntl(fd[1], F_SETPIPE_SZ, page_size);
-			pipe_fill(fd[1], page_size, page_size, wr_buffer);
+			(void)fcntl(fds[i][0], F_SETPIPE_SZ, page_size);
+			(void)fcntl(fds[i][1], F_SETPIPE_SZ, page_size);
+			pipe_fill(fds[i][1], page_size, page_size, wr_buffer);
 			if (!aggressive)
-				pipe_empty(fd[0], page_size, page_size, rd_buffer);
+				pipe_empty(fds[i][0], page_size, page_size, rd_buffer);
 		}
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
 	/* And close the pipes */
 clean:
-	for (i = 0, fd = fds; i < context->max_fd; i++, fd++) {
-		if (*fd >= 0)
-			(void)close(*fd);
+	for (i = 0; i < max_pipes; i++) {
+		if (fds[i][0] != -1)
+			(void)close(fds[i][0]);
+		if (fds[i][1] != -1)
+			(void)close(fds[i][1]);
 	}
 	return EXIT_SUCCESS;
 }
@@ -210,13 +212,15 @@ static int stress_oom_pipe(stress_args_t *args)
 	context.rd_buffer = (uint32_t *)((uintptr_t)buffer + page_size);
 
 	context.max_fd = stress_fs_file_limit_get();
+	context.max_pipes = context.max_fd / 2;
 	context.max_pipe_size = stress_fs_max_pipe_size_get();
 
-	context.fds = (int *)calloc(context.max_fd, sizeof(*context.fds));
+	context.fds = (pipe_fds_t *)calloc(context.max_pipes, sizeof(*context.fds));
 	if (!context.fds) {
 		/* Shrink down */
 		context.max_fd = 1024 * 1024;
-		context.fds = (int *)calloc(context.max_fd, sizeof(*context.fds));
+		context.max_pipes = context.max_fd / 2;
+		context.fds = (pipe_fds_t *)calloc(context.max_pipes, sizeof(*context.fds));
 		if (!context.fds) {
 			pr_inf_skip("%s: allocate %zu file descriptors failed%s, skipping stressor\n",
 				args->name, context.max_fd,
