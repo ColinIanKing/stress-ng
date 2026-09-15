@@ -20,6 +20,7 @@
 #include "core-builtin.h"
 #include "core-filesystem.h"
 #include "core-killpid.h"
+#include "core-mmap.h"
 #include "core-net.h"
 #include "core-pragma.h"
 
@@ -59,15 +60,18 @@ static const stress_opt_t opts[] = {
 static int OPTIMIZE3 stress_epollmany(stress_args_t *args)
 {
 	struct epoll_event event;
-	struct epoll_event events[MAX_EPOLL_FDS];
+	struct epoll_event *events = NULL;
 	int epollmany_fds = DEFAULT_EPOLL_FDS;
 	int pipe_fds;
-	int max_add[MAX_EPOLL_FDS];
-	int efds[MAX_EPOLL_FDS];
+	int *max_add;
+	int *efds;
 	int pfds[MAX_PIPE_FDS][2];
 	int rc = EXIT_SUCCESS;
 	int i;
 	static char data[1] = { 0xff };
+	size_t events_sz;
+	size_t max_add_sz;
+	size_t efds_sz;
 	uint64_t epoll_create_count = 0;
 	uint64_t epoll_ctl_add_count = 0;
 	uint64_t epoll_event_count = 0;
@@ -81,6 +85,44 @@ static int OPTIMIZE3 stress_epollmany(stress_args_t *args)
 	if (stress_setting_get("epollmany-fds", &epollmany_fds))
 		epollmany_fds_specified = true;
 
+	events_sz = epollmany_fds * sizeof(*events);
+	events = (struct epoll_event *)stress_mmap_populate(NULL, events_sz,
+						PROT_READ | PROT_WRITE,
+						MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	if (events == MAP_FAILED) {
+		pr_warn_skip("%s: failed to mmap %d epoll events%s, errno=%d (%s) "
+			"skipping stressor\n", args->name, epollmany_fds,
+			stress_memory_free_get(), errno, strerror(errno));
+		return EXIT_NO_RESOURCE;
+	}
+	stress_memory_anon_name_set(events, events_sz, "events");
+
+	max_add_sz = epollmany_fds * sizeof(*max_add);
+	max_add = (int *)stress_mmap_populate(NULL, max_add_sz,
+						PROT_READ | PROT_WRITE,
+						MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	if (max_add == MAP_FAILED) {
+		pr_warn_skip("%s: failed to mmap %zu bytes%s, errno=%d (%s) "
+			"skipping stressor\n", args->name, max_add_sz,
+			stress_memory_free_get(), errno, strerror(errno));
+		rc = EXIT_NO_RESOURCE;
+		goto unmap_events;
+	}
+	stress_memory_anon_name_set(max_add, max_add_sz, "max-add");
+
+	efds_sz = epollmany_fds * sizeof(*efds);
+	efds = (int *)stress_mmap_populate(NULL, efds_sz,
+						PROT_READ | PROT_WRITE,
+						MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	if (efds == MAP_FAILED) {
+		pr_warn_skip("%s: failed to mmap %d epoll file descriptors%s, errno=%d (%s) "
+			"skipping stressor\n", args->name, epollmany_fds,
+			stress_memory_free_get(), errno, strerror(errno));
+		rc = EXIT_NO_RESOURCE;
+		goto unmap_max_add;
+	}
+	stress_memory_anon_name_set(efds, efds_sz, "efds");
+
 	for (pipe_fds = 0; pipe_fds < MAX_PIPE_FDS; pipe_fds++) {
 		if (UNLIKELY(pipe(pfds[pipe_fds]) < 0))
 			break;
@@ -89,13 +131,13 @@ static int OPTIMIZE3 stress_epollmany(stress_args_t *args)
 	if (pipe_fds == 0) {
 		pr_inf_skip("%s: failed to create a pipe, errno=%d (%s), skipping stressor\n",
 			args->name, errno, strerror(errno));
-		return EXIT_NO_RESOURCE;
+		rc = EXIT_NO_RESOURCE;
+		goto unmap_efds;
 	}
 
-	(void)shim_memset(&events, 0, sizeof(events));
 	(void)shim_memset(&event, 0, sizeof(event));
 
-	for (i = 0; i < MAX_EPOLL_FDS; i++)
+	for (i = 0; i < epollmany_fds; i++)
 		efds[i] = -1;
 
 	stress_proc_state_set(args->name, STRESS_STATE_SYNC_WAIT);
@@ -161,7 +203,7 @@ static int OPTIMIZE3 stress_epollmany(stress_args_t *args)
 		for (i = 0; i < n; i++) {
 			register int ret;
 
-			ret = epoll_wait(efds[i], events, SIZEOF_ARRAY(events), 0);
+			ret = epoll_wait(efds[i], events, epollmany_fds, 0);
 			if (LIKELY(ret > 0))
 				epoll_event_count += ret;
 		}
@@ -207,6 +249,13 @@ epollmany_end:
 	stress_metrics_set(args, "epoll_ctl EPOLL_CTL_ADD calls per sec", rate, STRESS_METRIC_HARMONIC_MEAN);
 	rate = (duration > 0.0) ? (double)epoll_event_count / duration : 0.0;
 	stress_metrics_set(args, "epoll_wait events per sec", rate, STRESS_METRIC_HARMONIC_MEAN);
+
+unmap_efds:
+	(void)munmap((void *)efds, efds_sz);
+unmap_max_add:
+	(void)munmap((void *)max_add, max_add_sz);
+unmap_events:
+	(void)munmap((void *)events, events_sz);
 
 	return rc;
 }
