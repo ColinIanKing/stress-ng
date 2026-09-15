@@ -295,7 +295,7 @@ static pid_t stress_umount_spawn(
 		pr_inf("%s: fork failed, errno=%d (%s), skipping stressor\n",
 			args->name, errno, strerror(errno));
 		return -1;
-	} else if (s_pid->pid == 0) {
+	} else if (pid == 0) {
 		s_pid->pid = getpid();
 
 		stress_parent_died_alarm();
