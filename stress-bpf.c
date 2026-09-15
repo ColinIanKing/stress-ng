@@ -182,9 +182,9 @@ static inline int ALWAYS_INLINE stress_bpf_prog_load(
 {
 	union bpf_attr attr = {
 		.prog_type = type,
-		.insns = (uint64_t)insns,
+		.insns = (uint64_t)(uintptr_t)insns,
 		.insn_cnt = insn_cnt,
-		.license = (uint64_t)"GPL",
+		.license = (uint64_t)(uintptr_t)"GPL",
 		.log_buf = 0,
 		.log_size = 0,
 		.log_level = 0,
