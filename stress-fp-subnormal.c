@@ -95,7 +95,7 @@ static double OPTIMIZE1 name(					\
 	type zeroish = (type)0.0;				\
 								\
 	for (i = 0; i < loops; i++) 				\
-		fp_data->field.r[idx] = 0.0;			\
+		fp_data->field.r[idx] = (type)0.0;		\
 								\
 	t1 = stress_time_now();					\
 	for (i = 0; i < loops; i++) {				\
