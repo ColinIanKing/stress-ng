@@ -146,7 +146,7 @@ void stress_mwc_reseed(void)
 		mwc.w = aux_rnd & 0xffffffff;
 		if (gettimeofday(&tv, NULL) == 0)
 			mwc.z ^= (uint64_t)tv.tv_sec ^ (uint64_t)tv.tv_usec;
-		mwc.z += ~(p1 - p2);
+		mwc.z += (uint32_t)(~(p1 - p2) & 0xffffffff);
 		mwc.w += shim_rol64n((uint64_t)getpid(), 3) ^ shim_rol64n((uint64_t)getppid(), 1);
 		if (stress_load_average_get(&load_average_info) == 0) {
 			mwc.z += (uint64_t)(128.0 * (load_average_info.min1 + load_average_info.min15));
@@ -162,7 +162,7 @@ void stress_mwc_reseed(void)
 		 */
 		mwc.z ^= shim_rol32n(mwc.z, stress_cpu_get() & 0x1f);
 		mwc.w ^= shim_rol32n(mwc.w, (uint32_t)(stress_memory_phys_size_get() >> 22));
-		mwc.z ^= stress_fs_size_get();
+		mwc.z ^= stress_fs_size_get() & 0xffffffff;
 		mwc.z ^= stress_kernel_release_get();
 		mwc.w ^= shim_rol32n((uint32_t)stress_ticks_per_second_get(), 3);
 		mwc.z ^= shim_ror32n((uint32_t)stress_cpus_online_get(), 17);
@@ -228,7 +228,7 @@ inline OPTIMIZE3 uint32_t stress_mwc32(void)
 	mwc.z = 36969 * (mwc.z & 65535) + (mwc.z >> 16);
 	mwc.w = 18000 * (mwc.w & 65535) + (mwc.w >> 16);
 
-	return (mwc.z << 16) + mwc.w;
+	return (((uint32_t)mwc.z & 0xffff) << 16) + mwc.w;
 }
 
 /*
@@ -456,7 +456,7 @@ void OPTIMIZE3 stress_rndbuf(void *buf, const size_t len)
 	register const char *end = ptr + len;
 
 	while (ptr < end)
-		*ptr++ = stress_mwc8();
+		*ptr++ = (char)stress_mwc8();
 }
 
 /*
