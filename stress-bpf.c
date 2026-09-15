@@ -63,6 +63,51 @@ typedef struct stress_bpf_insn_node {
 	stress_bpf_cached_insn_t insn;
 } stress_bpf_insn_node_t;
 
+static const stress_help_t help[] = {
+	{ NULL, "bpf N",	"start N workers exercising random BPF instructions" },
+	{ NULL, "bpf-max",	"specify maximum number of BPF instructions " },
+	{ NULL,	"bpf-ops N",	"stop after N BPF system calls" },
+	{ NULL,	NULL,		NULL }
+};
+
+static const stress_opt_t opts[] = {
+	{ OPT_bpf_max, "bpf-max", TYPE_ID_SIZE_T, MIN_BPF_PROG_SIZE, MAX_BPF_PROG_SIZE, NULL },
+	END_OPT,
+};
+
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("lock-contention"),
+	STRESS_EX_FEATURE("syscall-rate"),
+	STRESS_EX_FEATURE("system-time"),
+
+	STRESS_EX_SYSCALL("bpf"),
+
+	STRESS_EX_END,
+};
+
+/*
+ *  stress_bpf_supported()
+ *      check if we can run this with SHIM_CAP_SYS_ADMIN capability
+ */
+static int stress_bpf_supported(const char *name)
+{
+	if (!stress_capabilities_check(SHIM_CAP_BPF)) {
+		pr_inf_skip("%s stressor will be skipped, "
+			"need to be running with CAP_BPF "
+			"rights for this stressor\n", name);
+		return -1;
+	}
+	return 0;
+}
+
+#if defined(HAVE_LINUX_BPF_H) &&	\
+    defined(__NR_bpf) &&		\
+    defined(__linux__)
+
+static int stress_bpf_size_max;
+static double stress_bpf_duration;
+static double stress_bpf_insns;
+
 static stress_bpf_insn_node_t **stress_bpf_insn_hash_table;
 static stress_bpf_insn_node_t *unique_insns;
 static size_t unique_insns_count;
@@ -112,50 +157,6 @@ static void OPTIMIZE3 stress_bpf_insn_add(stress_bpf_cached_insn_t *insn)
 	return;
 }
 
-static const stress_help_t help[] = {
-	{ NULL, "bpf N",	"start N workers exercising random BPF instructions" },
-	{ NULL, "bpf-max",	"specify maximum number of BPF instructions " },
-	{ NULL,	"bpf-ops N",	"stop after N BPF system calls" },
-	{ NULL,	NULL,		NULL }
-};
-
-static const stress_opt_t opts[] = {
-	{ OPT_bpf_max, "bpf-max", TYPE_ID_SIZE_T, MIN_BPF_PROG_SIZE, MAX_BPF_PROG_SIZE, NULL },
-	END_OPT,
-};
-
-static const stress_exercises_t exercises[] = {
-	STRESS_EX_FEATURE("lock-contention"),
-	STRESS_EX_FEATURE("syscall-rate"),
-	STRESS_EX_FEATURE("system-time"),
-
-	STRESS_EX_SYSCALL("bpf"),
-
-	STRESS_EX_END,
-};
-
-/*
- *  stress_bpf_supported()
- *      check if we can run this with SHIM_CAP_SYS_ADMIN capability
- */
-static int stress_bpf_supported(const char *name)
-{
-	if (!stress_capabilities_check(SHIM_CAP_BPF)) {
-		pr_inf_skip("%s stressor will be skipped, "
-			"need to be running with CAP_BPF "
-			"rights for this stressor\n", name);
-		return -1;
-	}
-	return 0;
-}
-
-#if defined(HAVE_LINUX_BPF_H) &&	\
-    defined(__NR_bpf) &&		\
-    defined(__linux__)
-
-static int stress_bpf_size_max;
-static double stress_bpf_duration;
-static double stress_bpf_insns;
 
 /*
  *  stress_sys_bpf()
