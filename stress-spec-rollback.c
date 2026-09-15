@@ -116,7 +116,7 @@ static int stress_spec_rollback(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 	do {
-PRAGMA_UNROLL
+PRAGMA_UNROLL_N(4)
 		for (i = 0; i < 1024; i++) {
 			register size_t idx = stress_mwcsizemodn(spec_rollback_size);
 			uint64_t val;
