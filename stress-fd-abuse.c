@@ -2211,6 +2211,7 @@ static int stress_fd_abuse(stress_args_t *args)
 
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("chaotic-load"),
+	STRESS_EX_FEATURE("coverage"),
 	STRESS_EX_FEATURE("io-read"),
 	STRESS_EX_FEATURE("io-write"),
 	STRESS_EX_FEATURE("writeback-dirty-inode"),

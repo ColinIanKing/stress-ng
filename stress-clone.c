@@ -660,6 +660,7 @@ static int stress_clone(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("coverage"),
 	STRESS_EX_FEATURE("oom"),
 	STRESS_EX_FEATURE("page-faults-minor"),
 	STRESS_EX_FEATURE("page-faults-user"),

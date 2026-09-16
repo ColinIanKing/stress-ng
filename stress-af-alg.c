@@ -1613,6 +1613,7 @@ static void stress_af_alg_deinit(void)
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("d-cache-l1-read"),
 	STRESS_EX_FEATURE("cipher"),
+	STRESS_EX_FEATURE("coverage"),
 	STRESS_EX_FEATURE("cpu-instructions"),
 	STRESS_EX_FEATURE("crypto"),
 	STRESS_EX_FEATURE("hash"),

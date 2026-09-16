@@ -720,6 +720,8 @@ finish:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("coverage"),
+
 	STRESS_EX_SYSCALL("bind"),
 	STRESS_EX_SYSCALL("close"),
 	STRESS_EX_SYSCALL("connect"),

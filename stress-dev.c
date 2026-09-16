@@ -4946,6 +4946,7 @@ deinit:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("coverage"),
 	STRESS_EX_SYSCALL("ioctl"),
 
 #if defined(HAVE_LIB_PTHREAD)

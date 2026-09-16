@@ -992,6 +992,7 @@ static int stress_procfs(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("coverage"),
 	STRESS_EX_FEATURE("load-average"),
 
 	STRESS_EX_SYSCALL("close"),
