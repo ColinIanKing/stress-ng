@@ -148,7 +148,7 @@ typedef struct {
 
 static const stress_help_t help[] = {
 	{ "m N", "vm N",             "start N workers spinning on anonymous mmap" },
-	{ NULL,	 "vm-bytes N",       "allocate N bytes per vm worker (default 256MB)" },
+	{ NULL,	 "vm-bytes N",       "allocate N bytes in total across vm workers (default 256MB)" },
 	{ NULL,  "vm-discontiguous", "make mmap'd physical pages discontiguous" },
 	{ NULL,  "vm-flush",         "cache flush data after write" },
 	{ NULL,	 "vm-hang N",        "sleep N seconds before freeing memory" },
