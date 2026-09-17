@@ -36,6 +36,17 @@ static const char option[] = "taskset";
 static cpu_set_t stress_affinity_cpu_set_val;
 
 /*
+ *  stress_set_cpu_affinity_init_if_zero()
+ *	set stress_affinity_cpu_set_val to the default taskset setting
+ *	if it has not been already set.
+ */
+static void stress_set_cpu_affinity_init_if_zero(void)
+{
+	if (CPU_COUNT(&stress_affinity_cpu_set_val) == 0)
+		(void)sched_getaffinity(0, sizeof(stress_affinity_cpu_set_val), &stress_affinity_cpu_set_val);
+}
+
+/*
  * stress_check_cpu_affinity_range()
  * @max_cpus: maximum cpus allowed, 0..N-1
  * @cpu: cpu number to check
@@ -347,11 +358,11 @@ int stress_affinity_change_cpu(stress_args_t *args, const int old_cpu)
 	if ((g_opt_flags & OPT_FLAGS_CHANGE_CPU) == 0)
 		return old_cpu;
 
+	stress_set_cpu_affinity_init_if_zero();
 	if (CPU_COUNT(&stress_affinity_cpu_set_val) == 0) {
-		if (sched_getaffinity(0, sizeof(mask), &mask) < 0)
-			return old_cpu;		/* no dice */
+		return old_cpu;		/* no dice */
 	} else {
-		shim_memcpy(&mask, &stress_affinity_cpu_set_val, sizeof(mask));
+		(void)shim_memcpy(&mask, &stress_affinity_cpu_set_val, sizeof(mask));
 	}
 
 	if (old_cpu < 0) {
@@ -401,6 +412,8 @@ uint32_t stress_affinity_cpus_get(uint32_t **cpus, const bool use_affinity)
 {
 	uint32_t i;
 	uint32_t n_cpus = (uint32_t)stress_cpus_configured_get();
+
+	stress_set_cpu_affinity_init_if_zero();
 
 #if defined(HAVE_SCHED_GETAFFINITY) && \
     defined(HAVE_SCHED_SETAFFINITY) && \
