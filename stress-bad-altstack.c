@@ -54,7 +54,7 @@ static const stress_help_t help[] =
     defined(PROT_READ) &&		\
     defined(PROT_WRITE)
 
-/* guarded stack is gaurd page + stack + guard page */
+/* guarded stack is guard page + stack + guard page */
 static uint8_t *guarded_stack;
 static size_t guarded_stack_size;
 

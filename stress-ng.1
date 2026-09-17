@@ -833,7 +833,7 @@ madvise advice options before each mmap(2) and munmap(2) call to stress the
 vm subsystem a little harder. The \-\-no\-advise option turns this default off.
 .TP
 .B \-\-no\-madvise\-opts madvice-list
-specifiy one or more madvise(2) advice options to not use. By default, stress\-ng
+specify one or more madvise(2) advice options to not use. By default, stress\-ng
 enables all the available madvise advice options for randomly selecting one
 before each mmap(2) and munmap(2) call., this option allow one or
 more of these to be disabled. Available advice options (depending on system) are
@@ -2926,7 +2926,7 @@ stop after N non-existtent files are accessed.
 .B \-\-dev N
 start N workers that exercise the /dev devices. Each worker runs 5
 concurrent threads that perform open(2), fstat(2), lseek(2), poll(2),
-fcntl(2), mmap(2), munmap(2), fsync(2) and close(2) on the fist occurance
+fcntl(2), mmap(2), munmap(2), fsync(2) and close(2) on the fist occurence
 of each device. Note that watchdog devices are not exercised.
 .TP
 .B \-\-dev\-alldev

@@ -387,7 +387,7 @@ static int stress_bpf(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
 	rate = (stress_bpf_duration > 0.) ? stress_bpf_insns / stress_bpf_duration : 0.0;
-	stress_metrics_set(args, "loaded/verifed BPF instructions per second", rate, STRESS_METRIC_GEOMETRIC_MEAN);
+	stress_metrics_set(args, "loaded/verified BPF instructions per second", rate, STRESS_METRIC_GEOMETRIC_MEAN);
 	stress_metrics_set(args, "maximum BPF code instructions", (double)stress_bpf_size_max, STRESS_METRIC_MAXIMUM);
 	stress_metrics_set(args, "unique BPF instructions used", (double)unique_insns_count, STRESS_METRIC_MAXIMUM);
 

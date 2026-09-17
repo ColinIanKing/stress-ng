@@ -416,7 +416,7 @@ static const stress_help_t help_generic[] = {
 	{ NULL,		"randprocname",		"randomize stressor process name" },
 	{ NULL,		"rapl",			"report RAPL power domain measurements over entire run (Linux x86 only)" },
 	{ NULL,		"raplstat S",		"show RAPL power domain stats every S seconds (Linux x86 only)" },
-	{ NULL,		"resctrl list",		"specify resource control cache partioning" },
+	{ NULL,		"resctrl list",		"specify resource control cache partitioning" },
 	{ NULL,		"sched type",		"set scheduler type" },
 	{ NULL,		"sched-prio N",		"set scheduler priority level N" },
 	{ NULL,		"sched-period N",	"set period for SCHED_DEADLINE to N nanosecs (Linux only)" },
