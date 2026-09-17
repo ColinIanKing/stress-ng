@@ -41,7 +41,7 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"tlb-numa N",         "start N workers that force TLB shootdowns on NUMA systems" },
-	{ NULL, "tlb-numa-entires N", "select number of TLB page entries per instance to use (default 512)" },
+	{ NULL, "tlb-numa-entries N", "select number of TLB page entries per instance to use (default 512)" },
 	{ NULL,	"tlb-nuna-nombind",   "disable setting NUMA policy on pages" },
 	{ NULL,	"tlb-nuna-nopageout", "disable paging out randomly selected pages" },
 	{ NULL,	"tlb-numa-ops N",     "stop after N TLB shootdown bogo ops" },
