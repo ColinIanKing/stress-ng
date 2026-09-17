@@ -760,6 +760,10 @@ typedef struct {
 	struct {
 		void *lock;		/* metrics lock */
 	} metrics;
+	struct {
+		void *lock;		/* whence lock */
+		double whence;		/* last time when caches were dropped */
+	} drop_caches;
 	stress_stats_t stats[];		/* Shared statistics */
 } stress_shared_t;
 

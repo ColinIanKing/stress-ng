@@ -4476,6 +4476,11 @@ static int stress_global_lock_create(void)
 		pr_err("failed to create metrics lock\n");
 		return -1;
 	}
+	g_shared->drop_caches.lock = stress_lock_create("drop_caches");
+	if (!g_shared->drop_caches.lock) {
+		pr_err("failed to create drop caches lock\n");
+		return -1;
+	}
 	return 0;
 }
 
@@ -4485,6 +4490,8 @@ static int stress_global_lock_create(void)
  */
 static void stress_global_lock_destroy(void)
 {
+	if (g_shared->drop_caches.lock)
+		stress_lock_destroy(g_shared->drop_caches.lock);
 	if (g_shared->metrics.lock)
 		stress_lock_destroy(g_shared->metrics.lock);
 	if (g_shared->net_port_map.lock)

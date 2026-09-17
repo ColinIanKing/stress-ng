@@ -21,6 +21,11 @@
 #include "core-builtin.h"
 #include "core-filesystem.h"
 
+/* Rate to perform expensive low mem checks per instance */
+#define STRESS_LOW_MEM_CHECK_DELAY	(1.0)
+/* Rate to perform expensive cache flushing */
+#define STRESS_FLUSH_CACHE_DELAY	(5.0)
+
 #if defined(HAVE_MACH_MACH_H)
 #include <mach/mach.h>
 #endif
@@ -268,7 +273,17 @@ bool stress_memory_low_check(const size_t requested)
 	static size_t prev_freemem = 0;
 	static size_t prev_freeswap = 0;
 	static double threshold = -1.0;
+	static double t_whence = 0.0;
+	const double t_now = stress_time_now();
 	bool low_memory = false;
+
+	/*
+	 *  Don't do expensive memory checks if the last call was
+	 *  less than STRESS_LOW_MEM_CHECK_DELAY seconds ago
+	 */
+	if (t_whence > t_now)
+		return false;
+	t_whence = t_now + STRESS_LOW_MEM_CHECK_DELAY;
 
 	if (stress_memory_info_get(&info) == 0) {
 		/*
@@ -326,8 +341,20 @@ update:
 
 		/* low memory? drop caches and automatically enable ksm memory merging */
 		if (low_memory) {
-			stress_fs_drop_caches(3);
-			stress_memory_ksm_merge(1);
+			if (stress_lock_acquire_relax(g_shared->drop_caches.lock) == 0) {
+				bool drop_caches = false;
+
+				if (g_shared->drop_caches.whence < t_now) {
+					g_shared->drop_caches.whence = t_now + STRESS_FLUSH_CACHE_DELAY;
+					drop_caches = true;
+				}
+				stress_lock_release(g_shared->drop_caches.lock);
+
+				if (drop_caches) {
+					stress_fs_drop_caches(3);
+					stress_memory_ksm_merge(1);
+				}
+			}
 		}
 	}
 	return low_memory;
