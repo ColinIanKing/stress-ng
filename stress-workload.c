@@ -541,7 +541,6 @@ static int stress_workload(stress_args_t *args)
 	size_t workload_sched = 0;		/* undefined */
 	size_t workload_dist_idx = 0;
 	size_t workload_method_idx = 0;
-	size_t threads_sz;
 	int workload_dist;
 	int workload_method;
 	stress_workload_t *workload;
@@ -551,11 +550,12 @@ static int stress_workload(stress_args_t *args)
 	stress_workload_bucket_t slice_offset_bucket;
 	int rc = EXIT_SUCCESS;
 #if defined(WORKLOAD_THREADED)
+	stress_workload_thread_t *threads;
 	char mq_name[64];
 	mqd_t mq = (mqd_t)-1;
 	uint32_t i;
+	size_t threads_sz;
 #endif
-	stress_workload_thread_t *threads;
 
 	(void)stress_setting_get("workload-dist", &workload_dist_idx);
 	(void)stress_setting_get("workload-load", &workload_load);
@@ -596,6 +596,7 @@ static int stress_workload(stress_args_t *args)
 	(void)stress_madvise_nohugepage(mapped_buffer, mapped_buffer_len);
 	stress_memory_anon_name_set(mapped_buffer, mapped_buffer_len, "workload-buffer");
 
+#if defined(WORKLOAD_THREADED)
 	threads_sz = (size_t)workload_threads * sizeof(*threads);
 	threads = (stress_workload_thread_t *)
 			stress_mmap_populate(NULL, threads_sz,
@@ -612,6 +613,7 @@ static int stress_workload(stress_args_t *args)
 
 	for (i = 0; i < workload_threads; i++)
 		threads[i].ret = -1;
+#endif
 
 	if (workload_threads > 0) {
 #if defined(WORKLOAD_THREADED)
@@ -674,7 +676,7 @@ static int stress_workload(stress_args_t *args)
 #if defined(WORKLOAD_THREADED)
 		goto exit_cancel_threads;
 #else
-		goto exit_unnap_buffer;
+		goto exit_unmap_buffer;
 #endif
 	}
 
@@ -742,9 +744,9 @@ exit_cancel_threads:
 		(void)mq_close(mq);
 		(void)mq_unlink(mq_name);
 	}
-#endif
 exit_unmap_threads:
 	(void)munmap((void *)threads, threads_sz);
+#endif
 
 exit_unmap_buffer:
 	(void)munmap((void *)mapped_buffer, mapped_buffer_len);
