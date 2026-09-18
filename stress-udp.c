@@ -290,7 +290,9 @@ static int OPTIMIZE3 stress_udp_server(
 	socklen_t addr_len = 0;
 	struct sockaddr_storage addr;
 	int rc = EXIT_FAILURE;
+#if defined(__linux__)
 	int count = 0;
+#endif
 
 	(void)shim_memset(&addr, 0, sizeof(addr));
 	if (stress_signal_stop_stressing(args->name, SIGALRM) < 0)
