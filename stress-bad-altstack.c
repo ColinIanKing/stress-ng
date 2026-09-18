@@ -328,7 +328,7 @@ static int stress_bad_altstack(stress_args_t *args)
 	stack_size = min_stack_size;
 	stress_set_oom_adjustment(args, true);
 
-	guarded_stack = stress_mmap_populate(NULL, guarded_stack_size,
+	guarded_stack = (uint8_t *)stress_mmap_populate(NULL, guarded_stack_size,
 			PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS | map_stackflags, -1, 0);
 	if (guarded_stack == MAP_FAILED) {
@@ -342,8 +342,8 @@ static int stress_bad_altstack(stress_args_t *args)
 	(void)stress_madvise_mergeable(guarded_stack, guarded_stack_size);
 
 	/* Make ends of stack PROT_NONE */
-	(void)mprotect(guarded_stack, page_size, PROT_NONE);
-	(void)mprotect(guarded_stack + page_size + stack_size, page_size, PROT_NONE);
+	(void)mprotect((void *)guarded_stack, page_size, PROT_NONE);
+	(void)mprotect((void *)(guarded_stack + page_size + stack_size), page_size, PROT_NONE);
 
 	/* Stack starts at first read-writeable page */
 	stack = guarded_stack + page_size;
@@ -463,7 +463,7 @@ finish:
 	if (zero_stack != MAP_FAILED)
 		(void)munmap(zero_stack, stack_size);
 	if (guarded_stack != MAP_FAILED)
-		(void)munmap(guarded_stack, guarded_stack_size);
+		(void)munmap((void *)guarded_stack, guarded_stack_size);
 
 	return rc;
 }
