@@ -294,7 +294,7 @@ NOTE: This can lead to build information being leaked and is not recommended for
 ## Contributing to stress-ng:
 
 Send patches to colin.i.king@gmail.com or merge requests at
-https://github.com/ColinIanKing/stress-ng
+https://github.com/stress-ng/stress-ng
 
 ## Quick Start Reference Guide
 The [Ubuntu stress-ng reference guide](https://wiki.ubuntu.com/Kernel/Reference/stress-ng)
