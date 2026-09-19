@@ -171,11 +171,8 @@ stress_cpu_cache_t *stress_cpu_cache_get(
 		return NULL;
 	}
 
-	if (UNLIKELY(!cache_level)) {
-		pr_dbg("%s: invalid cache_level: %d\n",
-			__func__, cache_level);
+	if (UNLIKELY(!cache_level))
 		return NULL;
-	}
 
 	cpu = &cpus->cpus[stress_cpu_cache_get_cpu(cpus)];
 
