@@ -18,9 +18,9 @@
 #
 
 #
-# Codename "Premday Process Pressurizer"
+# Codename "capable computer crasher"
 #
-VERSION=0.22.00
+VERSION=0.22.01
 
 #
 # Determine supported toolchains
