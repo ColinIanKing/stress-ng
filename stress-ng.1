@@ -149,7 +149,7 @@ show the features, libraries and system calls exercised by the core of each stre
 enable stressors that exercises one or more stressor features specified in
 the given list, for example: \f[CR]\-\-exercise\-features branch,registers\f[]
 to exercise branching and processor registers.
-Use the \-\-all, \-\-permute or \-\-seq options to specify how to run the stessors.
+Use the \-\-all, \-\-permute or \-\-seq options to specify how to run the stressors.
 The features available are as follows:
 .sp
 .TS
@@ -460,7 +460,7 @@ T}
 enable stressors that exercises one or more libraries specified in
 the given list, for example: \f[CR]\-\-exercise\-library pthread,z\f[]
 for libpthread and libz libraries.
-Use the \-\-all, \-\-permute or \-\-seq options to specify how to run the stessors.
+Use the \-\-all, \-\-permute or \-\-seq options to specify how to run the stressors.
 The libraries available are as follows:
 .sp
 .TS
@@ -546,7 +546,7 @@ enable stressors that exercises one or more system calls specified in
 the given list, for example: \f[CR]\-\-exercise\-syscall mmap,fork\f[]
 for the mmap and fork system calls. Using \\? as the list option will
 show system calls used by each stressor.
-Use the \-\-all, \-\-permute or \-\-seq options to specify how to run the stessors.
+Use the \-\-all, \-\-permute or \-\-seq options to specify how to run the stressors.
 .TP
 .B \-\-ftrace
 enable kernel function call tracing (Linux only). This will use the
@@ -2926,7 +2926,7 @@ stop after N non-existtent files are accessed.
 .B \-\-dev N
 start N workers that exercise the /dev devices. Each worker runs 5
 concurrent threads that perform open(2), fstat(2), lseek(2), poll(2),
-fcntl(2), mmap(2), munmap(2), fsync(2) and close(2) on the fist occurence
+fcntl(2), mmap(2), munmap(2), fsync(2) and close(2) on the first occurrence
 of each device. Note that watchdog devices are not exercised.
 .TP
 .B \-\-dev\-alldev
@@ -6335,7 +6335,7 @@ swap 64 bit values from start to end and work towards the middle and then
 from end to start and work towards the middle.
 T}
 tlb	T{
-work through memory in sub-optimial strides of prime multiples of the cache
+work through memory in sub-optimal strides of prime multiples of the cache
 line size with reads and then writes to cause Translation Lookaside Buffer
 (TLB) misses.
 T}
@@ -10793,7 +10793,7 @@ and started by a controlling instance sending SIGSTOP and SIGCONT signals
 to these processes.
 .TP
 .B \-\-varyload\-ops N
-stop ater N varyload 1ms bogo cycles
+stop after N varyload 1ms bogo cycles
 .TP
 .B \-\-varyload\-ms M
 vary the load every M milliseconds (from 1 to 3600000 milliseconds). The
@@ -12118,7 +12118,7 @@ rarely0	T{
 data that has a single 0 in every 32 bits, randomly located.
 T}
 rdrand	T{
-generate random data using rdrand instruction (x86) or use 64 bit mwc psuedo-random
+generate random data using rdrand instruction (x86) or use 64 bit mwc pseudo-random
 number generator for non-x86 systems.
 T}
 ror32	T{
@@ -12377,7 +12377,7 @@ run 32 instances of the CPU stressor and pin them to odd numbered CPUs.
 .LP
 \f[CR]stress\-ng \-\-exercise\-feature memory\-copy,memory\-cmp \-\-seq 1 \-t 10\f[]
 .IP
-run 1 instance of all stessors (for 10 seconds each) that are known exercise
+run 1 instance of all stressors (for 10 seconds each) that are known exercise
 memory copies and memory comparisons.
 .LP
 \f[CR]stress\-ng \-\-exercise\-syscall select,poll \-\-all 4 -t 60\f[]

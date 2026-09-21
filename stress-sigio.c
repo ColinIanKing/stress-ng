@@ -79,7 +79,7 @@ static void MLOCKED_TEXT stress_sigio_handler(int signum)
 					got_err = errno;
 				break;
 			}
-			/* Note, not aync safe! */
+			/* Note, not async safe! */
 			if ((volatile stress_args_t *)sigio_args)
 				stress_bogo_inc(sigio_args);
 		}

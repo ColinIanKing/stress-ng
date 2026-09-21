@@ -58,7 +58,7 @@ static const stress_opt_t opts[] = {
 }
 
 /*
- *  Intel icx and clang can take hours optimizating the code,
+ *  Intel icx and clang can take hours optimizing the code,
  *  so workaround this by defaulting it to -O0 until
  *  this is resolved
  */

@@ -531,7 +531,7 @@ static void stress_read_vmstat(
 			if (!shim_strncmp(buffer, "procs_blocked", 13)) {
 				if (!stress_next_field(&ptr))
 					continue;
-				/* procesess blocked */
+				/* processes blocked */
 				vmstat->procs_blocked = (uint64_t)atoll(ptr);
 			}
 			if (!shim_strncmp(buffer, "swap", 4)) {

@@ -153,7 +153,7 @@ static int stress_key(stress_args_t *args)
 				"-%zu", (intmax_t)ppid, args->instance, n);
 
 #if defined(KEYCTL_INVALIDATE)
-			/* Exericse add_key with invalid long description */
+			/* Exercise add_key with invalid long description */
 			keys[n] = shim_add_key("user", huge_description, payload,
 					payload_len, KEY_SPEC_PROCESS_KEYRING);
 			if (keys[n] >= 0)

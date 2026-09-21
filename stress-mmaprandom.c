@@ -129,7 +129,7 @@ typedef struct mr_node {
 	void *mmap_addr;	/* mapping start addr */
 	size_t mmap_size;	/* mapping size in bytes */
 	size_t mmap_page_size;	/* page size (maybe a hugepage) */
-	int mmap_prot;		/* mapping protecton */
+	int mmap_prot;		/* mapping protection */
 	int mmap_flags;		/* mapping flags */
 	off_t mmap_offset;	/* file based mmap offset into file */
 	int mmap_fd;		/* file_fd or mem_fd that was mmap'd to */
@@ -425,7 +425,7 @@ static uint32_t stress_mmapradom_rand_id(mr_ctxt_t *ctxt, mr_node_t *mr_node)
 
 /*
  *  stress_mmaprandom_get_random_used()
- *	get an randomly selected used mr_node, suboptimial linear scan,
+ *	get an randomly selected used mr_node, suboptimal linear scan,
  *	needs improving.
  */
 static inline mr_node_t *stress_mmaprandom_get_random_used(void)

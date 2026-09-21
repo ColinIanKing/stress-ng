@@ -285,7 +285,7 @@ static int stress_sched_find(const char *const str)
 }
 
 /*
- *  stess_sched_parse()
+ *  stress_sched_parse()
  *	parse scheduler policy
  */
 int stress_sched_parse(const char *const str)

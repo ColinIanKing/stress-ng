@@ -178,7 +178,7 @@ static int OPTIMIZE3 stress_ptrace(stress_args_t *args)
 			if (stress_syscall_wait(args, pid))
 				break;
 
-			/* periodicially perform invalid ptrace calls */
+			/* periodically perform invalid ptrace calls */
 			if (UNLIKELY((i & 0x1ff) == 0)) {
 				const pid_t bad_pid = stress_unused_racy_pid_get(false);
 
