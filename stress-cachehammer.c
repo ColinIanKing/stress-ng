@@ -1788,7 +1788,7 @@ static void OPTIMIZE3 stress_cachehammer_exercise(stress_args_t *args)
 
 /*
  *  stress_cachehammer
- *	stress cache by psuedo-random memory read/writes and
+ *	stress cache by pseudo-random memory read/writes and
  *	if possible change CPU affinity to try to cause
  *	poor cache behaviour
  */

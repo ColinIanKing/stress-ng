@@ -697,7 +697,7 @@ L0x000:
 	 *  sanity check that every 64th branch got a correct proportion
 	 *  of execution hits. Only check when we have enough hits as
 	 *  we need to get a fairly large number of branches executed to
-	 *  get an even psuedo-random distribution
+	 *  get an even pseudo-random distribution
 	 */
 	if (bogo_counter > 10000) {
 		const size_t max_counters = (size_t)((64U << branch_jumps) / 64);

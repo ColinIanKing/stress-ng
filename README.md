@@ -457,7 +457,7 @@ stress-ng --class vector --permute 8 -t 5 --progress --verify -v
 ```
 
 Run as root two instances of the virtual memory stressor, use 95% of available memory, log results to example.log, check kernel log for errors,
-run for 1 hour, show virtual memory statistics every 10 seconds and verify memort tests:
+run for 1 hour, show virtual memory statistics every 10 seconds and verify memory tests:
 ```
 sudo stress-ng --log-file example.log --vm 2 --vm-bytes 95% --klog-check -v -t 1h  --vmstat 10 --verify
 ```
@@ -492,7 +492,7 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
 2017:
 * [ARM: dts: meson8b: add reserved memory zone to fix silent freezes](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=b9b4bf504c9e94fe38b93aa2784991c80cebcf2e)
 * [ARM64: dts: meson-gx: Add firmware reserved memory zones](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=bba8e3f42736cf7f974968a818e53b128286ad1d)
-* [ext4: lock the xattr block before checksuming it](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=dac7a4b4b1f664934e8b713f529b629f67db313c)
+* [ext4: lock the xattr block before checksumming it](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=dac7a4b4b1f664934e8b713f529b629f67db313c)
 * [rcu_preempt detected stalls on CPUs/tasks](https://lkml.org/lkml/2017/8/28/574)
 * [BUG: unable to handle kernel NULL pointer dereference](https://lkml.org/lkml/2017/10/30/247)
 * [WARNING: possible circular locking dependency detected](https://www.spinics.net/lists/kernel/msg2679315.html)
@@ -546,7 +546,7 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
 * [Underflow in mas_spanning_rebalance() and test](https://lore.kernel.org/linux-mm/20220625003854.1230114-1-Liam.Howlett@oracle.com/)
 * [mm/huge_memory: do not clobber swp_entry_t during THP split](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=71e2d666ef85d51834d658830f823560c402b8b6)
 * [AppArmor: -42.5% regression of stress-ng.kill.ops_per_sec due to commit](https://lkml.org/lkml/2022/12/31/27)
-* [clocksource: Suspend the watchdog temporarily when high read lantency detected](https://lore.kernel.org/lkml/20221220082512.186283-1-feng.tang@intel.com/t/)
+* [clocksource: Suspend the watchdog temporarily when high read latency detected](https://lore.kernel.org/lkml/20221220082512.186283-1-feng.tang@intel.com/t/)
 
 2023:
 * [qemu-system-m68k segfaults on opcode 0x4848](https://gitlab.com/qemu-project/qemu/-/issues/1462)
@@ -686,7 +686,7 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
 * [mm: optimize the redundant loop of mm_update_owner_next()](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=76ba6acfcce871db13ad51c6dc8f56fec2e92853)
 
 2025:
-* [sched: Add unlikey branch hints to several system calls](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=1a5d3492f8e14719184945893c610e0802c05533)
+* [sched: Add unlikely branch hints to several system calls](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=1a5d3492f8e14719184945893c610e0802c05533)
 * [mm/mincore: improve performance by adding an unlikely hint](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=9fa26fb554baaf71826814804749f5cff130c4d6)
 * [select: do_pollfd: add unlikely branch hint return path](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=5730609ffd7e558e1e3305d0c6839044e8f6591b)
 * [select: core_sys_select add unlikely branch hint on return path](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=6b24a702ecf167ab61456276bb72133d84ccca45)

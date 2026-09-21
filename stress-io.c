@@ -31,10 +31,10 @@ static const stress_help_t help[] = {
 
 #if defined(HAVE_SYNCFS)
 /*
- *  stess_io_write()
+ *  stress_io_write()
  *	write a 32 bit random value to bytes  0..3 of file
  */
-static void stess_io_write(const int fd)
+static void stress_io_write(const int fd)
 {
 	uint32_t data = stress_mwc32();
 
@@ -96,7 +96,7 @@ static int stress_io(stress_args_t *args)
 
 	do {
 #if defined(HAVE_SYNCFS)
-		stess_io_write(fd_tmp);
+		stress_io_write(fd_tmp);
 		if (stress_mwc1()) {
 			shim_fsync(fd_tmp);
 			shim_fdatasync(fd_tmp);
@@ -105,12 +105,12 @@ static int stress_io(stress_args_t *args)
 			shim_fsync(fd_tmp);
 		}
 
-		stess_io_write(fd_tmp);
+		stress_io_write(fd_tmp);
 #endif
 		shim_sync();
 #if defined(HAVE_SYNCFS)
 
-		stess_io_write(fd_tmp);
+		stress_io_write(fd_tmp);
 		if (UNLIKELY((fd_dir != -1) && (syncfs(fd_dir) < 0))) {
 			if (UNLIKELY(errno == ENOSYS))
 				goto bogo_inc;

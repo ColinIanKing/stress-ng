@@ -1056,7 +1056,7 @@ static void OPTIMIZE3 stress_cache_permute(const int *perms_init, int *perms, co
 
 /*
  *  stress_cache()
- *	stress cache by psuedo-random memory read/writes and
+ *	stress cache by pseudo-random memory read/writes and
  *	if possible change CPU affinity to try to cause
  *	poor cache behaviour
  */

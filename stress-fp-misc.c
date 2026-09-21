@@ -1230,17 +1230,17 @@ static const stress_fp_misc_methods_t stress_fp_misc_methods[] = {
 #endif
 };
 
-static float stess_fp_misc_rand_float(void)
+static float stress_fp_misc_rand_float(void)
 {
 	return (float)stress_mwc64() / (0.1f + (float)stress_mwc64());
 }
 
-static double stess_fp_misc_rand_double(void)
+static double stress_fp_misc_rand_double(void)
 {
 	return (double)stress_mwc64() / (0.1 + (double)stress_mwc64());
 }
 
-static long double stess_fp_misc_rand_long_double(void)
+static long double stress_fp_misc_rand_long_double(void)
 {
 	return (long double)stress_mwc64() / (0.1L + (long double)stress_mwc64());
 }
@@ -1287,15 +1287,15 @@ static int stress_fp_misc(stress_args_t *args)
 	do {
 		double t;
 
-		fp_float_x = stess_fp_misc_rand_float() + 1.0f;
+		fp_float_x = stress_fp_misc_rand_float() + 1.0f;
 		fp_float_y = fp_float_x * 1.1f;
 		fp_float_z = fp_float_y;
 
-		fp_double_x = stess_fp_misc_rand_double() + 1.0;
+		fp_double_x = stress_fp_misc_rand_double() + 1.0;
 		fp_double_y = fp_double_x * 1.1;
 		fp_double_z = fp_double_y;
 
-		fp_long_double_x = stess_fp_misc_rand_long_double() + 1.0L;
+		fp_long_double_x = stress_fp_misc_rand_long_double() + 1.0L;
 		fp_long_double_y = fp_long_double_x * 1.1L;
 		fp_long_double_z = fp_long_double_y;
 

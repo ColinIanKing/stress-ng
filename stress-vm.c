@@ -1774,7 +1774,7 @@ ret:
 
 /*
  *  stress_vm_inc_nybble()
- *	work through memort and bump increment lower nybbles by
+ *	work through memory and bump increment lower nybbles by
  *	1 and upper nybbles by 0xf and sanity check byte.
  */
 static size_t TARGET_CLONES stress_vm_inc_nybble(const stress_vm_info_t *info)

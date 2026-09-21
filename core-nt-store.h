@@ -60,7 +60,7 @@ static inline void ALWAYS_INLINE stress_nt_store128(__uint128_t *addr, register 
     defined(HAVE_INT128_T) &&				\
     defined(STRESS_ARCH_X86_64) &&			\
     defined(HAVE_MM_STREAM_SI128)
-/* icc x86 non-temportal stores */
+/* icc x86 non-temporal stores */
 static inline void ALWAYS_INLINE stress_nt_store128(__uint128_t *addr, register __uint128_t value)
 {
 	_mm_stream_si128((__m128i *)addr, (__m128i)value);
@@ -93,7 +93,7 @@ static inline void ALWAYS_INLINE stress_nt_store64(uint64_t *addr, register uint
 #elif defined(HAVE_IMMINTRIN_H) &&			\
     defined(STRESS_ARCH_X86_64)	&&			\
     defined(HAVE_MM_STREAM_SI64)
-/* icc x86 non-temportal stores */
+/* icc x86 non-temporal stores */
 static inline void ALWAYS_INLINE stress_nt_store64(uint64_t *addr, register uint64_t value)
 {
 	_mm_stream_si64((__int64 *)addr, (__int64)value);
@@ -126,7 +126,7 @@ static inline void ALWAYS_INLINE stress_nt_store32(uint32_t *addr, register uint
 #elif defined(HAVE_IMMINTRIN_H) &&			\
     defined(STRESS_ARCH_X86_64) &&			\
     defined(HAVE_MM_STREAM_SI64)
-/* icc x86 non-temportal stores */
+/* icc x86 non-temporal stores */
 static inline void ALWAYS_INLINE stress_nt_store32(uint32_t *addr, register uint32_t value)
 {
 	_mm_stream_si32((int *)addr, (int)value);

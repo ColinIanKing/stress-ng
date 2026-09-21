@@ -588,7 +588,7 @@ ssize_t stress_stressor_find(const char *name)
 
 /*
  *  stress_exclude()
- *  	parse -x --exlude exclude list
+ *  	parse -x --exclude exclude list
  */
 static int stress_exclude(void)
 {
@@ -3804,10 +3804,10 @@ static void stress_exercises_features_unique(
 }
 
 /*
- *  stess_exercises_detail_show()
+ *  stress_exercises_detail_show()
  *	show per stressor exercising details
  */
-static void stess_exercises_detail_show(
+static void stress_exercises_detail_show(
 	const stress_exercise_type_t type)
 {
 	size_t j;
@@ -3885,7 +3885,7 @@ static int stress_exercises_get(
 		return 0;
 
 	if (!shim_strcmp(str, "?")) {
-		stess_exercises_detail_show(type);
+		stress_exercises_detail_show(type);
 		*ret = EXIT_SUCCESS;
 		return -1;
 	}

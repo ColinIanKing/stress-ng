@@ -56,7 +56,7 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"close N",	"start N workers that exercise races on close" },
-	{ NULL, "close-fds",	"specify the number of file descriptors to exercse" },
+	{ NULL, "close-fds",	"specify the number of file descriptors to exercise" },
 	{ NULL,	"close-ops N",	"stop after N bogo close operations" },
 	{ NULL,	NULL,		NULL }
 };
