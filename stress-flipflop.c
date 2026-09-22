@@ -370,7 +370,7 @@ static int stress_flipflop(stress_args_t *args)
 
 free_workers:
 	for (i = 0; i < 2 * flipflop_bits; i++) {
-		stress_flipflop_worker_t *w = &workers[i];
+		const stress_flipflop_worker_t *w = &workers[i];
 
 		if (!w->info.thread_ret)
 			(void)pthread_join(w->info.thread, NULL);
