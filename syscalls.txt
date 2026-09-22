@@ -291,6 +291,7 @@ rt_sigsuspend
 rt_sigtimedwait
 rt_tgsigqueueinfo
 
+sbrk						brk			libc wrapper on Linux, syscall on some BSDs
 sched_get_priority_max		sched, schedpolicy
 sched_get_priority_min		sched, schedpolicy
 sched_getaffinity		affinity
