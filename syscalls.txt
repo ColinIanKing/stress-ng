@@ -213,7 +213,7 @@ msgsnd				msg
 msync				mmap, msync
 munlock				mlock
 munlockall			mlock
-munmap				mmap, mrema
+munmap				mmap, mremap
 name_to_handle_at		handle
 
 nanosleep			timer, nanosecond

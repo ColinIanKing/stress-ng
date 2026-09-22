@@ -1168,7 +1168,7 @@ static const stress_exercises_t exercises[] = {
     defined(__NR_mmap2)
 	STRESS_EX_SYSCALL("mmap2"),
 #endif
-	STRESS_EX_SYSCALL("munamp"),
+	STRESS_EX_SYSCALL("munmap"),
 #if defined(HAVE_MPROTECT)
 	STRESS_EX_SYSCALL("mprotect"),
 #endif
