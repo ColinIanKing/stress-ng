@@ -374,7 +374,7 @@ static int rm_dir(stress_args_t *args, const char *path)
 
 	dp = opendir(path);
 	if (dp != NULL) {
-		struct dirent *d;
+		const struct dirent *d;
 
 		while ((d = readdir(dp)) != NULL) {
 			char filename[PATH_MAX];
