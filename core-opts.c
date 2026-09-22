@@ -1486,6 +1486,7 @@ const struct option stress_long_options[] = {
 	{ "skip-silent",	0,	NULL,	OPT_skip_silent },
 
 	{ "sleep",		1,	NULL,	OPT_sleep },
+	{ "sleep-affinity",	0,	NULL,	OPT_sleep_affinity },
 	{ "sleep-max",		1,	NULL,	OPT_sleep_max },
 	{ "sleep-ops",		1,	NULL,	OPT_sleep_ops },
 

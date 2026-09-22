@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "16 September 2026"
+.TH STRESS-NG 1 "22 September 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -9444,6 +9444,10 @@ be from 1 K to 4 M.
 start N workers that spawn off multiple threads that each perform multiple
 sleeps of ranges 1us to 0.1s. This creates multiple context switches and
 timer interrupts.
+.TP
+.B \-\-sleep\-affinity
+change CPU affinity to a randomly selected CPU whenever the sleep is 1
+microsecond or larger.
 .TP
 .B \-\-sleep\-max P
 start P threads per worker. The default is 1024, the maximum allowed is

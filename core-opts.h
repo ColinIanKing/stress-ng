@@ -1572,6 +1572,7 @@ typedef enum {
 	OPT_skip_silent,
 
 	OPT_sleep,
+	OPT_sleep_affinity,
 	OPT_sleep_max,
 	OPT_sleep_ops,
 

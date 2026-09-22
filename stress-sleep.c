@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-affinity.h"
 #include "core-asm-x86.h"
 #include "core-builtin.h"
 #include "core-cpu.h"
@@ -41,6 +42,9 @@ typedef struct {
 	size_t sleep_max;
 	pthread_t pthread;
 	uint64_t underruns;
+	uint32_t *cpus;
+	uint32_t n_cpus;
+	bool sleep_affinity;
 } stress_ctxt_t;
 
 typedef struct {
@@ -54,18 +58,42 @@ static sigset_t set;
 #endif
 
 static const stress_help_t help[] = {
-	{ NULL,	"sleep N",	"start N workers performing various duration sleeps" },
-	{ NULL,	"sleep-max P",	"create P threads at a time by each worker" },
-	{ NULL,	"sleep-ops N",	"stop after N bogo sleep operations" },
-	{ NULL,	NULL,		NULL }
+	{ NULL,	"sleep N",        "start N workers performing various duration sleeps" },
+	{ NULL, "sleep-affinity", "change CPU affinity before each sleep" },
+	{ NULL,	"sleep-max P",    "create P threads at a time by each worker" },
+	{ NULL,	"sleep-ops N",    "stop after N bogo sleep operations" },
+	{ NULL,	NULL,             NULL }
 };
 
 static const stress_opt_t opts[] = {
-	{ OPT_sleep_max, "sleep-max", TYPE_ID_SIZE_T, MIN_SLEEP, MAX_SLEEP, NULL },
+	{ OPT_sleep_affinity, "sleep-affinity", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_sleep_max,      "sleep-max",      TYPE_ID_SIZE_T, MIN_SLEEP, MAX_SLEEP, NULL },
 	END_OPT,
 };
 
 #if defined(HAVE_LIB_PTHREAD)
+
+/*
+ *  stress_sleep_change_affinity()
+ *	change CPU affinity to random CPU
+ */
+static void stress_sleep_change_affinity(stress_ctxt_t *ctxt)
+{
+#if defined(HAVE_SCHED_GETAFFINITY) &&	\
+    defined(HAVE_SCHED_SETAFFINITY)
+	if (UNLIKELY(ctxt->n_cpus > 0)) {
+		cpu_set_t mask;
+		const uint32_t cpu_idx = stress_mwc32modn(ctxt->n_cpus);
+		const uint32_t cpu = ctxt->cpus[cpu_idx];
+
+		CPU_ZERO(&mask);
+		CPU_SET((int)cpu, &mask);
+		VOID_RET(int, sched_setaffinity(0, sizeof(mask), &mask));
+	}
+#else
+	(void)ctxt;
+#endif
+}
 
 static void MLOCKED_TEXT stress_sigalrm_handler(int signum)
 {
@@ -201,6 +229,7 @@ static void *stress_pthread_func(void *c)
 			break;
 		tv.tv_sec = 0;
 		tv.tv_nsec = 1000;
+		stress_sleep_change_affinity(ctxt);
 		if (UNLIKELY(nanosleep(&tv, NULL) < 0))
 			break;
 
@@ -208,6 +237,7 @@ static void *stress_pthread_func(void *c)
 			break;
 		tv.tv_sec = 0;
 		tv.tv_nsec = 10000;
+		stress_sleep_change_affinity(ctxt);
 		if (UNLIKELY(nanosleep(&tv, NULL) < 0))
 			break;
 
@@ -226,26 +256,31 @@ static void *stress_pthread_func(void *c)
 		stress_sleep_time_now(&t1);
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
+		stress_sleep_change_affinity(ctxt);
 		if (UNLIKELY(shim_usleep(1) < 0))
 			break;
 
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
+		stress_sleep_change_affinity(ctxt);
 		if (UNLIKELY(shim_usleep(10) < 0))
 			break;
 
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
+		stress_sleep_change_affinity(ctxt);
 		if (UNLIKELY(shim_usleep(100) < 0))
 			break;
 
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
+		stress_sleep_change_affinity(ctxt);
 		if (UNLIKELY(shim_usleep(1000) < 0))
 			break;
 
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
+		stress_sleep_change_affinity(ctxt);
 		if (UNLIKELY(shim_usleep(10000) < 0))
 			break;
 
@@ -271,7 +306,6 @@ static void *stress_pthread_func(void *c)
 			break;
 		tv.tv_sec = 0;
 		tv.tv_nsec = 10;
-
 		if (UNLIKELY(pselect(0, NULL, NULL, NULL, &tv, NULL) < 0))
 			goto skip_pselect;
 
@@ -286,6 +320,7 @@ static void *stress_pthread_func(void *c)
 			break;
 		tv.tv_sec = 0;
 		tv.tv_nsec = 1000;
+		stress_sleep_change_affinity(ctxt);
 		if (UNLIKELY(pselect(0, NULL, NULL, NULL, &tv, NULL) < 0))
 			goto skip_pselect;
 
@@ -293,6 +328,7 @@ static void *stress_pthread_func(void *c)
 			break;
 		tv.tv_sec = 0;
 		tv.tv_nsec = 10000;
+		stress_sleep_change_affinity(ctxt);
 		if (UNLIKELY(pselect(0, NULL, NULL, NULL, &tv, NULL) < 0))
 			goto skip_pselect;
 
@@ -322,6 +358,7 @@ skip_pselect:
 			break;
 		timeout.tv_sec = 0;
 		timeout.tv_usec = 10;
+		stress_sleep_change_affinity(ctxt);
 		if (UNLIKELY(select(0, NULL, NULL, NULL, &timeout) < 0))
 			break;
 
@@ -329,6 +366,7 @@ skip_pselect:
 			break;
 		timeout.tv_sec = 0;
 		timeout.tv_usec = 100;
+		stress_sleep_change_affinity(ctxt);
 		if (UNLIKELY(select(0, NULL, NULL, NULL, &timeout) < 0))
 			break;
 
@@ -336,6 +374,7 @@ skip_pselect:
 			break;
 		timeout.tv_sec = 0;
 		timeout.tv_usec = 1000;
+		stress_sleep_change_affinity(ctxt);
 		if (UNLIKELY(select(0, NULL, NULL, NULL, &timeout) < 0))
 			break;
 
@@ -343,6 +382,7 @@ skip_pselect:
 			break;
 		timeout.tv_sec = 0;
 		timeout.tv_usec = 10000;
+		stress_sleep_change_affinity(ctxt);
 		if (UNLIKELY(select(0, NULL, NULL, NULL, &timeout) < 0))
 			break;
 
@@ -363,6 +403,7 @@ skip_pselect:
 		if (x86_has_waitpkg) {
 			int i;
 
+			stress_sleep_change_affinity(ctxt);
 			for (i = 1; LIKELY(stress_continue_flag() && (i < 1024)); i <<= 1)
 				stress_asm_x86_tpause(0, i);
 		}
@@ -385,7 +426,19 @@ static int stress_sleep(stress_args_t *args)
 	uint64_t underruns = 0;
 	stress_ctxt_t *ctxts;
 	int ret = EXIT_SUCCESS;
+#if defined(HAVE_SCHED_GETAFFINITY) &&  \
+    defined(HAVE_SCHED_SETAFFINITY)
+	uint32_t *cpus = NULL;
+	uint32_t n_cpus = 0;
+#endif
+	bool sleep_affinity = false;
 
+	(void)stress_setting_get("sleep-affinity", &sleep_affinity);
+#if defined(HAVE_SCHED_GETAFFINITY) &&  \
+    defined(HAVE_SCHED_SETAFFINITY)
+	if (sleep_affinity)
+		n_cpus = stress_affinity_cpus_get(&cpus, true);
+#endif
 	if (!stress_setting_get("sleep-max", &sleep_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			sleep_max = MAX_SLEEP;
@@ -422,6 +475,9 @@ static int stress_sleep(stress_args_t *args)
 		ctxts[n].args = args;
 		ctxts[n].sleep_max = sleep_max;
 		ctxts[n].underruns = 0;
+		ctxts[n].cpus = cpus;
+		ctxts[n].n_cpus = n_cpus;
+		ctxts[n].sleep_affinity = sleep_affinity;
 		ret = pthread_create(&ctxts[n].pthread, NULL,
 			stress_pthread_func, &ctxts[n]);
 		if (ret) {
@@ -472,9 +528,12 @@ tidy:
 	}
 
 	stress_lock_destroy(stress_sleep_counter_lock);
-
 	free(ctxts);
-
+#if defined(HAVE_SCHED_GETAFFINITY) &&  \
+    defined(HAVE_SCHED_SETAFFINITY)
+	if (cpus)
+		stress_affinity_cpus_free(&cpus);
+#endif
 	return ret;
 }
 
