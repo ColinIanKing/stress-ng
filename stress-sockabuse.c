@@ -955,7 +955,7 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_SYSCALL("listen"),
 	STRESS_EX_SYSCALL("lseek"),
 	STRESS_EX_SYSCALL("mmap"),
-	STRESS_EX_SYSCALL("munamp"),
+	STRESS_EX_SYSCALL("munmap"),
 	STRESS_EX_SYSCALL("pidfd_send_signal"),
 #if defined(HAVE_POSIX_FADVISE)
 	STRESS_EX_SYSCALL("posix_fadvise"),
