@@ -179,7 +179,6 @@ static void stress_affinity_child(
 
 			(void)shim_sched_yield();
 		} else {
-			size_t i;
 			cpu_set_t getmask;
 
 			/* Now get and check */
@@ -193,6 +192,8 @@ static void stress_affinity_child(
 						args->name, cpu);
 			}
 			if (s_pids && info->affinity_pin) {
+				size_t i;
+
 				CPU_ZERO(&mask);
 				CPU_SET(cpu, &mask);
 
