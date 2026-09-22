@@ -127,7 +127,7 @@ static void *stress_pthread_func(void *c)
     !defined(HAVE_COMPILER_PCC)
 	const bool x86_has_waitpkg = stress_cpu_x86_has_waitpkg();
 #endif
-	cpu_cstate_t *cstate_list = stress_cpuidle_cstate_list_head();
+	const cpu_cstate_t *cstate_list = stress_cpuidle_cstate_list_head();
 
 	while (stress_continue(args) && !thread_terminate) {
 		bool eintr;
