@@ -367,11 +367,11 @@ static void stress_cpu_sched_mix_pids(stress_pid_t *mix_pids, stress_pid_t *orig
  */
 static int stress_cpu_sched_hrtimer_sigprocmask(const int how)
 {
-	sigset_t sigset;
+	sigset_t set;
 
-	sigemptyset(&sigset);
-	sigaddset(&sigset, SIGRTMIN);
-	return sigprocmask(how, &sigset, NULL);
+	sigemptyset(&set);
+	sigaddset(&set, SIGRTMIN);
+	return sigprocmask(how, &set, NULL);
 }
 
 /*
