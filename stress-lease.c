@@ -76,13 +76,14 @@ static pid_t stress_lease_spawn(
 	const char *filename)
 {
 	pid_t pid;
-	int count = 0;
 
 	pid = stress_retry_fork(args, 0);
 	if (pid < 0) {
 		return -1;
 	}
 	if (pid == 0) {
+		int count = 0;
+
 		stress_proc_state_set(args->name, STRESS_STATE_RUN);
 		stress_make_it_fail_set();
 		stress_parent_died_alarm();
