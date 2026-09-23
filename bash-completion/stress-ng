@@ -266,6 +266,7 @@ _stress_ng()
 	'--config' | \
 	'--cpu-online-affinity,' | \
 	'--cpu-online-all' | \
+	'--daemon-bloat' | \
 	'--daemon-wait' | \
 	'--dentry-negative' | \
 	'--dev-alldev' | \
@@ -413,6 +414,7 @@ _stress_ng()
 	'--shm-mlock' | \
 	'--shm-sysv-mlock' | \
 	'--skip-silent' | \
+	'--sleep-affinity' | \
 	'--smart' | \
 	'--sn' | \
 	'--sock-nodelay' | \
