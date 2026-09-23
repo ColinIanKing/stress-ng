@@ -450,19 +450,20 @@ static int stress_sleep(stress_args_t *args)
 	if (!ctxts) {
 		pr_inf_skip("%s: failed to allocate %zu sleep contexts, skipping stressor\n",
 			args->name, sleep_max);
-		return EXIT_NO_RESOURCE;
+		ret = EXIT_NO_RESOURCE;
+		goto free_cpus;
 	}
 
 	stress_sleep_counter_lock = stress_lock_create("counter");
 	if (!stress_sleep_counter_lock) {
 		pr_inf_skip("%s: create counter lock failed, skipping stressor\n", args->name);
-		free(ctxts);
-		return EXIT_NO_RESOURCE;
+		ret = EXIT_NO_RESOURCE;
+		goto free_ctxts;
 	}
 
 	if (stress_signal_handler(args->name, SIGALRM, stress_sigalrm_handler, NULL) < 0) {
-		free(ctxts);
-		return EXIT_FAILURE;
+		ret = EXIT_FAILURE;
+		goto free_ctxts;
 	}
 
 	(void)sigfillset(&set);
@@ -528,7 +529,10 @@ tidy:
 	}
 
 	stress_lock_destroy(stress_sleep_counter_lock);
+
+free_ctxts:
 	free(ctxts);
+free_cpus:
 #if defined(HAVE_SCHED_GETAFFINITY) &&  \
     defined(HAVE_SCHED_SETAFFINITY)
 	if (cpus)
