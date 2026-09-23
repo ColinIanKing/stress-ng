@@ -1384,7 +1384,6 @@ static void stress_filerace_filename(
 	rnd = stress_mwc8() % (uint8_t)(t + 1);
 
 	(void)snprintf(filename, filename_len, "%s/%2.2" PRIx8, pathname, rnd);
-	pr_inf("%s\n", filename);
 }
 
 static void stress_filerace_child(
