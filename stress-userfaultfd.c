@@ -195,7 +195,7 @@ static inline int handle_page_fault(
 		return -1;
 	}
 
-	if (stress_mwc32() & 1) {
+	if (stress_mwc1()) {
 		struct uffdio_copy copy;
 
 		copy.copy = 0;
