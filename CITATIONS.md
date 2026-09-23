@@ -230,6 +230,7 @@
  * [DPUConfig: Optimizing ML Inference in FPGAs Using Reinforcement Learning](https://arxiv.org/pdf/2602.12847)
  * [Edge-Inference Governors Need Memory-Clock State](https://arxiv.org/html/2606.16106)
  * [Enabling SLO-Aware 5G Multi-Access Edge Computing with SMEC](https://arxiv.org/html/2601.19162v1)
+ * [Evaluating Shaker for Flaky Test Detection in Python Projects](https://arxiv.org/pdf/2609.25528)
  * [FlexServe: A Fast and Secure LLM Serving System for Mobile Devices with Flexible Resource Isolation](https://arxiv.org/html/2603.09046v1)
  * [Graph Neural Networks for Anomaly Detection in Cloud Infrastructure](https://www.scirp.org/journal/paperinformation?paperid=146528)
  * [GreenPipe: Power Modeling for Containerized DNN Inference on Kubernetes Edge Nodes](https://arxiv.org/html/2609.04952v1)
