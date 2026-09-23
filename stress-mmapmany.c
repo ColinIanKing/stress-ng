@@ -27,10 +27,12 @@ static const stress_help_t help[] = {
 	{ NULL, "mmapmany-mlock",	"attempt to mlock pages into memory" },
 	{ NULL, "mmapmany-numa",	"bind memory mappings to randomly selected NUMA nodes" },
 	{ NULL,	"mmapmany-ops N",	"stop after N mmapmany bogo operations" },
+	{ NULL, "mmapmany-mappings N",	"perfor N mmap mappings" },
 	{ NULL,	NULL,		  	NULL }
 };
 
-#define MMAP_MAX	(256 * 1024)
+#define MAX_2x4K_MAPPINGS	((((size_t)MAX_MEM_LIMIT) >> 1) >> 12)
+#define DEFAULT_MAPPINGS	(256 * 1024)
 
 #if defined(__linux__)
 static void stress_mmapmany_read_proc_file(const char *path)
@@ -52,8 +54,11 @@ static void stress_mmapmany_read_proc_file(const char *path)
 static int stress_mmapmany_child(stress_args_t *args, void *context)
 {
 	const size_t page_size = args->page_size;
-	const long int max = STRESS_MAXIMUM(sysconf(_SC_MAPPED_FILES), MMAP_MAX);
-	uint64_t **mappings;
+	const size_t default_mappings = (size_t)STRESS_MAXIMUM(sysconf(_SC_MAPPED_FILES), DEFAULT_MAPPINGS);
+	size_t mmapmany_mappings = default_mappings;
+	size_t mappings_made = 0;
+	const size_t max_mappings = (((size_t)MAX_MEM_LIMIT) >> 1) / page_size;
+	uint64_t **mappings = NULL;
 	const uint64_t pattern0 = stress_mwc64();
 	const uint64_t pattern1 = stress_mwc64();
 	const size_t offset2pages = (page_size * 2) / sizeof(uint64_t);
@@ -64,16 +69,28 @@ static int stress_mmapmany_child(stress_args_t *args, void *context)
 	stress_numa_mask_t *numa_mask = NULL;
 	stress_numa_mask_t *numa_nodes = NULL;
 #endif
+	double mappings_duration = 0.0;
+	double mappings_total = 0.0;
+	double unmappings_duration = 0.0;
+	double rate;
 
 	(void)context;
 
 	(void)stress_setting_get("mmapmany-mlock", &mmapmany_mlock);
 	(void)stress_setting_get("mmapmany-numa", &mmapmany_numa);
+	(void)stress_setting_get("mmapmany-mappings", &mmapmany_mappings);
 
-	mappings = (uint64_t **)calloc((size_t)max, sizeof(*mappings));
+	if (mmapmany_mappings > max_mappings) {
+		if (stress_instance_zero(args))
+			pr_inf("%s: limited to %zu mappings for %zuL page size\n",
+				args->name, max_mappings, page_size >> 10);
+		mmapmany_mappings = max_mappings;
+	}
+
+	mappings = (uint64_t **)calloc(mmapmany_mappings, sizeof(*mappings));
 	if (UNLIKELY(!mappings)) {
 		pr_fail("%s: malloc of %zu bytes failed%s, out of memory\n",
-			args->name, (size_t)max * sizeof(*mappings),
+			args->name, mmapmany_mappings * sizeof(*mappings),
 			stress_memory_free_get());
 		return EXIT_NO_RESOURCE;
 	}
@@ -92,7 +109,7 @@ static int stress_mmapmany_child(stress_args_t *args, void *context)
 	}
 
 	if (stress_instance_zero(args))
-		stress_memory_usage_get(args, max * 2 * page_size, max * 2 * page_size * args->instances);
+		stress_memory_usage_get(args, mmapmany_mappings * 2 * page_size, mmapmany_mappings * 2 * page_size * args->instances);
 
 	stress_proc_state_set(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
@@ -101,8 +118,10 @@ static int stress_mmapmany_child(stress_args_t *args, void *context)
 	do {
 		size_t i;
 		size_t n;
+		double t;
 
-		for (n = 0; LIKELY(stress_continue_flag() && (n < (size_t)max)); n++) {
+		t = stress_time_now();
+		for (n = 0; LIKELY(stress_continue_flag() && (n < mmapmany_mappings)); n++) {
 			uint64_t *ptr;
 
 			if (UNLIKELY(!stress_continue(args)))
@@ -128,6 +147,11 @@ static int stress_mmapmany_child(stress_args_t *args, void *context)
 				break;
 			stress_bogo_inc(args);
 		}
+		mappings_duration += (stress_time_now() - t);
+		mappings_total += (double)n;
+
+		if (n > mappings_made)
+			mappings_made = n;
 
 #if defined(__linux__)
 		/* Exercise map traversal */
@@ -135,6 +159,7 @@ static int stress_mmapmany_child(stress_args_t *args, void *context)
 		stress_mmapmany_read_proc_file("/proc/self/maps");
 #endif
 
+		t = stress_time_now();
 		for (i = 0; i < n; i++) {
 			uint64_t *ptr;
 			uint64_t val;
@@ -158,7 +183,15 @@ static int stress_mmapmany_child(stress_args_t *args, void *context)
 			(void)stress_munmap_force((void *)(((uintptr_t)mappings[i]) + page_size), page_size);
 			(void)stress_munmap_force((void *)(((uintptr_t)mappings[i]) + page_size + page_size), page_size);
 		}
+		unmappings_duration += (stress_time_now() - t);
 	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
+
+	rate = (mappings_duration > 0.0) ? mappings_total / mappings_duration : 0.0;
+	stress_metrics_set(args, "mmaps per sec", rate, STRESS_METRIC_MAXIMUM);
+	rate = (unmappings_duration > 0.0) ? mappings_total / unmappings_duration : 0.0;
+	stress_metrics_set(args, "munmaps per sec", rate, STRESS_METRIC_MAXIMUM);
+	stress_metrics_set(args, "mappings", (double)mappings_made, STRESS_METRIC_MAXIMUM);
+	stress_metrics_set(args, "mappings", (double)mappings_made, STRESS_METRIC_GEOMETRIC_MEAN);
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
@@ -179,8 +212,9 @@ static int stress_mmapmany(stress_args_t *args)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_mmapmany_mlock, "mmapmany-mlock", TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_mmapmany_numa,  "mmapmany-numa",  TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_mmapmany_mlock,    "mmapmany-mlock",    TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_mmapmany_numa,     "mmapmany-numa",     TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_mmapmany_mappings, "mmapmany-mappings", TYPE_ID_SIZE_T, 1, MAX_2x4K_MAPPINGS, NULL },
 	END_OPT,
 };
 

@@ -6815,7 +6815,10 @@ stop after N mmaphuge bogo operations
 start N workers that attempt to create the maximum allowed per-process memory
 mappings. This is achieved by mapping 3 contiguous pages and then unmapping the
 middle page hence splitting the mapping into two. This is then repeated until
-the maximum allowed mappings or a maximum of 262144 mappings are made.
+the maximum allowed mappings are made.
+.TP
+.B \-\-mmapmany\-mappings N
+specify maximum number of memory mappings to attempt per map()/munmap() cycle.
 .TP
 .B \-\-mmapmany\-mlock
 attempt to mlock(2) mmap'd huge pages into memory causing more memory pressure by

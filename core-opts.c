@@ -934,6 +934,7 @@ const struct option stress_long_options[] = {
 	{ "mmaphuge-ops",	1,	NULL,	OPT_mmaphuge_ops },
 
 	{ "mmapmany",		1,	NULL,	OPT_mmapmany },
+	{ "mmapmany-mappings",	1,	NULL,	OPT_mmapmany_mappings },
 	{ "mmapmany-mlock",	0,	NULL,	OPT_mmapmany_mlock },
 	{ "mmapmany-numa",	0,	NULL,	OPT_mmapmany_numa },
 	{ "mmapmany-ops",	1,	NULL,	OPT_mmapmany_ops },
