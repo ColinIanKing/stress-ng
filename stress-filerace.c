@@ -47,6 +47,10 @@
 #define DEFAULT_FILERACE_PROCS	(7)
 #define MAX_FDS			(128)
 
+#define MIN_FILERACE_FILES	(1)
+#define MAX_FILERACE_FILES	(256)
+#define DEFAULT_FILERACE_FILES	(64)
+
 /* 16MB max, with bottom bits clear for 512 byte alignment */
 #define OFFSET_MASK		(~((off_t)511ULL) & 0xffffffULL)
 #define OFFSET_MASK_UNALIGNED	(0xffffffULL)
@@ -61,12 +65,14 @@ static time_t t_start;
 
 static const stress_help_t help[] = {
 	{ NULL,	"filerace N",		"start N workers that attempt to race file system calls" },
+	{ NULL, "filerace-files N",	"race on N files, 1..256" },
 	{ NULL,	"filerace-ops N",	"stop after N filerace bogo operations" },
 	{ NULL, "filerace-procs N",	"specify number of processes per instance" },
 	{ NULL,	NULL,			NULL }
 };
 
 static const stress_opt_t opts[] = {
+	{ OPT_filerace_files, "filerace-files", TYPE_ID_INT, MIN_FILERACE_FILES, MAX_FILERACE_FILES, NULL },
 	{ OPT_filerace_procs, "filerace-procs", TYPE_ID_SIZE_T, MIN_FILERACE_PROCS, MAX_FILERACE_PROCS, NULL },
 	END_OPT,
 };
@@ -1354,12 +1360,16 @@ static void stress_filerace_file(const int fd, const char *filename)
 /*
  *  stress_filerace_filename()
  *	generate a filename. These are randomly generated in a range
- *	of 0..63 with the upper limit increasing by one per 2 seconds
- *	until it wraps back round to zero. This allows the stressor
- *	to hammer a small set of shared files or a larger range for
- *	a suitable racy mix.
+ *	of 0..fileface_files - 1 with the upper limit increasing by
+ *	one per 2 seconds until it wraps back round to zero. This allows
+ *	the stressor to hammer a small set of shared files or a larger
+ *	range for a suitable racy mix.
  */
-static void stress_filerace_filename(const char *pathname, char *filename, const size_t filename_len)
+static void stress_filerace_filename(
+	const char *pathname,
+	char *filename,
+	const size_t filename_len,
+	const int filerace_files)
 {
 	time_t t = (time(NULL) - t_start) >> 1;
 	uint8_t rnd;
@@ -1368,14 +1378,20 @@ static void stress_filerace_filename(const char *pathname, char *filename, const
 	if (t < 0) {
 		t_start = time(NULL);
 		t = 0;
+	} else if (t >= filerace_files) {
+		t = 0;
 	}
-	t &= 0x3f;
 	rnd = stress_mwc8() % (uint8_t)(t + 1);
 
 	(void)snprintf(filename, filename_len, "%s/%2.2" PRIx8, pathname, rnd);
+	pr_inf("%s\n", filename);
 }
 
-static void stress_filerace_child(stress_args_t *args, const char *pathname, const bool parent)
+static void stress_filerace_child(
+	stress_args_t *args,
+	const char *pathname,
+	const int filerace_files,
+	const bool parent)
 {
 	int fds[MAX_FDS];
 	size_t i;
@@ -1399,7 +1415,7 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 		switch (which) {
 		default:
 		case 0:
-			stress_filerace_filename(pathname, filename, sizeof(filename));
+			stress_filerace_filename(pathname, filename, sizeof(filename), filerace_files);
 			(void)shim_unlink(filename);
 			(void)shim_rmdir(filename);
 			fds[fd_idx] = creat(filename, S_IRUSR | S_IWUSR);
@@ -1410,12 +1426,12 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 			}
 			break;
 		case 1:
-			stress_filerace_filename(pathname, filename, sizeof(filename));
+			stress_filerace_filename(pathname, filename, sizeof(filename), filerace_files);
 			(void)shim_unlink(filename);
 			(void)shim_rmdir(filename);
 			break;
 		case 2:
-			stress_filerace_filename(pathname, filename, sizeof(filename));
+			stress_filerace_filename(pathname, filename, sizeof(filename), filerace_files);
 			flag = open_wr_flags[stress_mwc8modn((uint8_t)SIZEOF_ARRAY(open_wr_flags))];
 			fds[fd_idx] = open(filename, O_CREAT | O_RDWR | O_APPEND | flag, S_IRUSR | S_IWUSR);
 			if (fds[fd_idx] != -1) {
@@ -1425,7 +1441,7 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 			}
 			break;
 		case 3:
-			stress_filerace_filename(pathname, filename, sizeof(filename));
+			stress_filerace_filename(pathname, filename, sizeof(filename), filerace_files);
 			flag = open_wr_flags[stress_mwc8modn((uint8_t)SIZEOF_ARRAY(open_wr_flags))];
 			fds[fd_idx] = open(filename, O_CREAT | O_RDWR | flag, S_IRUSR | S_IWUSR);
 			if (fds[fd_idx] != -1) {
@@ -1435,14 +1451,14 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 			}
 			break;
 		case 4:
-			stress_filerace_filename(pathname, filename, sizeof(filename));
-			stress_filerace_filename(pathname, filename2, sizeof(filename2));
+			stress_filerace_filename(pathname, filename, sizeof(filename), filerace_files);
+			stress_filerace_filename(pathname, filename2, sizeof(filename2), filerace_files);
 			(void)rename(filename, filename2);
 
-			stress_filerace_filename(pathname, filename, sizeof(filename));
+			stress_filerace_filename(pathname, filename, sizeof(filename), filerace_files);
 			(void)rename(filename2, filename);
 
-			stress_filerace_filename(pathname, filename2, sizeof(filename2));
+			stress_filerace_filename(pathname, filename2, sizeof(filename2), filerace_files);
 			(void)rename(filename, filename2);
 			break;
 		case 5:
@@ -1464,15 +1480,15 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 			}
 			break;
 		case 6:
-			stress_filerace_filename(pathname, filename, sizeof(filename));
+			stress_filerace_filename(pathname, filename, sizeof(filename), filerace_files);
 			VOID_RET(int, stat(filename, &buf));
 			VOID_RET(int, lstat(filename, &buf));
 			VOID_RET(int, stat(pathname, &buf));
 			VOID_RET(int, lstat(pathname, &buf));
 			break;
 		case 7:
-			stress_filerace_filename(pathname, filename, sizeof(filename));
-			stress_filerace_filename(pathname, filename2, sizeof(filename2));
+			stress_filerace_filename(pathname, filename, sizeof(filename), filerace_files);
+			stress_filerace_filename(pathname, filename2, sizeof(filename2), filerace_files);
 			VOID_RET(int, unlink(filename));
 			if (stress_mwc1())
 				VOID_RET(int, link(filename2, filename));
@@ -1484,7 +1500,7 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 			VOID_RET(int, lstat(filename2, &buf));
 			break;
 		case 8:
-			stress_filerace_filename(pathname, filename, sizeof(filename));
+			stress_filerace_filename(pathname, filename, sizeof(filename), filerace_files);
 			(void)shim_unlink(filename);
 			(void)shim_rmdir(filename);
 			VOID_RET(int, mkdir(filename, S_IRUSR | S_IWUSR | S_IXUSR));
@@ -1508,7 +1524,7 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 			}
 			break;
 		case 10:
-			stress_filerace_filename(pathname, filename, sizeof(filename));
+			stress_filerace_filename(pathname, filename, sizeof(filename), filerace_files);
 
 			for (n = 0; n < 64; n++) {
 				int tmp_fd;
@@ -1599,9 +1615,16 @@ static int stress_filerace(stress_args_t *args)
 	size_t i;
 	size_t children = 0;
 	size_t filerace_procs = DEFAULT_FILERACE_PROCS;
+	int filerace_files = DEFAULT_FILERACE_FILES;
 
 	stress_sync_init_pids(s_pids, MAX_FILERACE_PROCS);
 
+	if (!stress_setting_get("filerace-files", &filerace_files)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			filerace_files = MAX_FILERACE_FILES;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			filerace_files = MIN_FILERACE_FILES;
+	}
 	if (!stress_setting_get("filerace-procs", &filerace_procs)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			filerace_procs = MAX_FILERACE_PROCS;
@@ -1640,7 +1663,7 @@ static int stress_filerace(stress_args_t *args)
 		if (s_pids[i].pid < 0) {
 			continue;
 		} else if (s_pids[i].pid == 0) {
-			stress_filerace_child(args, pathname, false);
+			stress_filerace_child(args, pathname, filerace_files, false);
 			_exit(EXIT_SUCCESS);
 		} else {
 			children++;
@@ -1654,7 +1677,7 @@ static int stress_filerace(stress_args_t *args)
 		goto tidy_dir;
 	}
 
-	stress_filerace_child(args, pathname, true);
+	stress_filerace_child(args, pathname, filerace_files, true);
 
 	(void)stress_kill_and_wait_many(args, s_pids, filerace_procs, SIGKILL, false);
 

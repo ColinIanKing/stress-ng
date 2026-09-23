@@ -432,6 +432,7 @@ const struct option stress_long_options[] = {
 	{ "filename-opts",	1,	NULL,	OPT_filename_opts },
 
 	{ "filerace",		1,	NULL,	OPT_filerace },
+	{ "filerace-files",	1,	NULL,	OPT_filerace_files },
 	{ "filerace-ops",	1,	NULL,	OPT_filerace_ops },
 	{ "filerace-procs",	1,	NULL,	OPT_filerace_procs },
 

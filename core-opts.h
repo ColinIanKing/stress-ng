@@ -553,6 +553,7 @@ typedef enum {
 	OPT_filename_opts,
 
 	OPT_filerace,
+	OPT_filerace_files,
 	OPT_filerace_ops,
 	OPT_filerace_procs,
 
