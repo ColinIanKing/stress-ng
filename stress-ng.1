@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "22 September 2026"
+.TH STRESS-NG 1 "23 September 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -3759,10 +3759,14 @@ T}
 .TQ
 .B \-\-filerace N
 start N workers that each run 8 concurrent processes that exercise a randomized
-set of file related system calls on 64 random files. This attempts to trip any
+set of file related system calls on random files. This attempts to trip any
 file system race conditions while files are being operated upon. The randomized
 operations will cause some invalid file operations to fail, these failures are
 silently ignored.
+.TP
+.B \-\-filerace\-files N
+specifiy the maximum number of random files to exercise; range 1..256 with a
+default of 64.
 .TP
 .B \-\-filerace\-procs N
 specify the number of child processes per worker to spawn to exercise the
