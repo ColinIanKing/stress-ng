@@ -107,6 +107,53 @@ static int stress_loop_supported(const char *name)
 }
 
 /*
+ *  stress_loop_sysfs_read()
+ *  	read loop's sysfs top level files and files in next level down
+ */
+static void stress_loop_sysfs_read(const long int dev_num)
+{
+	char sysfs_path[256];
+	DIR *dp;
+	struct dirent *de;
+
+	(void)snprintf(sysfs_path, sizeof(sysfs_path), "/sys/block/loop%ld", dev_num);
+	dp = opendir(sysfs_path);
+	if (!dp)
+		return;
+
+	while ((de = readdir(dp)) != NULL) {
+		int fd;
+		char filename[PATH_MAX];
+		struct stat statbuf;
+		char buf[1024];
+
+		if (stress_fs_filename_dotty(de->d_name))
+			continue;
+
+		(void)snprintf(filename, sizeof(filename), "%s/%s", sysfs_path, de->d_name);
+		fd = open(filename, O_RDONLY);
+		if (fd < 0)
+			continue;
+		if (fstat(fd, &statbuf) < 0) {
+			(void)close(fd);
+			continue;
+		}
+		switch (statbuf.st_mode & S_IFMT) {
+		case S_IFREG:
+                        VOID_RET(ssize_t, read(fd, buf, sizeof(buf)));
+			break;
+		case S_IFDIR:
+			stress_fs_dir_files_read(filename);
+			break;
+		default:
+			break;
+                }
+                (void)close(fd);
+	}
+	(void)closedir(dp);
+}
+
+/*
  *  stress_loop()
  *	stress loopback device
  */
@@ -429,6 +476,9 @@ static int stress_loop(stress_args_t *args)
 #endif
 		VOID_RET(int, ftruncate(loop_dev, 0));
 		VOID_RET(int, ftruncate(loop_dev, loop_bytes));
+
+		/* exercise loop's /sysfs entries */
+		stress_loop_sysfs_read(dev_num);
 
 #if defined(LOOP_GET_STATUS)
 clr_loop:
