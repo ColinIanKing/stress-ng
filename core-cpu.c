@@ -324,6 +324,12 @@ static OPTIMIZE3 bool stress_cpu_is_x86_test(void)
 		"ConnectixCPU",		/* Connectix Virtual PC (version 6 and lower) */
 		"CyrixInstead",		/* Cyrix/early STMicroelectronics and IBM */
 		"E2K MACHINE\0",	/* MCST Elbrus */
+		"E8C-SWTX    ",		/* MCST Elbrus */
+		"E8C-SWTX\0\0\0\0",	/* MCST Elbrus */
+		"EL2S4       ",		/* MCST Elbrus */
+		"EL2S4\0\0\0\0\0\0\0",	/* MCST Elbrus */
+		"Elbrus-MCST ",		/* MCST Elbrus */
+		"Elbrus-MCST\0",	/* MCST Elbrus */
 		"Genuine  RDC",		/* RDC Semiconductor Co. Ltd. */
 		"GenuineAO486",		/* ao486 CPU (old) */
 		"GenuineIntel",		/* Intel */
@@ -332,6 +338,11 @@ static OPTIMIZE3 bool stress_cpu_is_x86_test(void)
 		"Geode by NSC",		/* National Semiconductor */
 		"HygonGenuine",		/* Hygon */
 		"Insignia 586",		/* Insignia RealPC and SoftWindows 98 */
+		"MBE1C-PC    ",		/* MCST Elbrus */
+		"MBE1C-PC\0\0\0\0",	/* MCST Elbrus */
+		"MBE8C-PC v.2",		/* MCST Elbrus */
+		"MONOCUB     ",		/* MCST Elbrus */
+		"MONOCUB\0\0\0\0\0",	/* MCST Elbrus */
 		"MicrosoftXTA",		/* Microsoft x86-to-ARM */
 		"MiSTer AO486",		/* ao486 CPU */
 		"Neko Project",		/* Neko Project II (PC-98 emulator) */
