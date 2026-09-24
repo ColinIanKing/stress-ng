@@ -340,6 +340,7 @@ static const stress_class_info_t stress_classes[] = {
 	{ CLASS_SECURITY,	"security" },
 	{ CLASS_SIGNAL,		"signal" },
 	{ CLASS_SORT,		"sort" },
+	{ CLASS_SOUND,		"sound" },
 	{ CLASS_TLB,		"tlb" },
 	{ CLASS_VECTOR,		"vector" },
 	{ CLASS_VM,		"vm" },

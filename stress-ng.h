@@ -404,24 +404,25 @@ do {				\
 #define CLASS_FILESYSTEM	STRESS_BIT_UL(4)	/* file system */
 #define CLASS_FP		STRESS_BIT_UL(5)	/* Floating point operations */
 #define CLASS_GPU		STRESS_BIT_UL(6)	/* GPU */
-#define CLASS_INTEGER		STRESS_BIT_UL(7)	/* Integer operations */
-#define CLASS_INTERRUPT		STRESS_BIT_UL(8)	/* interrupt floods */
-#define CLASS_IO		STRESS_BIT_UL(9)	/* I/O read/writes etc */
-#define CLASS_IPC		STRESS_BIT_UL(10)	/* Inter process communication */
-#define CLASS_MEMORY		STRESS_BIT_UL(11)	/* Memory thrashers */
-#define CLASS_NETWORK		STRESS_BIT_UL(12)	/* Network, sockets, etc */
-#define CLASS_OS		STRESS_BIT_UL(13)	/* generic OS tests */
-#define CLASS_PATHOLOGICAL	STRESS_BIT_UL(14)	/* can hang a machine */
-#define CLASS_PIPE_IO		STRESS_BIT_UL(15)	/* pipe I/O */
-#define CLASS_SCHEDULER		STRESS_BIT_UL(16)	/* Scheduling */
-#define CLASS_SECURITY		STRESS_BIT_UL(17)	/* security APIs */
-#define CLASS_SEARCH		STRESS_BIT_UL(18)	/* Search algorithms */
-#define CLASS_SORT		STRESS_BIT_UL(19)	/* Sort stressors */
-#define CLASS_HOT		STRESS_BIT_UL(20)	/* Hot stressors */
-#define CLASS_SIGNAL		STRESS_BIT_UL(21)	/* software signals */
-#define CLASS_VECTOR		STRESS_BIT_UL(22)	/* Vector math operations */
-#define CLASS_VM		STRESS_BIT_UL(23)	/* VM stress, big memory, swapping */
-#define CLASS_TLB		STRESS_BIT_UL(24)	/* TLB stressors */
+#define CLASS_HOT		STRESS_BIT_UL(7)	/* Hot stressors */
+#define CLASS_INTEGER		STRESS_BIT_UL(8)	/* Integer operations */
+#define CLASS_INTERRUPT		STRESS_BIT_UL(9)	/* interrupt floods */
+#define CLASS_IO		STRESS_BIT_UL(10)	/* I/O read/writes etc */
+#define CLASS_IPC		STRESS_BIT_UL(11)	/* Inter process communication */
+#define CLASS_MEMORY		STRESS_BIT_UL(12)	/* Memory thrashers */
+#define CLASS_NETWORK		STRESS_BIT_UL(13)	/* Network, sockets, etc */
+#define CLASS_OS		STRESS_BIT_UL(14)	/* generic OS tests */
+#define CLASS_PATHOLOGICAL	STRESS_BIT_UL(15)	/* can hang a machine */
+#define CLASS_PIPE_IO		STRESS_BIT_UL(16)	/* pipe I/O */
+#define CLASS_SCHEDULER		STRESS_BIT_UL(17)	/* Scheduling */
+#define CLASS_SECURITY		STRESS_BIT_UL(18)	/* security APIs */
+#define CLASS_SEARCH		STRESS_BIT_UL(19)	/* Search algorithms */
+#define CLASS_SIGNAL		STRESS_BIT_UL(20)	/* software signals */
+#define CLASS_SOUND		STRESS_BIT_UL(21)	/* Sound devices */
+#define CLASS_SORT		STRESS_BIT_UL(22)	/* Sort stressors */
+#define CLASS_TLB		STRESS_BIT_UL(23)	/* TLB stressors */
+#define CLASS_VECTOR		STRESS_BIT_UL(24)	/* Vector math operations */
+#define CLASS_VM		STRESS_BIT_UL(25)	/* VM stress, big memory, swapping */
 
 /* Help information for options */
 typedef struct {

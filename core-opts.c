@@ -1499,6 +1499,9 @@ const struct option stress_long_options[] = {
 
 	{ "sn",			0,	NULL,	OPT_sn },
 
+	{ "snd-timer",		1,	NULL,	OPT_snd_timer },
+	{ "snd-timer-ops",	1,	NULL,	OPT_snd_timer_ops },
+
 	{ "sock",		1,	NULL,	OPT_sock },
 	{ "sock-domain",	1,	NULL,	OPT_sock_domain },
 	{ "sock-if",		1,	NULL,	OPT_sock_if },

@@ -333,6 +333,7 @@
 	MACRO(skiplist)		\
 	MACRO(sleep)		\
 	MACRO(smi)		\
+	MACRO(snd_timer)	\
 	MACRO(sock)		\
 	MACRO(sockabuse)	\
 	MACRO(sockdiag)		\
