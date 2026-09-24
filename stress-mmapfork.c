@@ -195,7 +195,7 @@ static int stress_mmapfork(stress_args_t *args)
 					_exit(MMAPFORK_FAILURE);
 				}
 #endif
-				len_total = (size_t)info.freeram * (size_t)info.mem_unit;
+				len_total = (size_t)info.freeram * (size_t)info.mem_unit / 2;
 				if (!stress_setting_get("mmapfork-bytes", &len_total)) {
 					if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 						len_total = MIN_MMAPFORK_BYTES;
@@ -207,7 +207,7 @@ static int stress_mmapfork(stress_args_t *args)
 				if (len_total < args->page_size)
 					len_total = args->page_size;
 
-				len = (len_total / (args->instances * mmapfork_procs)) / 2;
+				len = len_total / (args->instances * mmapfork_procs);
 				if (len < args->page_size)
 					len = args->page_size;
 				if ((i == 0) && report_size) {
