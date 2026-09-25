@@ -1055,6 +1055,64 @@ static void stress_iomix_readahead(
 }
 #endif
 
+#if defined(O_DIRECT) &&	\
+    defined(HAVE_PREAD) &&	\
+    defined(HAVE_PWRITE)
+/*
+ *  stress_iomix_direct_seq_slow_rw()
+ *	direct I/O slow sequential reads/writes
+ */
+static void stress_iomix_direct_seq_slow_rw(
+	stress_args_t *args,
+	const int fd,
+	const char *fs_type,
+	const off_t iomix_bytes)
+{
+	const size_t buf_len = 4096;
+
+	/* The direct I/O fd may be -1 if O_DIRECT failed */
+	if (fd == -1)
+		return;
+
+	do {
+		off_t posn = 0;
+
+		while (posn < iomix_bytes) {
+			char buffer2[buf_len + buf_len];
+			/* ensure it's aligned for direct I/O */
+			char *buffer = (char *)((uintptr_t)(buffer2 + buf_len) & ~(buf_len - 1));
+
+			ssize_t rc;
+
+			if (stress_mwc1()) {
+				rc = pread(fd, buffer, buf_len, posn);
+				if (UNLIKELY(rc < 0)) {
+					if (errno == EINTR)
+						break;
+					pr_fail("%s: direct I/O pread failed, errno=%d (%s)%s\n",
+						args->name, errno, strerror(errno), fs_type);
+					return;
+				}
+			} else {
+				stress_rndbuf(buffer, buf_len);
+				rc = pwrite(fd, buffer, buf_len, posn);
+				if (UNLIKELY(rc < 0)) {
+					if (errno == EINTR)
+						break;
+					pr_inf("%s: direct I/O pwrite failed, errno=%d (%s)%s\n",
+						args->name, errno, strerror(errno), fs_type);
+					return;
+				}
+			}
+			(void)shim_usleep(33333);
+			posn += buf_len;
+			if (UNLIKELY(!stress_bogo_inc_lock(args, counter_lock, true)))
+				return;
+		}
+	} while (stress_bogo_inc_lock(args, counter_lock, false));
+}
+#endif
+
 static const stress_iomix_func iomix_funcs[] = {
 	stress_iomix_wr_seq_bursts,
 	stress_iomix_wr_rnd_bursts,
@@ -1092,6 +1150,11 @@ static const stress_iomix_func iomix_funcs[] = {
 #if defined(HAVE_READAHEAD)
 	stress_iomix_readahead,
 #endif
+#if defined(O_DIRECT) &&	\
+    defined(HAVE_PREAD) &&	\
+    defined(HAVE_PWRITE)
+	stress_iomix_direct_seq_slow_rw,
+#endif
 };
 
 #define MAX_IOMIX_PROCS	(SIZEOF_ARRAY(iomix_funcs))
@@ -1103,6 +1166,11 @@ static const stress_iomix_func iomix_funcs[] = {
 static int stress_iomix(stress_args_t *args)
 {
 	int fd;
+#if defined(O_DIRECT) &&	\
+    defined(HAVE_PREAD) &&	\
+    defined(HAVE_PWRITE)
+	int dio_fd;
+#endif
 	int ret;
 	int rc = EXIT_SUCCESS;
 	char filename[PATH_MAX];
@@ -1172,6 +1240,13 @@ static int stress_iomix(stress_args_t *args)
 		goto lock_destroy;
 	}
 	fs_type = stress_fs_type_get(filename);
+
+#if defined(O_DIRECT) &&	\
+    defined(HAVE_PREAD) &&	\
+    defined(HAVE_PWRITE)
+	dio_fd = open(filename, O_RDWR | O_DIRECT);
+#endif
+
 	(void)shim_unlink(filename);
 
 	do {
@@ -1220,6 +1295,12 @@ static int stress_iomix(stress_args_t *args)
 		if (s_pids[i].pid < 0) {
 			goto reap;
 		} else if (s_pids[i].pid == 0) {
+#if defined(O_DIRECT) &&	\
+    defined(HAVE_PREAD) &&	\
+    defined(HAVE_PWRITE)
+			const bool direct_io = iomix_funcs[i] == stress_iomix_direct_seq_slow_rw;
+#endif
+
 			stress_proc_state_set(args->name, STRESS_STATE_SYNC_WAIT);
 			s_pids[i].pid = getpid();
 			stress_sync_start_wait_s_pid(&s_pids[i]);
@@ -1228,7 +1309,13 @@ static int stress_iomix(stress_args_t *args)
 
 			/* Child */
 			(void)stress_sched_settings_apply(true);
+#if defined(O_DIRECT) &&	\
+    defined(HAVE_PREAD) &&	\
+    defined(HAVE_PWRITE)
+			iomix_funcs[i](args, direct_io ? dio_fd : fd, fs_type, iomix_bytes);
+#else
 			iomix_funcs[i](args, fd, fs_type, iomix_bytes);
+#endif
 			_exit(EXIT_SUCCESS);
 		} else {
 			stress_sync_start_s_pid_list_add(&s_pids_head, &s_pids[i]);
@@ -1249,6 +1336,12 @@ reap:
 	stress_kill_and_wait_many(args, s_pids, MAX_IOMIX_PROCS, SIGALRM, true);
 tidy:
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
+#if defined(O_DIRECT) &&	\
+    defined(HAVE_PREAD) &&	\
+    defined(HAVE_PWRITE)
+	if (dio_fd != -1)
+		(void)close(dio_fd);
+#endif
 	(void)close(fd);
 	(void)stress_fs_temp_dir_rm_args(args);
 lock_destroy:
