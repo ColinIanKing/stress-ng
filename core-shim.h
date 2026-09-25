@@ -828,7 +828,7 @@ extern char *shim_strtok_r(char *str, const char *delim,
 	char **saveptr);
 extern struct tm *shim_localtime_r(const time_t *timep,
 	struct tm *result);
-int shim_getpwuid_r(uid_t uid, struct passwd *pwd, char *buf,
+extern int shim_getpwuid_r(uid_t uid, struct passwd *pwd, char *buf,
         size_t size, struct passwd **result);
 
 #endif
