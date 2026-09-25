@@ -18,6 +18,15 @@
 #include "stress-ng.h"
 #include "core-ioctl.h"
 
+#if defined(HAVE_ASM_TERMBITS_H)
+/*
+ *  rename termbits termios to ioctl_termios
+ */
+#define termios ioctl_termios
+#include <asm/termbits.h>
+#undef termios
+#endif
+
 #include <sys/ioctl.h>
 
 #if defined(HAVE_TERMIOS_H)
@@ -57,6 +66,40 @@ static const stress_opt_t opts[] = {
 
 #if defined(HAVE_TERMIOS_H) &&	\
     defined(HAVE_PTSNAME)
+
+/*
+ *  stress_pty_hangup()
+ *  	hangup pty fd, either don't hangup, use B0 CBAUD or tcssendbreak
+ */
+static void stress_pty_hangup(const int fd)
+{
+	switch (stress_mwc8modn(3)) {
+	case 0:
+	default:
+		/* no hanghup */
+		break;
+	case 1:
+#if defined(HAVE_ASM_TERMBITS_H) &&	\
+    defined(TCGETS) &&			\
+    defined(TCSETS) &&			\
+    defined(CBAUD) &&			\
+    defined(B0)
+		{
+			struct ioctl_termios termios;
+
+			if (ioctl(fd, TCGETS, &termios) == 0) {
+				termios.c_cflag &= ~CBAUD;
+				termios.c_cflag |= B0 & CBAUD;
+				(void)ioctl(fd, TCSETS, &termios);
+			}
+		}
+#endif
+		break;
+	case 2:
+		(void)tcsendbreak(fd, 0);
+		break;
+	}
+}
 
 /*
  *  stress_pty
@@ -237,10 +280,11 @@ static int stress_pty(stress_args_t *args)
 			}
 #endif
 
-#if defined(TCGETS) &&	\
+#if defined(HAVE_ASM_TERMBITS_H) &&	\
+    defined(TCGETS) &&			\
     defined(TCSETS)
 			{
-				struct termios ios;
+				struct ioctl_termios ios;
 
 				if (UNLIKELY((ioctl(ptys[i].follower, TCGETS, &ios) < 0) &&
 					     (errno != EINTR))) {
@@ -258,10 +302,11 @@ static int stress_pty(stress_args_t *args)
 			}
 #endif
 
-#if defined(TCGETS) &&	\
+#if defined(HAVE_ASM_TERMBITS_H) &&	\
+    defined(TCGETS) &&			\
     defined(TCSETSW)
 			{
-				struct termios ios;
+				struct ioctl_termios ios;
 
 				if (UNLIKELY((ioctl(ptys[i].follower, TCGETS, &ios) < 0) &&
 					     (errno != EINTR))) {
@@ -279,10 +324,11 @@ static int stress_pty(stress_args_t *args)
 			}
 #endif
 
-#if defined(TCGETS) &&	\
+#if defined(HAVE_ASM_TERMBITS_H) &&	\
+    defined(TCGETS) &&			\
     defined(TCSETSF)
 			{
-				struct termios ios;
+				struct ioctl_termios ios;
 
 				if (UNLIKELY((ioctl(ptys[i].follower, TCGETS, &ios) < 0) &&
 					     (errno != EINTR))) {
@@ -366,9 +412,10 @@ static int stress_pty(stress_args_t *args)
 			}
 #endif
 
-#if defined(TIOCGLCKTRMIOS)
+#if defined(HAVE_ASM_TERMBITS_H) &&	\
+    defined(TIOCGLCKTRMIOS)
 			{
-				struct termios ios;
+				struct ioctl_termios ios;
 
 				if (UNLIKELY((ioctl(ptys[i].follower, TIOCGLCKTRMIOS, &ios) < 0) &&
 					     (errno != EINTR))) {
@@ -569,15 +616,20 @@ static int stress_pty(stress_args_t *args)
 #endif
 #endif
 
+
 clean:
 		/*
 		 *  and close
 		 */
 		for (i = 0; i < n; i++) {
-			if (ptys[i].follower != -1)
+			if (ptys[i].follower != -1) {
+				stress_pty_hangup(ptys[i].follower);
 				(void)close(ptys[i].follower);
-			if (ptys[i].leader != -1)
+			}
+			if (ptys[i].leader != -1) {
+				stress_pty_hangup(ptys[i].leader);
 				(void)close(ptys[i].leader);
+			}
 		}
 		stress_bogo_inc(args);
 	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
