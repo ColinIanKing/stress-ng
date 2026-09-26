@@ -56,8 +56,7 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-#if defined(AF_PACKET) &&	\
-    defined(IPPROTO_UDP)
+#if defined(IPPROTO_UDP)
 
 /*
  *  stress_udp_flood
@@ -249,6 +248,6 @@ const stressor_info_t stress_udp_flood_info = {
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
-	.unimplemented_reason = "built with undefined AF_PACKET"
+	.unimplemented_reason = "built with undefined IPPROTO_UDP"
 };
 #endif
