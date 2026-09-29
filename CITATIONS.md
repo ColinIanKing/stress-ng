@@ -231,6 +231,7 @@
  * [Edge-Inference Governors Need Memory-Clock State](https://arxiv.org/html/2606.16106)
  * [Enabling SLO-Aware 5G Multi-Access Edge Computing with SMEC](https://arxiv.org/html/2601.19162v1)
  * [Evaluating Shaker for Flaky Test Detection in Python Projects](https://arxiv.org/pdf/2609.25528)
+ * [Exploiting Software-level Abstractions To Support Practical Hardware Trojan Attacks](https://arxiv.org/pdf/2609.23173)
  * [FlexServe: A Fast and Secure LLM Serving System for Mobile Devices with Flexible Resource Isolation](https://arxiv.org/html/2603.09046v1)
  * [Graph Neural Networks for Anomaly Detection in Cloud Infrastructure](https://www.scirp.org/journal/paperinformation?paperid=146528)
  * [GreenPipe: Power Modeling for Containerized DNN Inference on Kubernetes Edge Nodes](https://arxiv.org/html/2609.04952v1)
@@ -247,6 +248,7 @@
  * [SchedBlame: Who Ran While You Waited?](https://arxiv.org/html/2609.02052v1)
  * [Scheduling Analysis of UAV Flight Control Workloads using Raspberry Pi 5 Using PREEMPT_RT Linux](https://arxiv.org/html/2604.19275v1)
  * [Shape and Substance: Dual-Layer Side-Channel Attacks on Local Vision-Language Models](https://arxiv.org/html/2603.25403v1)
+ * [SLAMSqueezeBench: Comparing SLAM Systems under Resource Constraints](https://arxiv.org/pdf/2609.19533)
  * [Solyx AI Grid: Hardware-Telemetry-Aware Routing Across Geographically Distributed GPU Clusters](https://arxiv.org/html/2606.15050v1)
  * [SREGym: A Live Benchmark for AI SRE Agents with High-Fidelity Failure Scenarios](https://arxiv.org/html/2605.07161v1)
  * [Streamline: A Fast, Flushless Cache Covert-Channel Attack by Enabling Asynchronous Collusion](https://dl.acm.org/doi/epdf/10.1145/3445814.3446742)
@@ -255,4 +257,3 @@
  * [UnICom: A Universally High-Performant I/O Completion Mechanism for Modern Computer Systems](https://www.usenix.org/system/files/fast26-pan.pdf)
  * [Verification and Validation (V&V)-in-the-Loop for RISC-V Design: The Holistic Vision of BZL](https://arxiv.org/html/2604.27013v1)
  * [Wire-Level Interrupt-to-Decision Latency of On-Sensor MLC versus Host Inference on the NVIDIA Jetson Orin Nano: A Pre-Registered Measurement Study](https://arxiv.org/pdf/2606.00524)
-
