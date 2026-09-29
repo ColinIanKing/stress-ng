@@ -498,6 +498,8 @@ do_stress --brk -1 --brk-notouch --vmstat 1
 do_stress --brk -1 --brk-mlock
 do_stress --brk -1 --thrash
 
+do_stress --cache -1 --cache-badpage
+
 do_stress --cacheline 32 --cacheline-affinity
 
 do_stress --cachehammer -1 --cachehammer-numa
@@ -544,6 +546,7 @@ do_stress --epoll -1 --epoll-domain unix
 do_stress --epoll -1 --epoll-sockets 10000
 
 do_stress --daemon -1 --daemon-bloat 1M
+do_stress --daemon -1 --daemon-wait
 
 do_stress --dentry -1 --dentry-order stride
 do_stress --dentry -1 --dentry-order random
@@ -560,6 +563,8 @@ do_stress --far-branch -1 --far-branch-flush
 
 do_stress --fifo -1 --fifo-data-size 4096
 do_stress --fifo -1 --fifo-readers 64
+
+do_stress --filerace -1 --filerace-files 256
 
 do_stress --fork -1 --fork-vm
 do_stress --fork -1 --fork-max 64
@@ -658,6 +663,7 @@ do_stress --mmaphuge -1 --mmaphuge-mmaps 32768
 
 do_stress --mmapmany -1 --mmapmany-mlock
 do_stress --mmapmany -1 --mmapmany-numa
+do_stress --mmapmany -1 --mmapmany-mappings 100000
 
 do_stress --mmaprandom -1 --mmaprandom-numa
 do_stress --mmaprandom -1 --mmaprandom-mappings 512
@@ -806,6 +812,7 @@ do_stress --shm -1 --shm-mlock
 do_stress --shm-sysv -1 --shm-sysv-mlock
 
 do_stress --sleep -1 --sleep-max 4096
+do_stress --sleep -1 --sleep-affinity
 
 do_stress --sock -1 --sock-nodelay
 do_stress --sock -1 --sock-domain ipv4
