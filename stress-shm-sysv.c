@@ -831,9 +831,9 @@ retry:
 				if (UNLIKELY(shmctl(shm_id, IPC_STAT, &ds) < 0))
 					pr_fail("%s: shmctl IPC_STAT failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
-#if defined(SHM_SET)
+#if defined(IPC_SET)
 				else
-					VOID_RET(int, shmctl(shm_id, SHM_SET, &ds));
+					VOID_RET(int, shmctl(shm_id, IPC_SET, &ds));
 #else
 				/* UNEXPECTED */
 #endif
