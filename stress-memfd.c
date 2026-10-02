@@ -191,6 +191,7 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 	char filename_rndstr[64];
 	char filename_unusual[64];
 	char filename_pid[64];
+	char filename_long[NAME_MAX * 4];
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	stress_numa_mask_t *numa_mask = NULL;
 	stress_numa_mask_t *numa_nodes = NULL;
@@ -272,6 +273,7 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 #endif
 	}
 
+	stress_rndstr(filename_long, sizeof(filename_long));
 	stress_rndstr(filename_rndstr, sizeof(filename_rndstr));
 	(void)snprintf(filename_unusual, sizeof(filename_unusual),
 		"memfd-%c[H%c%c:?*~", 27, 7, 255);
@@ -542,6 +544,11 @@ buf_unmap:
 
 		/* Exercise illegal zero length name */
 		fd = shim_memfd_create("", ~0U);
+		if (fd >= 0)
+			(void)close(fd);
+
+		/* Exercise illegal long name */
+		fd = shim_memfd_create(filename_long, 0);
 		if (fd >= 0)
 			(void)close(fd);
 
