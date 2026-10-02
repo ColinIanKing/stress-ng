@@ -588,12 +588,15 @@ retry:
 			}
 #endif
 			/* anonymous mmap mapping */
+			errno = 0;
 			ptr = (uint8_t *)mmap(NULL, mmap_size, PROT_READ | PROT_WRITE,
-						MAP_SHARED | MAP_ANONYMOUS | mmap_flag, -1, 0);
+						(stress_mwc1() ? MAP_SHARED : MAP_PRIVATE) |
+						MAP_ANONYMOUS | mmap_flag, -1, 0);
 			if (LIKELY(ptr != MAP_FAILED))
 				goto mapped_ok;
 			ptr = (uint8_t *)mmap(NULL, mmap_size, PROT_READ | PROT_WRITE,
-						MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+						(stress_mwc1() ? MAP_SHARED : MAP_PRIVATE) |
+						 MAP_ANONYMOUS, -1, 0);
 			if (LIKELY(ptr != MAP_FAILED))
 				goto mapped_ok;
 			mmap_stats->mmap_retries++;
