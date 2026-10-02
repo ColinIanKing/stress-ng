@@ -58,6 +58,7 @@ typedef struct {
 	double underrun_nsec;
 	double underrun_count;
 #endif
+	uint32_t max_residency;
 	int mask;
 } stress_ctxt_t;
 
@@ -158,15 +159,24 @@ static void *stress_nanosleep_pthread(void *c)
 	stress_ctxt_t *ctxt = (stress_ctxt_t *)c;
 	stress_args_t *args = ctxt->args;
 
+	uint32_t max_residency = ctxt->max_residency;
+	if (max_residency == 0)
+		ctxt->mask &= ~STRESS_NANOSLEEP_CSTATE;
+
 	while (stress_continue(args) &&
 	       !thread_terminate &&
 	       (!ctxt->max_ops || (ctxt->counter < ctxt->max_ops))) {
-		const cpu_cstate_t *cc;
 
 		if (ctxt->mask & STRESS_NANOSLEEP_CSTATE) {
+			const cpu_cstate_t *cc;
+
 			for (cc = ctxt->cstate_list; cc; cc = cc->next) {
-				if (cc->residency > 0)
-					stress_nanosleep_ns(ctxt, 1000 * (long int)(cc->residency + 1));
+				if (cc->residency > 0) {
+					const double t = stress_time_now() + ((double)ctxt->max_residency * 5.0) / 1000000.0;
+					do {
+						stress_nanosleep_ns(ctxt, 1000 * (long int)(cc->residency));
+					}  while (stress_time_now() < t);
+				}
 			}
 		}
 		if (ctxt->mask & STRESS_NANOSLEEP_RANDOM) {
@@ -203,6 +213,7 @@ static int stress_nanosleep(stress_args_t *args)
 	uint32_t n;
 	uint32_t limited = 0;
 	uint32_t nanosleep_threads = DEFAULT_NANOSLEEP_THREADS;
+	uint32_t max_residency = 0;
 	stress_ctxt_t *ctxts;
 	int ret = EXIT_SUCCESS;
 	size_t nanosleep_method = 0; /* all */
@@ -241,6 +252,18 @@ static int stress_nanosleep(stress_args_t *args)
 				pr_inf("%s: nanosleep-method cstate exercises C "
 					"state sleeps optimally when nanosleep-threads "
 					"is set to 1\n", args->name);
+			} else {
+				const cpu_cstate_t *cc;
+
+				for (cc = cstate_list; cc; cc = cc->next) {
+					if (max_residency < cc->residency)
+						max_residency = cc->residency;
+				}
+				if (max_residency == 0) {
+					if (stress_instance_zero(args))
+						pr_inf("%s: maximum C state residency is zero, using random nanosleeps instead\n", args->name);
+					mask = STRESS_NANOSLEEP_RANDOM;
+				}
 			}
 		}
 	}
@@ -270,6 +293,7 @@ static int stress_nanosleep(stress_args_t *args)
 		ctxts[n].underrun_nsec = 0.0;
 		ctxts[n].underrun_count = 0.0;
 #endif
+		ctxts[n].max_residency = max_residency;
 		ctxts[n].mask = mask;
 		ctxts[n].cstate_list = cstate_list;
 
