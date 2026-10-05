@@ -453,7 +453,7 @@ hugepage_unmap:
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("kmalloc"),
 	STRESS_EX_FEATURE("maple-tree-write"),
-	STRESS_EX_FEATURE("memory-store"),
+	STRESS_EX_FEATURE("memory-stores"),
 	STRESS_EX_FEATURE("page-faults-minor"),
 	STRESS_EX_FEATURE("page-faults-user"),
 	STRESS_EX_FEATURE("tlb-flush"),
