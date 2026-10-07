@@ -395,8 +395,8 @@ static int OPTIMIZE3 stress_udp_server(
 #if defined(__linux__)
 		if ((count++ & 0xffff) == 0) {
 			/* Periodically read udp files */
-			stress_fs_discard("/proc/net/udp");
-			stress_fs_discard("/proc/net/udp6");
+			(void)stress_fs_file_exercise_read("/proc/net/udp");
+			(void)stress_fs_file_exercise_read("/proc/net/udp6");
 		}
 #endif
 
