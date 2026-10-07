@@ -226,7 +226,7 @@ static int stress_flock_child(
 #endif
 #if defined(__linux__)
 		if (UNLIKELY((i & 0xff) == 0))
-			(void)stress_fs_discard("/proc/locks");
+			(void)stress_fs_file_exercise_read("/proc/locks");
 #else
 		(void)i;
 #endif
