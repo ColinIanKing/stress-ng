@@ -870,8 +870,8 @@ retry:
 #if defined(__linux__)
 			/* Periodically read sockstat files */
 			if (UNLIKELY((count & 0xffff) == 0)) {
-				stress_fs_discard("/proc/net/sockstat");
-				stress_fs_discard("/proc/net/sockstat6");
+				(void)stress_fs_file_exercise_read("/proc/net/sockstat");
+				(void)stress_fs_file_exercise_read("/proc/net/sockstat6");
 			}
 #endif
 
