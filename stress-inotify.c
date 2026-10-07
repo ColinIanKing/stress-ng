@@ -670,6 +670,46 @@ static int inotify_open_file(
 	UNEXPECTED
 #endif
 
+#if defined(IN_OPEN)
+
+static int inotify_open_wo_helper(
+	stress_args_t *args,
+	const char *path,
+	void *signum)
+{
+	int fd;
+
+	(void)signum;
+	if ((fd = open(path, O_WRONLY)) < 0) {
+		pr_err("%s: open '%s' failed, errno=%d (%s)\n",
+			args->name, path, errno, strerror(errno));
+		return -1;
+	}
+	(void)close(fd);
+	return 0;
+}
+static int inotify_open_file_wo(
+	stress_args_t *args,
+	const char *path,
+	const int bad_fd)
+{
+	char filepath[PATH_MAX];
+	int rc;
+
+	stress_fs_make_filename(filepath, sizeof(filepath), path, "inotify_file");
+	if (mk_file(args, filepath, 4096) < 0)
+		return EXIT_SUCCESS;
+	(void)chmod(filepath, S_IWUSR);
+	rc = inotify_exercise(args, filepath, path, "inotify_file",
+		inotify_open_wo_helper, IN_OPEN, NULL, bad_fd);
+	(void)rm_file(args, filepath);
+
+	return rc;
+}
+#else
+	UNEXPECTED
+#endif
+
 #if defined(IN_DELETE)
 static int inotify_delete_helper(
 	stress_args_t *args,
@@ -981,6 +1021,9 @@ static const stress_inotify_t inotify_stressors[] = {
 #endif
 #if defined(IN_OPEN)
 	{ inotify_open_file,		"IN_OPEN" },
+#endif
+#if defined(IN_OPEN)
+	{ inotify_open_file_wo,		"IN_OPEN" },
 #endif
 #if defined(IN_MOVED_FROM)
 	{ inotify_moved_from,		"IN_MOVED_FROM" },
