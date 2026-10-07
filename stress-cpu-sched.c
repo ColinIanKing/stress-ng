@@ -871,10 +871,10 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 		if ((counter & 0x03ff) == 0) {
 			stress_cpu_sched_fork(args);
 #if defined(__linux__)
-			stress_fs_discard("/sys/kernel/debug/sched/debug");
-			stress_fs_discard("/proc/pressure/cpu");
-			stress_fs_discard("/proc/pressure/irq");
-			stress_fs_discard("/proc/schedstat");
+			stress_fs_file_exercise_read("/sys/kernel/debug/sched/debug");
+			stress_fs_file_exercise_read("/proc/pressure/cpu");
+			stress_fs_file_exercise_read("/proc/pressure/irq");
+			stress_fs_file_exercise_read("/proc/schedstat");
 #endif
 		}
 		if (((counter & 0xfff) == 0) &&
