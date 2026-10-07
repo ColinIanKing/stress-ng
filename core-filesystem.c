@@ -1903,6 +1903,58 @@ void stress_fs_dentry_state_get(stress_fs_dentry_stat_t *dentry_stat)
 }
 
 /*
+ *  stress_fs_file_exercise_read()
+ *	read and exercise read only file
+ */
+ssize_t stress_fs_file_exercise_read(const char *filename)
+{
+	int fd;
+	ssize_t len = 0;
+	struct stat statbuf;
+	void *ptr;
+	int flags = O_RDONLY;
+
+#if defined(O_NONBLOCK)
+	flags |= O_NONBLOCK;
+#endif
+
+	fd = open(filename, flags);
+	if (fd < 0)
+		return -1;
+
+	/* we only want to read regular sysfs files */
+	if (fstat(fd, &statbuf) < 0) {
+		(void)close(fd);
+		return -1;
+	}
+	/* exercise random sized reads until EOF */
+	if ((statbuf.st_mode & S_IFMT) == S_IFREG) {
+		char buf[1024];
+		ssize_t ret;
+
+		while (len < 65536) {
+			const size_t sz = stress_mwcsizemodn(sizeof(buf)) + 1;
+
+			ret = read(fd, buf, sz);
+			if (ret <= 0)
+				break;
+			len += (size_t)ret;
+		}
+	}
+	/* exercise mmap on file */
+	if (len) {
+		ptr = mmap(NULL, len, PROT_READ, MAP_PRIVATE, fd, 0);
+		if (ptr != MAP_FAILED)
+			(void)munmap(ptr, len);
+	}
+	/* exercise lseek on file */
+	(void)lseek(fd, 0, SEEK_SET);
+	(void)close(fd);
+
+	return len;
+}
+
+/*
  *  stress_fs_dir_files_read
  *	read regular files in a directory,
  *	normally used for reading procfs files
@@ -1921,28 +1973,13 @@ void stress_fs_dir_files_read(const char *path)
 
 	while ((de = readdir(dp)) != NULL) {
 		char filename[PATH_MAX];
-		int fd;
-		struct stat statbuf;
 
 		if (stress_fs_filename_dotty(de->d_name))
 			continue;
 
 		(void)snprintf(filename, sizeof(filename), "%s/%s", path, de->d_name);
-		fd = open(filename, O_RDONLY);
-		if (fd < 0)
-			continue;
+		(void)stress_fs_file_exercise_read(filename);
 
-		/* we only want to read regular sysfs files */
-		if (fstat(fd, &statbuf) < 0) {
-			(void)close(fd);
-			continue;
-		}
-		if ((statbuf.st_mode & S_IFMT) == S_IFREG) {
-			char buf[1024];
-
-			VOID_RET(ssize_t, read(fd, buf, sizeof(buf)));
-		}
-		(void)close(fd);
 	}
 	(void)closedir(dp);
 }
