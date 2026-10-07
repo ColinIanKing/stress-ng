@@ -380,8 +380,8 @@ static int stress_key(stress_args_t *args)
 #endif
 		}
 
-		(void)stress_fs_discard("/proc/keys");
-		(void)stress_fs_discard("/proc/key-users");
+		(void)stress_fs_file_exercise_read("/proc/keys");
+		(void)stress_fs_file_exercise_read("/proc/key-users");
 
 		/*
 		 *  Perform invalid keyctl command
