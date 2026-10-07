@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "23 September 2026"
+.TH STRESS-NG 1 "7 October 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -9479,6 +9479,18 @@ determine the time stolen by SMIs with some na\[:i]ve benchmarking.
 .TP
 .B \-\-smi\-ops N
 stop after N attempts to trigger the SMI.
+.RE
+.TP
+.B Sound PCM stressor
+.RS 5
+.TQ
+.B \-\-snd\-pcm N
+start N workers that exercise /dev/snd/pcm*[cp] devices. Currently this
+exercises a subset of the /dev/snd PCM ioctl commands for concurrency
+race conditions.
+.TP
+.B \-\-snd\-pcm\-ops N
+stop after N bogo ioctl commands.
 .RE
 .TP
 .B Sound Timer stressor

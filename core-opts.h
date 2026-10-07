@@ -1585,6 +1585,9 @@ typedef enum {
 
 	OPT_sn,
 
+	OPT_snd_pcm,
+	OPT_snd_pcm_ops,
+
 	OPT_snd_timer,
 	OPT_snd_timer_ops,
 

@@ -822,6 +822,7 @@ STRESS_SRC = \
 	stress-skiplist.c \
 	stress-sleep.c \
 	stress-smi.c \
+	stress-snd-pcm.c \
 	stress-snd-timer.c \
 	stress-sock.c \
 	stress-sockabuse.c \
