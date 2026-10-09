@@ -18,7 +18,8 @@
 #include "stress-ng.h"
 #include "core-ioctl.h"
 
-#if defined(HAVE_ASM_TERMBITS_H)
+#if defined(HAVE_ASM_TERMBITS_H) &&		\
+    defined(HAVE_ASM_TERMBITS_STRUCT_TERMIOS)
 /*
  *  rename termbits termios to ioctl_termios
  */
@@ -79,7 +80,8 @@ static void stress_pty_hangup(const int fd)
 		/* no hanghup */
 		break;
 	case 1:
-#if defined(HAVE_ASM_TERMBITS_H) &&	\
+#if defined(HAVE_ASM_TERMBITS_H) &&			\
+    defined(HAVE_ASM_TERMBITS_STRUCT_TERMIOS) &&	\
     defined(TCGETS) &&			\
     defined(TCSETS) &&			\
     defined(CBAUD) &&			\
@@ -280,8 +282,9 @@ static int stress_pty(stress_args_t *args)
 			}
 #endif
 
-#if defined(HAVE_ASM_TERMBITS_H) &&	\
-    defined(TCGETS) &&			\
+#if defined(HAVE_ASM_TERMBITS_H) &&			\
+    defined(HAVE_ASM_TERMBITS_STRUCT_TERMIOS) &&	\
+    defined(TCGETS) &&					\
     defined(TCSETS)
 			{
 				struct ioctl_termios ios;
@@ -302,8 +305,9 @@ static int stress_pty(stress_args_t *args)
 			}
 #endif
 
-#if defined(HAVE_ASM_TERMBITS_H) &&	\
-    defined(TCGETS) &&			\
+#if defined(HAVE_ASM_TERMBITS_H) &&			\
+    defined(HAVE_ASM_TERMBITS_STRUCT_TERMIOS) &&	\
+    defined(TCGETS) &&					\
     defined(TCSETSW)
 			{
 				struct ioctl_termios ios;
@@ -324,8 +328,9 @@ static int stress_pty(stress_args_t *args)
 			}
 #endif
 
-#if defined(HAVE_ASM_TERMBITS_H) &&	\
-    defined(TCGETS) &&			\
+#if defined(HAVE_ASM_TERMBITS_H) &&			\
+    defined(HAVE_ASM_TERMBITS_STRUCT_TERMIOS) &&	\
+    defined(TCGETS) &&					\
     defined(TCSETSF)
 			{
 				struct ioctl_termios ios;
@@ -412,7 +417,8 @@ static int stress_pty(stress_args_t *args)
 			}
 #endif
 
-#if defined(HAVE_ASM_TERMBITS_H) &&	\
+#if defined(HAVE_ASM_TERMBITS_H) &&			\
+    defined(HAVE_ASM_TERMBITS_STRUCT_TERMIOS) &&	\
     defined(TIOCGLCKTRMIOS)
 			{
 				struct ioctl_termios ios;

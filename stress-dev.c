@@ -176,6 +176,16 @@
 #include <poll.h>
 #endif
 
+#if defined(HAVE_ASM_TERMBITS_H) &&		\
+    defined(HAVE_ASM_TERMBITS_STRUCT_TERMIOS)
+/*
+ *  rename termbits termios to ioctl_termios
+ */
+#define termios ioctl_termios
+#include <asm/termbits.h>
+#undef termios
+#endif
+
 #if defined(HAVE_TERMIO_H)
 #include <termio.h>
 #endif
@@ -715,15 +725,15 @@ static void stress_dev_video_linux(
 }
 #endif
 
-#if defined(HAVE_TERMIOS_H) &&	\
-    defined(HAVE_TERMIOS) &&	\
+#if defined(HAVE_ASM_TERMBITS_H) &&                    \
+    defined(HAVE_ASM_TERMBITS_STRUCT_TERMIOS) &&       \
     defined(TCGETS)
 static void stress_dev_tty(
 	stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
-	struct termios t;
+	struct termios tios;
 	int ret;
 
 	VOID_ARGS(args, fd, devpath);
@@ -731,13 +741,15 @@ static void stress_dev_tty(
 	if (!isatty(fd))
 		return;
 
-	VOID_RET(int, tcgetattr(fd, &t));
+	VOID_RET(int, tcgetattr(fd, &tios));
 #if defined(TCGETS)
 	{
-		ret = ioctl(fd, TCGETS, &t);
+		struct ioctl_termios ioctl_tios;
+
+		ret = ioctl(fd, TCGETS, &ioctl_tios);
 #if defined(TCSETS)
 		if (ret == 0) {
-			ret = ioctl(fd, TCSETS, &t);
+			ret = ioctl(fd, TCSETS, &ioctl_tios);
 		}
 #endif
 		(void)ret;
@@ -4050,10 +4062,10 @@ static inline void stress_dev_rw(
 		bool timeout = false;
 		char *ptr;
 		size_t i;
-#if defined(HAVE_TERMIOS_H) &&	\
-    defined(TCGETS) && \
-    defined(HAVE_TERMIOS)
-		struct termios tios;
+#if defined(HAVE_ASM_TERMBITS_H) &&			\
+    defined(HAVE_ASM_TERMBITS_STRUCT_TERMIOS) &&	\
+    defined(TCGETS)
+		struct ioctl_termios tios;
 #endif
 		dev_info_t *dev_info;
 		char *path;
@@ -4115,8 +4127,8 @@ static inline void stress_dev_rw(
 			stress_dev_hd_linux(args, fd, path);
 #endif
 		}
-#if defined(HAVE_TERMIOS_H) &&	\
-    defined(HAVE_TERMIOS) &&	\
+#if defined(HAVE_ASM_TERMBITS_H) &&			\
+    defined(HAVE_ASM_TERMBITS_STRUCT_TERMIOS) &&	\
     defined(TCGETS)
 		if (S_ISCHR(statbuf.st_mode) &&
 		    shim_strncmp("/dev/vsock", path, 10) &&
