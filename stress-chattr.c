@@ -29,6 +29,8 @@ static const stress_help_t help[] = {
 #if defined(__linux__) &&	\
     defined(HAVE_SIGLONGJMP)
 
+#define EXIT_NO_SPACE	(-1)
+
 #include <sys/ioctl.h>
 
 #define SHIM_EXT2_SECRM_FL		0x00000001 /* Secure deletion */
@@ -139,9 +141,17 @@ static int do_chattr(
 		orig_flags = 0UL;
 		ret = ioctl(fd, SHIM_EXT2_IOC_GETFLAGS, &orig_flags);
 		if (ret < 0) {
-			if ((errno != EOPNOTSUPP) &&
-			    (errno != ENOTTY) &&
-			    (errno != EINVAL)) {
+			switch (errno) {
+			case ENOSPC:
+				rc = EXIT_NO_SPACE;
+				break;
+			case EOPNOTSUPP:
+			case ENOTTY:
+			case EINVAL:
+				/* cannot get flags, so most probably not supported */
+				rc = EXIT_NO_RESOURCE;
+				break;
+			default:
 				/* unexpected failure */
 				pr_fail("%s: ioctl SHIM_EXT2_IOC_GETFLAGS failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno),
@@ -149,8 +159,6 @@ static int do_chattr(
 				rc = EXIT_FAILURE;
 				goto tidy_fd;
 			}
-			/* cannot get flags, so most probably not supported */
-			rc = EXIT_NO_RESOURCE;
 			goto tidy_fd;
 		}
 		if (stress_ioctl_get_check(fd, SHIM_EXT2_IOC_GETFLAGS, sizeof(unsigned long int)) < 0)
@@ -169,10 +177,18 @@ static int do_chattr(
 
 				ret = ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &tmp);
 				if (ret < 0) {
-					if ((errno != EOPNOTSUPP) &&
-					    (errno != ENOTTY) &&
-					    (errno != EPERM) &&
-					    (errno != EINVAL)) {
+					switch (errno) {
+					case ENOSPC:
+						rc = EXIT_NO_SPACE;
+						goto tidy_fd;
+					case EOPNOTSUPP:
+					case ENOTTY:
+					case EPERM:
+					case EINVAL:
+						/* failed, so re-enable the bit */
+						tmp |= bitmask;
+						break;
+					default:
 						/* unexpected failure */
 						pr_fail("%s: ioctl SHIM_EXT2_IOC_SETFLAGS (chattr zero flags) failed, errno=%d (%s)%s\n",
 							args->name,
@@ -181,8 +197,6 @@ static int do_chattr(
 						rc = EXIT_FAILURE;
 						goto tidy_fd;
 					}
-					/* failed, so re-enable the bit */
-					tmp |= bitmask;
 				} else {
 					(*chattr_count)++;
 				}
@@ -201,13 +215,20 @@ static int do_chattr(
 
 		ret = ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &flags);
 		if (ret < 0) {
-			if ((errno != EOPNOTSUPP) &&
-			    (errno != ENOTTY) &&
-			    (errno != EPERM) &&
-			    (errno != EINVAL)) {
-				/* unexpected failure */
-				char flags_str[65];
+			char flags_str[65];
 
+			switch (errno) {
+			case ENOSPC:
+				rc = EXIT_NO_SPACE;
+				break;
+			case EOPNOTSUPP:
+			case ENOTTY:
+			case EPERM:
+			case EINVAL:
+				/* most probably not supported */
+				goto tidy_fdw;
+			default:
+				/* unexpected failure */
 				stress_chattr_flags_str(flags, flags_str, sizeof(flags_str));
 				pr_fail("%s: ioctl SHIM_EXT2_IOC_SETFLAGS 0x%lx (chattr '%s') failed, errno=%d (%s)%s\n",
 					args->name, flags, flags_str,
@@ -216,8 +237,6 @@ static int do_chattr(
 				rc = EXIT_FAILURE;
 				goto tidy_fdw;
 			}
-			/* most probably not supported */
-			goto tidy_fdw;
 		} else {
 			(*chattr_count)++;
 		}
@@ -225,9 +244,15 @@ static int do_chattr(
 		check = 0UL;
 		ret = ioctl(fd, SHIM_EXT2_IOC_GETFLAGS, &check);
 		if (ret < 0) {
-			if ((errno != EOPNOTSUPP) &&
-			    (errno != ENOTTY) &&
-			    (errno != EINVAL)) {
+			switch (errno) {
+			case ENOSPC:
+				rc = EXIT_NO_SPACE;
+				goto tidy_fdw;
+			case EOPNOTSUPP:
+			case ENOTTY:
+			case EINVAL:
+				break;
+			default:
 				/* unexpected failure */
 				pr_fail("%s: ioctl SHIM_EXT2_IOC_GETFLAGS failed, errno=%d (%s)%s\n",
 					args->name,
@@ -382,6 +407,7 @@ static int stress_chattr(stress_args_t *args)
 	t = stress_time_now();
 	do {
 		size_t fail = 0;
+		size_t nospace = 0;
 
 		for (i = 0; i < SIZEOF_ARRAY(stress_chattr_flags); i++) {
 			int ret;
@@ -395,6 +421,9 @@ static int stress_chattr(stress_args_t *args)
 			case EXIT_NO_RESOURCE:
 				fail++;
 				break;
+			case EXIT_NO_SPACE:
+				nospace++;
+				break;
 			default:
 				break;
 			}
@@ -406,8 +435,13 @@ static int stress_chattr(stress_args_t *args)
 					args->name);
 			rc = EXIT_NOT_IMPLEMENTED;
 			break;
+		} else if (nospace == i) {
+			if (stress_instance_zero(args))
+				pr_inf_skip("%s: ENOSPC occurred multiple times, skipping stressor\n",
+					args->name);
+			rc = EXIT_NO_RESOURCE;
+			break;
 		}
-
 		/* Try next flag permutation */
 		if ((flag_count > 0) && flag_perms) {
 			(void)do_chattr(args, filename, (unsigned long int)flag_perms[idx], mask, &chattr_count);
