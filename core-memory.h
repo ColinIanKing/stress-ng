@@ -22,10 +22,12 @@
 #include "stress-ng.h"
 
 typedef struct stress_memory_info {
-	size_t freemem;
 	size_t totalmem;
-	size_t freeswap;
+	size_t freemem;
+	size_t sharedmem;
+	size_t buffermem;
 	size_t totalswap;
+	size_t freeswap;
 	size_t shmall;
 } stress_memory_info_t;
 

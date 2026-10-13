@@ -118,10 +118,12 @@ int stress_memory_info_get(stress_memory_info_t *info)
 			char buf[64];
 #endif
 
-			info->freemem = s_info.freeram * s_info.mem_unit;
 			info->totalmem = s_info.totalram * s_info.mem_unit;
-			info->freeswap = s_info.freeswap * s_info.mem_unit;
+			info->freemem = s_info.freeram * s_info.mem_unit;
+			info->sharedmem = s_info.sharedram * s_info.mem_unit;
+			info->buffermem = s_info.bufferram * s_info.mem_unit;
 			info->totalswap = s_info.totalswap * s_info.mem_unit;
+			info->freeswap = s_info.freeswap * s_info.mem_unit;
 #if defined(__linux__)
 			if (stress_fs_file_read("/proc/sys/kernel/shmall", buf, sizeof(buf)) > 0) {
 				size_t shmall = 0;
@@ -131,6 +133,7 @@ int stress_memory_info_get(stress_memory_info_t *info)
 			}
 #else
 			info->shmall = 0;
+			info->availmem = 0;
 #endif
 		}
 		return 0;
@@ -148,15 +151,17 @@ int stress_memory_info_get(stress_memory_info_t *info)
 
 		info->totalswap = (vm_swap_total >= max_size_t) ? max_size_t : (size_t)vm_swap_total;
 #endif
-		info->freemem = page_size * stress_bsd_getsysctl_uint32("vm.stats.vm.v_free_count");
 		info->totalmem = page_size *
 			(stress_bsd_getsysctl_uint32("vm.stats.vm.v_active_count") +
 			 stress_bsd_getsysctl_uint32("vm.stats.vm.v_inactive_count") +
 			 stress_bsd_getsysctl_uint32("vm.stats.vm.v_laundry_count") +
 			 stress_bsd_getsysctl_uint32("vm.stats.vm.v_wire_count") +
 			 stress_bsd_getsysctl_uint32("vm.stats.vm.v_free_count"));
-		info->freeswap = 0;
+		info->freemem = page_size * stress_bsd_getsysctl_uint32("vm.stats.vm.v_free_count");
+		info->sharedmem = 0;
+		info->buffermem = 0;
 		info->totalswap = 0;
+		info->freeswap = 0;
 		info->shmall = 0;
 		return 0;
 	}
@@ -167,8 +172,10 @@ int stress_memory_info_get(stress_memory_info_t *info)
 		struct uvmexp_sysctl u;
 
 		if (stress_bsd_getsysctl("vm.uvmexp2", &u, sizeof(u)) == 0) {
-			info->freemem = (size_t)u.free * u.pagesize;
 			info->totalmem = (size_t)u.npages * u.pagesize;
+			info->freemem = (size_t)u.free * u.pagesize;
+			info->sharedmem = 0;
+			info->buffermem = 0;
 			info->totalswap = (size_t)u.swpages * u.pagesize;
 			info->freeswap = info->totalswap - (size_t)u.swpginuse * u.pagesize;
 			info->shmall = 0;
@@ -190,11 +197,13 @@ int stress_memory_info_get(stress_memory_info_t *info)
 		(void)shim_memset(&vm_stat, 0, sizeof(vm_stat));
 		ret = host_statistics64(host, HOST_VM_INFO64, (host_info64_t)&vm_stat, &count);
 		if (ret >= 0) {
-			info->freemem = page_size * vm_stat.free_count;
 			info->totalmem = page_size * (vm_stat.active_count +
 						 vm_stat.inactive_count +
 						 vm_stat.wire_count +
 						 vm_stat.zero_fill_count);
+			info->freemem = page_size * vm_stat.free_count;
+			info->sharedmem = 0;
+			info->buffermem = 0;
 			info->totalswap = 0;
 			info->freeswap = 0;
 			info->shmall = 0;
@@ -224,10 +233,12 @@ char *stress_memory_free_get(void)
 	if (stress_memory_info_get(&info) < 0)
 		return buf;
 
-	if ((info.freemem == 0) &&
-	    (info.totalmem == 0) &&
-	    (info.freeswap == 0) &&
-	    (info.totalswap == 0))
+	if ((info.totalmem == 0) &&
+	    (info.freemem == 0) &&
+	    (info.sharedmem == 0) &&
+	    (info.buffermem == 0) &&
+	    (info.totalswap == 0) &&
+	    (info.freeswap == 0))
 		return buf;
 
 	(void)stress_uint64_to_str(freemem_str, sizeof(freemem_str), (uint64_t)info.freemem, 0, true);
