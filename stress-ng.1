@@ -7542,8 +7542,7 @@ start N workers that exercise the in-kernel OpenVPN data channel offload (ovpn)
 driver via its generic netlink API. Each worker creates an ovpn network interface
 and repeatedly issues a random mix of netlink commands against it: new peer, set
 peer, get peer, delete peer, new key, delete key, get key, swap keys, and connect.
-Keys are generated at runtime using
-.BR getrandom (2).
+Keys are random and generated at runtime.
 Each successfully completed command loop is counted as one bogo op. This stressor
 requires the
 .B ovpn

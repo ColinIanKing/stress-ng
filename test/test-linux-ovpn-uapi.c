@@ -21,33 +21,18 @@
 #endif
 
 #include <linux/ovpn.h>
-#include <linux/if_link.h>
 
 /*
  *  The presence of linux/ovpn.h says nothing about what it contains: the
  *  header travelled through several out-of-tree revisions before ovpn was
  *  merged in 6.16, and a system can easily have an older or partial copy of
  *  it. Reference the generic netlink commands and attributes the stressor
- *  actually uses, so a header that predates them makes the stressor report
- *  itself unimplemented rather than failing the build.
- *
- *  linux/ovpn.h is not the whole uapi the stressor needs, though.
- *  IFLA_OVPN_MODE selects the interface mode and is an rtnetlink link
- *  attribute, so it lives in linux/if_link.h alongside every other link
- *  type's attributes. The two headers come from different subsystems and can
- *  be at different versions: a distribution can ship a complete linux/ovpn.h
- *  next to an if_link.h predating 6.16, where the attribute was added, and
- *  gating on the former alone lets such a system into the ovpn block and then
- *  fails its build on the latter. Test both here so the outcome is the
- *  unimplemented report either way.
- *
- *  IFLA_OVPN_MODE is an enumerator rather than a macro, so #if defined()
- *  cannot see it and its presence has to be compiled.
+ *  actually uses, so a header that predates them is not included and the
+ *  stressor falls back to its own copy of the uapi, stress-ovpn-uapi.h.
  */
 int main(void)
 {
 	static const char *family = OVPN_FAMILY_NAME;
-	const int link_attr = IFLA_OVPN_MODE;
 	const enum ovpn_cipher_alg ciphers[] = {
 		OVPN_CIPHER_ALG_NONE, OVPN_CIPHER_ALG_AES_GCM,
 		OVPN_CIPHER_ALG_CHACHA20_POLY1305,
@@ -80,7 +65,6 @@ int main(void)
 	(void)slots;
 	(void)cmds;
 	(void)attrs;
-	(void)link_attr;
 
 	return OVPN_A_MAX + OVPN_A_PEER_MAX + OVPN_A_KEYCONF_MAX;
 }
