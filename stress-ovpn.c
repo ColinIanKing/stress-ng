@@ -40,16 +40,9 @@ static const stress_opt_t opts[] = {
 /*
  * static builds with libnl require getprotobynumber_r
  * which is not supported as a static lib at present.
- *
- * HAVE_LINUX_OVPN_UAPI rather than HAVE_LINUX_OVPN_H: the header travelled
- * through several out-of-tree revisions before ovpn was merged in 6.16, so
- * its mere presence does not imply it declares the commands and attributes
- * used below. The configure test references them, so an older or partial
- * copy makes the stressor report itself unimplemented instead of failing
- * the build.
  */
 #if defined(HAVE_LIB_NL) &&		\
-    defined(HAVE_LINUX_OVPN_UAPI) &&	\
+    defined(HAVE_LINUX_NETLINK_H) &&	\
     defined(HAVE_ATOMIC_STORE_N) &&	\
     defined(HAVE_IOVEC) &&		\
     !defined(BUILD_STATIC)
@@ -60,14 +53,12 @@ static const stress_opt_t opts[] = {
 #include <arpa/inet.h>
 #include <net/if.h>
 #include <netinet/in.h>
-#include <linux/ovpn.h>
 #include <netlink/socket.h>
 #include <netlink/netlink.h>
 #include <netlink/genl/genl.h>
 #include <netlink/genl/family.h>
 #include <netlink/genl/ctrl.h>
 
-#include <sys/random.h>
 #include <sys/select.h>
 #include <fcntl.h>
 #include <sched.h>
@@ -87,12 +78,33 @@ static const stress_opt_t opts[] = {
 #include <linux/connector.h>
 #endif
 
-#if defined(HAVE_LINUX_NETLINK_H)
 #include <linux/netlink.h>
 #include <linux/rtnetlink.h>
 #include <linux/genetlink.h>
 #include <linux/if_link.h>
 #include <linux/if_addr.h>
+
+/* the IFLA_OVPN attributes of linux/if_link.h, added in 6.16 */
+#if !defined(IFLA_OVPN_MAX)
+enum {
+	IFLA_OVPN_UNSPEC,
+	IFLA_OVPN_MODE,
+	__IFLA_OVPN_MAX,
+};
+
+#define IFLA_OVPN_MAX	(__IFLA_OVPN_MAX - 1)
+#endif
+
+/*
+ * The ovpn module is backported to kernels whose uapi headers predate it,
+ * and the header went through several out-of-tree revisions before ovpn was
+ * merged in 6.16. Use it only if it declares everything used below, otherwise
+ * fall back to the copy of the kernel uapi in stress-ovpn-uapi.h.
+ */
+#if defined(HAVE_LINUX_OVPN_UAPI)
+#include <linux/ovpn.h>
+#else
+#include "stress-ovpn-uapi.h"
 #endif
 
 #if defined(HAVE_SYS_UIO_H)
@@ -718,7 +730,9 @@ static nl_ctx_t *nl_ctx_alloc_flags(
 	const int flags)
 {
 	nl_ctx_t *ctx;
+#if defined(NETLINK_EXT_ACK)
 	int err;
+#endif
 	int ret;
 	const char *args_name = ovpn->args_name;
 
@@ -742,10 +756,12 @@ static nl_ctx_t *nl_ctx_alloc_flags(
 		goto err_sock;
 	}
 
+#if defined(NETLINK_EXT_ACK)
 	/* enable Extended ACK for detailed error reporting; ignore failure */
 	err = 1;
 	(void)setsockopt(nl_socket_get_fd(ctx->nl_sock), SOL_NETLINK, NETLINK_EXT_ACK,
 		   &err, sizeof(err));
+#endif
 
 	ctx->ovpn_dco_id = genl_ctrl_resolve(ctx->nl_sock, OVPN_FAMILY_NAME);
 	if (ctx->ovpn_dco_id < 0) {
@@ -849,12 +865,14 @@ static int ovpn_nl_cb_error(
 	struct nlmsgerr *err,
 	void *arg)
 {
+	nl_ctx_t *ctx = (nl_ctx_t *)arg;
+#if defined(NLM_F_ACK_TLVS)
 	struct nlmsghdr *nlh = (struct nlmsghdr *)err - 1;
 	struct nlattr *tb_msg[NLMSGERR_ATTR_MAX + 1];
 	int len = nlh->nlmsg_len;
 	struct nlattr *attrs;
-	nl_ctx_t *ctx = (nl_ctx_t *)arg;
 	int ack_len = sizeof(*nlh) + sizeof(int) + sizeof(*nlh);
+#endif
 
 	(void)nla;
 
@@ -864,6 +882,7 @@ static int ovpn_nl_cb_error(
 	if (ctx->ovpn && ctx->ovpn->expect_failure)
 		return NL_STOP;
 
+#if defined(NLM_F_ACK_TLVS)
 	if (!(nlh->nlmsg_flags & NLM_F_ACK_TLVS))
 		return NL_STOP;
 
@@ -896,6 +915,7 @@ static int ovpn_nl_cb_error(
 		pr_dbg("ovpn: missing required attribute type %u\n",
 			nla_get_u32(tb_msg[NLMSGERR_ATTR_MISS_TYPE]));
 	}
+#endif
 #endif
 
 	return NL_STOP;
@@ -1503,29 +1523,11 @@ static int build_new_iface(ovpn_ctx_t *ovpn)
 	return 0;
 }
 
-static int ovpn_generate_key(ovpn_ctx_t *ovpn)
+static void ovpn_generate_key(ovpn_ctx_t *ovpn)
 {
-	const char *args_name = ovpn->args_name;
-
-	if (getrandom(ovpn->key_enc, KEY_LEN, 0) != KEY_LEN) {
-		pr_err("%s: getrandom(key_enc) failed, errno=%d (%s)\n",
-			args_name, errno, strerror(errno));
-		return -1;
-	}
-
-	if (getrandom(ovpn->key_dec, KEY_LEN, 0) != KEY_LEN) {
-		pr_err("%s: getrandom(key_dec) failed, errno=%d (%s)\n",
-			args_name, errno, strerror(errno));
-		return -1;
-	}
-
-	if (getrandom(ovpn->nonce, NONCE_LEN, 0) != NONCE_LEN) {
-		pr_err("%s: getrandom(nonce) failed, errno=%d (%s)\n",
-			args_name, errno, strerror(errno));
-		return -1;
-	}
-
-	return 0;
+	stress_rndbuf(ovpn->key_enc, KEY_LEN);
+	stress_rndbuf(ovpn->key_dec, KEY_LEN);
+	stress_rndbuf(ovpn->nonce, NONCE_LEN);
 }
 
 static void ovpn_rand_addr_port(
@@ -1555,8 +1557,9 @@ static int build_connect(ovpn_ctx_t *ovpn)
 	ovpn->key_id   = 0;
 	ovpn->cipher   = OVPN_CIPHER_ALG_AES_GCM;
 	ovpn->key_dir  = SHIM_KEY_DIR_OUT;
+	ovpn_generate_key(ovpn);
 
-	return ovpn_generate_key(ovpn);
+	return 0;
 }
 
 static int build_new_peer(ovpn_ctx_t *ovpn)
@@ -1609,8 +1612,9 @@ static int build_new_key(ovpn_ctx_t *ovpn)
 	ovpn->key_id = 0;
 	ovpn->cipher = OVPN_CIPHER_ALG_AES_GCM;
 	ovpn->key_dir = SHIM_KEY_DIR_OUT;
+	ovpn_generate_key(ovpn);
 
-	return ovpn_generate_key(ovpn);
+	return 0;
 }
 
 static int build_del_key(ovpn_ctx_t *ovpn)
@@ -2454,8 +2458,8 @@ static void ovpn_tunnel_churn(
 					OVPN_KEY_SLOT_PRIMARY : OVPN_KEY_SLOT_SECONDARY;
 				o->key_id = stress_mwc8() & 7;
 				o->cipher = ovpn_tun_cipher();
-				if (ovpn_generate_key(o) == 0)
-					(void)ovpn_new_key(o);
+				ovpn_generate_key(o);
+				(void)ovpn_new_key(o);
 				break;
 			case 6:		/* delete the peer from under the traffic */
 				(void)ovpn_del_peer(o);
@@ -2528,8 +2532,8 @@ static void ovpn_tunnel_churn(
 				OVPN_KEY_SLOT_PRIMARY : OVPN_KEY_SLOT_SECONDARY;
 			o->key_id = stress_mwc8() & 7;
 			o->cipher = ovpn_tun_cipher();
-			if (ovpn_generate_key(o) == 0)
-				(void)ovpn_new_key(o);
+			ovpn_generate_key(o);
+			(void)ovpn_new_key(o);
 			break;
 		case 9:
 			o->peer_id = 1;
@@ -3698,7 +3702,7 @@ const stressor_info_t stress_ovpn_info = {
 	.verify = VERIFY_NONE,
 	.opts = opts,
 	.help = help,
-	.unimplemented_reason = "built without libnl3, without a linux/ovpn.h providing the ovpn netlink uapi, without atomic_store_n, or built statically"
+	.unimplemented_reason = "built without libnl3, without linux/netlink.h, without atomic_store_n, or built statically"
 };
 
-#endif /* HAVE_LIB_NL && HAVE_LINUX_OVPN_UAPI */
+#endif /* HAVE_LIB_NL && HAVE_LINUX_NETLINK_H */

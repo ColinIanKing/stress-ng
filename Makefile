@@ -428,7 +428,8 @@ HEADERS = \
 	core-workload.h \
 	stress-af-alg-defconfigs.h \
 	stress-eigen-ops.h \
-	stress-ng.h
+	stress-ng.h \
+	stress-ovpn-uapi.h
 
 #
 #  Build time generated header files
