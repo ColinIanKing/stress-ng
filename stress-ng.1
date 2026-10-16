@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "7 October 2026"
+.TH STRESS-NG 1 "14 October 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -7745,6 +7745,37 @@ stop the ping\-sock stress workers after N ICMP messages are sent.
 .B \-\-ping\-sock\-max\-size N
 specify the maximum data size in bytes, with the range 9 to 65515 and the default
 as 12.
+.RE
+.TP
+.B Pin memory stressor
+.RS 5
+.TQ
+.B \-\-pinmem N
+force low memory by allocating and pinning anonymously mapped memory. The intent
+is to exercise long-term page pinning to force out-of-memory (OOM killer)
+conditions.
+For allocations larger than RLIMIT_MEMLOCK root privilege is required. The
+default operation is to allocate, pin memory and repeatedly touch mapped pages
+with a unique per-page value (to stop kernel same page merging).
+.TP
+.B \-\-pinmem\-bytes N
+specify the size of memory to be allocated and pinned; this is divided up evenly
+among the number of pinmem stressors. The default is the total available memory.
+One can specify the size as % of total available memory or in units of Bytes,
+KBytes, MBytes and GBytes using the suffix b, k, m or g.
+.TP
+.B \-\-pinmem\-cycle
+this option enables repeated cycling through pinning and unpinning until the
+stressor terminates.
+.TP
+.B \-\-pinmem\-method [ all | io-uring | madvise | mlock ]
+select memory pinning method, the default is using io-uring to register the
+mapped memory with IORING_REGISTER_BUFFERS. The madvise method uses madvise(2)
+MADV_POPULATE_WRITE to enfore pages to be populated. The mlock method uses
+mlock(2) to lock pages. The all method uses all the three methods (if available).
+.TP
+.B \-\-pinmem\-ops N
+stop after N memory pin/unpin operations
 .RE
 .TP
 .B Large pipe stressor

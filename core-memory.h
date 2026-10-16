@@ -26,6 +26,7 @@ typedef struct stress_memory_info {
 	size_t freemem;
 	size_t sharedmem;
 	size_t buffermem;
+	size_t availablemem;
 	size_t totalswap;
 	size_t freeswap;
 	size_t shmall;

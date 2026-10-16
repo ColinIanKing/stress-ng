@@ -1131,6 +1131,12 @@ const struct option stress_long_options[] = {
 	{ "ping-sock-max-size",	1,	NULL,	OPT_ping_sock_max_size },
 	{ "ping-sock-ops",	1,	NULL,	OPT_ping_sock_ops },
 
+	{ "pinmem",		1,	NULL,	OPT_pinmem },
+	{ "pinmem-bytes",	1,	NULL,	OPT_pinmem_bytes },
+	{ "pinmem-cycle",	0,	NULL,	OPT_pinmem_cycle },
+	{ "pinmem-method",	1,	NULL,	OPT_pinmem_method },
+	{ "pinmem-ops",		1,	NULL,	OPT_pinmem_ops },
+
 	{ "pipe",		1,	NULL,	OPT_pipe },
 	{ "pipe-data-size",	1,	NULL,	OPT_pipe_data_size },
 	{ "pipe-ops",		1,	NULL,	OPT_pipe_ops },

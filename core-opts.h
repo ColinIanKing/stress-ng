@@ -1225,6 +1225,12 @@ typedef enum {
 	OPT_ping_sock_max_size,
 	OPT_ping_sock_ops,
 
+	OPT_pinmem,
+	OPT_pinmem_bytes,
+	OPT_pinmem_cycle,
+	OPT_pinmem_method,
+	OPT_pinmem_ops,
+
 	OPT_pipe_data_size,
 	OPT_pipe_ops,
 	OPT_pipe_readers,

@@ -97,6 +97,43 @@ size_t stress_memory_page_size_get(void)
 }
 
 /*
+ *  stress_memory_available_get()
+ *	get linux MemAvailable information
+ */
+static size_t stress_memory_available_get(void)
+{
+#if defined(__linux__)
+	FILE *fp;
+	size_t availablemem = 0;
+	const size_t max_kb = ((size_t)1) << ((sizeof(max_kb) * 8) - 10);
+	char buf[1024];
+
+	fp = fopen("/proc/meminfo", "r");
+	if (!fp)
+		return availablemem;
+
+	(void)shim_memset(buf, 0, sizeof(buf));
+	while ((fgets(buf, sizeof(buf), fp)) != NULL) {
+		if (strncmp(buf, "MemAvailable:", 13) == 0) {
+			/*
+			 *  value is in KB, so set to ~0 if scaling to
+			 *  bytes will overflow.
+			 */
+			if (sscanf(buf + 13, "%zu", &availablemem) == 1)
+				availablemem = (availablemem >= max_kb) ? ~(size_t)0 : availablemem << 10;
+			else
+				availablemem = 0;
+			break;
+		}
+	}
+	(void)fclose(fp);
+	return availablemem;
+#else
+	return 0;
+#endif
+}
+
+/*
  *  stress_memory_info_get()
  *	wrapper for linux sysinfo
  */
@@ -122,6 +159,7 @@ int stress_memory_info_get(stress_memory_info_t *info)
 			info->freemem = s_info.freeram * s_info.mem_unit;
 			info->sharedmem = s_info.sharedram * s_info.mem_unit;
 			info->buffermem = s_info.bufferram * s_info.mem_unit;
+			info->availablemem = stress_memory_available_get();
 			info->totalswap = s_info.totalswap * s_info.mem_unit;
 			info->freeswap = s_info.freeswap * s_info.mem_unit;
 #if defined(__linux__)
@@ -160,6 +198,7 @@ int stress_memory_info_get(stress_memory_info_t *info)
 		info->freemem = page_size * stress_bsd_getsysctl_uint32("vm.stats.vm.v_free_count");
 		info->sharedmem = 0;
 		info->buffermem = 0;
+		info->availablemem = 0;
 		info->totalswap = 0;
 		info->freeswap = 0;
 		info->shmall = 0;
@@ -176,6 +215,7 @@ int stress_memory_info_get(stress_memory_info_t *info)
 			info->freemem = (size_t)u.free * u.pagesize;
 			info->sharedmem = 0;
 			info->buffermem = 0;
+			info->availablemem = 0;
 			info->totalswap = (size_t)u.swpages * u.pagesize;
 			info->freeswap = info->totalswap - (size_t)u.swpginuse * u.pagesize;
 			info->shmall = 0;
@@ -204,6 +244,7 @@ int stress_memory_info_get(stress_memory_info_t *info)
 			info->freemem = page_size * vm_stat.free_count;
 			info->sharedmem = 0;
 			info->buffermem = 0;
+			info->availablemem = 0;
 			info->totalswap = 0;
 			info->freeswap = 0;
 			info->shmall = 0;
@@ -237,6 +278,7 @@ char *stress_memory_free_get(void)
 	    (info.freemem == 0) &&
 	    (info.sharedmem == 0) &&
 	    (info.buffermem == 0) &&
+	    (info.availablemem == 0) &&
 	    (info.totalswap == 0) &&
 	    (info.freeswap == 0))
 		return buf;

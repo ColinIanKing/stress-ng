@@ -249,6 +249,7 @@
 	MACRO(physmmap)		\
 	MACRO(pidfd)		\
 	MACRO(ping_sock)	\
+	MACRO(pinmem)		\
 	MACRO(pipe)		\
 	MACRO(pipeherd)		\
 	MACRO(pkey)		\
