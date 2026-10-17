@@ -646,6 +646,9 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
  * [Cygwin madvise(): aliased to posix_madvise() but the error handling should differ](https://cygwin.com/pipermail/cygwin/2026-July/259872.html)
  * [mm/page_reporting: use system_freezable_wq to fix UAF during suspend](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=0b45f6927a14914ff685fe0e6f9d11232a1e03df)
  * [s390/cpum_cf: Handle CPU hotplug via prepare/dead callbacks](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=337bd95507a16063687cfc286ea90de5cca48c37)
+ * [mm/memcontrol: avoid false sharing between vmstats and events](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=c1afbd5de131f5e3c4fc7559acf055f8d9d86868)
+ * [s390/pai: Support CPU hotplug for PMU PAI](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id==9ecc4d033879f7761f2df07e20cd2fbec00fd90b)
+ * [powerpc/entry: Fix double accounting of user time on interrupt entry](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=11ae2e1dc58304a48816fc8ca4afa8f2ef9d1bdf)
 
 
 ## Kernel improvements that used stress-ng
