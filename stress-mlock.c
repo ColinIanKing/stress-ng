@@ -304,7 +304,8 @@ static int stress_mlock_child(stress_args_t *args, void *context)
 	size_t n;
 	uint8_t **mappings;
 	const size_t page_size = args->page_size;
-	size_t max = stress_mlock_max_lockable(), mappings_max;
+	size_t max = stress_mlock_max_lockable();
+	size_t mappings_max;
 	size_t mappings_len = max * sizeof(*mappings);
 	double mlock_duration = 0.0;
 	double mlock_count = 0.0;
