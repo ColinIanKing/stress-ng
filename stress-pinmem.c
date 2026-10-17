@@ -477,6 +477,6 @@ const stressor_info_t stress_pinmem_info = {
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.opts = opts,
-	.unimplemented_reason = "built without mlock() support or _POSIX_MEMLOCK_RANGE defined"
+	.unimplemented_reason = "built without io_uring, mlock() or madvise()"
 };
 #endif
