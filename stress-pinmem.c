@@ -33,15 +33,18 @@
     defined(HAVE_LINUX_IO_URING_H) &&		\
     defined(HAVE_IOVEC) &&			\
     defined(__NR_io_uring_setup) &&		\
-    defined(__NR_io_uring_register)
+    defined(__NR_io_uring_register) &&		\
+    defined(RLIMIT_MEMLOCK)
 #define USE_IO_URING
 #endif
 
-#if defined(MADV_POPULATE_WRITE)
+#if defined(MADV_POPULATE_WRITE) &&		\
+    defined(RLIMIT_MEMLOCK)
 #define USE_MADVISE
 #endif
 
-#if defined(HAVE_MLOCK)
+#if defined(HAVE_MLOCK) &&			\
+    defined(RLIMIT_MEMLOCK)
 #define USE_MLOCK
 #endif
 
@@ -477,6 +480,6 @@ const stressor_info_t stress_pinmem_info = {
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.opts = opts,
-	.unimplemented_reason = "built without io_uring, mlock() or madvise()"
+	.unimplemented_reason = "built without io_uring, mlock(), madvise() or rlimit RLIMIT_MLOCK"
 };
 #endif
