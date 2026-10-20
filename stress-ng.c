@@ -476,6 +476,16 @@ static void stress_drop_caches(void)
 }
 
 /*
+ *  stress_ksm_merge()
+ *	kernel same memory merge
+ */
+static void stress_ksm_merge(void)
+{
+	if (g_opt_flags & OPT_FLAGS_KSM)
+		stress_memory_ksm_merge(1);
+}
+
+/*
  *  stress_stats_hash_table_alloc()
  *	allocate a prime sized stress_stats_t hash table based
  *	on a hint of n elements
@@ -1678,9 +1688,7 @@ static int MLOCKED_TEXT stress_child_run(
 	stress_process_dumpable(false);
 	stress_timer_slack_set(false);
 
-	if (g_opt_flags & OPT_FLAGS_KSM)
-		stress_memory_ksm_merge(1);
-
+	stress_ksm_merge();
 	stress_drop_caches();
 
 	stress_proc_state_set(name, STRESS_STATE_INIT);
@@ -4633,9 +4641,7 @@ int main(int argc, char **argv, char **envp)
 		goto exit_stressors_free;
 	}
 
-	if (g_opt_flags & OPT_FLAGS_KSM)
-		stress_memory_ksm_merge(1);
-
+	stress_ksm_merge();
 	stress_oom_avoid_bytes_check();
 
 	stress_stressor_option("all", OPT_FLAGS_ALL, &opt_parallel);
