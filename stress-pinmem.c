@@ -451,6 +451,14 @@ static int stress_pinmem(stress_args_t *args)
 		goto unmap_context;
 	}
 
+	if (stress_instance_zero(args)) {
+		char str[64];
+
+		pr_inf("%s: using a default of %s pinned memory\n",
+			args->name,
+			stress_uint64_to_str(str, sizeof(str), (uint64_t)context->pinmem_bytes, 2, true));
+	}
+
 	rc = stress_oomable_child(args, (void *)context, stress_pinmem_child, STRESS_OOMABLE_NORMAL);
 
 unmap_context:
