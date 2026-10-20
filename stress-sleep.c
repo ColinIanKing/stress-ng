@@ -476,8 +476,11 @@ static int stress_sleep(stress_args_t *args)
 		ctxts[n].args = args;
 		ctxts[n].sleep_max = sleep_max;
 		ctxts[n].underruns = 0;
+#if defined(HAVE_SCHED_GETAFFINITY) &&  \
+    defined(HAVE_SCHED_SETAFFINITY)
 		ctxts[n].cpus = cpus;
 		ctxts[n].n_cpus = n_cpus;
+#endif
 		ctxts[n].sleep_affinity = sleep_affinity;
 		ret = pthread_create(&ctxts[n].pthread, NULL,
 			stress_pthread_func, &ctxts[n]);
