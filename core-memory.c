@@ -96,6 +96,9 @@ size_t stress_memory_page_size_get(void)
 	return page_size;
 }
 
+#if defined(HAVE_SYS_SYSINFO_H) &&	\
+    defined(HAVE_SYSINFO) &&		\
+    !defined(__fiwix)
 /*
  *  stress_memory_available_get()
  *	get linux MemAvailable information
@@ -132,6 +135,7 @@ static size_t stress_memory_available_get(void)
 	return 0;
 #endif
 }
+#endif
 
 /*
  *  stress_memory_info_get()
