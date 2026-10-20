@@ -1,6 +1,7 @@
 config
 config.h
 configs/
+apparmor-data.h
 core-config.c
 core-perf-event.h
 personality.h
