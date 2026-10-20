@@ -171,7 +171,7 @@ int stress_memory_info_get(stress_memory_info_t *info)
 			}
 #else
 			info->shmall = 0;
-			info->availmem = 0;
+			info->availablemem = 0;
 #endif
 		}
 		return 0;
