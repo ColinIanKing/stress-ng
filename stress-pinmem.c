@@ -67,8 +67,6 @@ typedef struct stress_pinmem_context {
 	bool pinmem_cycle;
 } stress_pinmem_context_t;
 
-static stress_memory_info_t mem_info;
-
 static const stress_help_t help[] = {
 	{ NULL,	"pinmem N",	   "start N workers pinning available memory" },
 	{ NULL, "pinmem-cycle",	   "cycle memory pinning/unpinning" },
@@ -248,6 +246,8 @@ static int stress_pinmem_unpin(stress_args_t *args, stress_pinmem_context_t *con
 #endif
 	return rc;
 }
+
+static stress_memory_info_t mem_info;
 
 static void stress_pinmem_init(const uint32_t instances)
 {
