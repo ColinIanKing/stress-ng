@@ -270,6 +270,7 @@ _stress_ng()
 	'--daemon-wait' | \
 	'--dentry-negative' | \
 	'--dev-alldev' | \
+	'--drop-caches' | \
 	'--dry-run' | \
 	'--epollmany-delete' | \
 	'--eventfd-nonblock' | \

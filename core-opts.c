@@ -303,10 +303,12 @@ const struct option stress_long_options[] = {
 	{ "dirmany-bytes",	1,	NULL,	OPT_dirmany_bytes },
 	{ "dirmany-ops",	1,	NULL,	OPT_dirmany_ops },
 
-	{ "dry-run",		0,	NULL,	OPT_dry_run },
-
 	{ "dnotify",		1,	NULL,	OPT_dnotify },
 	{ "dnotify-ops",	1,	NULL,	OPT_dnotify_ops },
+
+	{ "drop-caches",	0,	NULL,	OPT_drop_caches },
+
+	{ "dry-run",		0,	NULL,	OPT_dry_run },
 
 	{ "dup",		1,	NULL,	OPT_dup },
 	{ "dup-ops",		1,	NULL,	OPT_dup_ops },

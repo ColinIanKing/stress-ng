@@ -25,6 +25,7 @@
 #include "core-clocksource.h"
 #include "core-cpuidle.h"
 #include "core-config-check.h"
+#include "core-filesystem.h"
 #include "core-ftrace.h"
 #include "core-hash.h"
 #include "core-ignite-cpu.h"
@@ -181,6 +182,7 @@ static const stress_opt_flag_t opt_flags[] = {
 	{ OPT_c_states,		OPT_FLAGS_C_STATES, 0 },
 	{ OPT_change_cpu,	OPT_FLAGS_CHANGE_CPU, 0 },
 	{ OPT_dry_run,		OPT_FLAGS_DRY_RUN, 0 },
+	{ OPT_drop_caches,	OPT_FLAGS_DROP_CACHES, 0 },
 	{ OPT_exercised,	OPT_FLAGS_EXERCISED, 0 },
 	{ OPT_ftrace,		OPT_FLAGS_FTRACE, 0 },
 	{ OPT_ignite_cpu,	OPT_FLAGS_IGNITE_CPU, 0 },
@@ -364,6 +366,7 @@ static const stress_help_t help_generic[] = {
 	{ NULL,		"config",		"show build configuration settings" },
 	{ NULL,		"dentrystat S",		"show Linux dentry cache usage info every S seconds"  },
 	{ "n",		"dry-run",		"do not run" },
+	{ NULL,		"drop-caches",		"drop page cache, inode and dentry caches (Linux only)" },
 	{ NULL,		"exercised",		"show features, libraries and system calls used by a stressor" },
 	{ NULL,		"exercise-feature list","select stressors by a list of stress features" },
 	{ NULL,		"exercise-library list","select stressors by a list of libraries used" },
@@ -461,6 +464,16 @@ static const stress_help_t help_generic[] = {
 	{ "Y",		"yaml file",		"output results to YAML formatted file" },
 	{ NULL,		NULL,			NULL }
 };
+
+/*
+ *  stress_drop_caches()
+ *	drop drop page cache, inode and dentry caches
+ */
+static void stress_drop_caches(void)
+{
+	if (g_opt_flags & OPT_FLAGS_DROP_CACHES)
+		(void)stress_fs_drop_caches(STRESS_DROP_CACHE_ALL);
+}
 
 /*
  *  stress_stats_hash_table_alloc()
@@ -1667,6 +1680,8 @@ static int MLOCKED_TEXT stress_child_run(
 
 	if (g_opt_flags & OPT_FLAGS_KSM)
 		stress_memory_ksm_merge(1);
+
+	stress_drop_caches();
 
 	stress_proc_state_set(name, STRESS_STATE_INIT);
 	stress_mwc_reseed();
@@ -4887,6 +4902,7 @@ int main(int argc, char **argv, char **envp)
 #endif
 
 	stress_clear_warn_once();
+	stress_drop_caches();
 	stress_stressors_init();
 
 	/* Start thrasher process if required */

@@ -83,7 +83,7 @@
 #define OPT_FLAGS_MAKE_IT_FAIL	 STRESS_BIT_ULL(51)	/* --make-it-fail */
 #define OPT_FLAGS_EXERCISED	 STRESS_BIT_ULL(52)	/* --exercised */
 #define OPT_FLAGS_IOS		 STRESS_BIT_ULL(53)	/* --ios */
-#define OPT_FLAGS_SPARE_54	 STRESS_BIT_ULL(54)
+#define OPT_FLAGS_DROP_CACHES	 STRESS_BIT_ULL(54)	/* --drop-caches */
 #define OPT_FLAGS_SPARE_55	 STRESS_BIT_ULL(55)
 
 #define OPT_FLAGS_SPARE_56	 STRESS_BIT_ULL(56)
@@ -431,6 +431,8 @@ typedef enum {
 
 	OPT_dnotify,
 	OPT_dnotify_ops,
+
+	OPT_drop_caches,
 
 	OPT_dup,
 	OPT_dup_ops,

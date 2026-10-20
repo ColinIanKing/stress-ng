@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "14 October 2026"
+.TH STRESS-NG 1 "20 October 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -134,6 +134,10 @@ fragmentation, requires root capability (Linux only).
 .TP
 .B \-\-config
 print out the configuration used to build stress\-ng.
+.TP
+.B \-\-drop\-caches
+drop the page cache, inode and dentry caches before each stressor instance is
+invoked (Linux only, needs root privilege).
 .TP
 .B \-n, \-\-dry\-run
 parse options, but do not run stress tests. A no-op.
