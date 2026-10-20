@@ -297,7 +297,7 @@ Send patches to colin.i.king@gmail.com or merge requests at
 https://github.com/stress-ng/stress-ng
 
 ## Quick Start Reference Guide
-The [Ubuntu stress-ng reference guide](https://wiki.ubuntu.com/Kernel/Reference/stress-ng)
+The [stress-ng QUICKSTART.md reference guide](./QUICKSTART.md)
 contains a brief overview and worked examples.
 
 ## Examples

@@ -1058,7 +1058,7 @@ dist:
 	mkdir stress-ng-$(VERSION)
 	cp -rp Makefile Makefile.config $(CORE_SRC) \
 		$(STRESS_SRC) $(HEADERS) stress-ng.1 COPYING syscalls.txt \
-		mascot README.md CITATIONS.md \
+		mascot README.md CITATIONS.md QUICKSTART.md \
 		Dockerfile README.Android test \
 		presentations .github TODO core-perf-event.c \
 		usr.bin.pulseaudio.eg stress-eigen-ops.c \
