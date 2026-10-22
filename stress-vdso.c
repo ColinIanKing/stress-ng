@@ -211,6 +211,44 @@ static stress_vdso_func_t func_find(const char *name)
 }
 
 /*
+ *  dl_wrapback_add_sym()
+ *	check a symtab entry and, if it's a vDSO function we can wrap,
+ *	add it to the list of wrapable vDSO functions
+ */
+static int dl_wrapback_add_sym(const ElfW(Sym) *sym, char *strtab, void *load_offset)
+{
+	char *name = strtab + sym->st_name;
+	stress_vdso_func_t func;
+	stress_vdso_sym_t *vdso_sym;
+
+	if ((ELF64_ST_TYPE(sym->st_info) != STT_FUNC) ||
+	    ((ELF64_ST_BIND(sym->st_info) != STB_GLOBAL) &&
+	     (ELF64_ST_BIND(sym->st_info) != STB_WEAK)) ||
+	    (sym->st_shndx == SHN_UNDEF))
+		return 0;
+
+	/*
+	 *  Do we have a wrapper for this function?
+	 */
+	func = func_find(name);
+	if (!func)
+		return 0;
+
+	vdso_sym = (stress_vdso_sym_t *)calloc(1, sizeof(*vdso_sym));
+	if (vdso_sym == NULL)
+		return -1;
+
+	vdso_sym->name = name;
+	vdso_sym->addr = (void *)(sym->st_value + (uintptr_t)load_offset);
+	vdso_sym->func = func;
+	vdso_sym->dummy_func = wrap_dummy;
+	vdso_sym->next = vdso_sym_list;
+	vdso_sym_list = vdso_sym;
+
+	return 0;
+}
+
+/*
  *  dl_wrapback()
  *	find vDSO symbols
  */
@@ -232,11 +270,13 @@ static int dl_wrapback(struct dl_phdr_info* info, size_t info_size, void *vdso)
 			ElfW(Dyn) *dyn;
 			ElfW(Dyn) *dyn_start;
 			ElfW(Word) *hash = NULL;
+			const uint32_t *gnu_hash = NULL;
 			ElfW(Word) j;
 			ElfW(Word) buckets = 0;
 			const ElfW(Word *) bucket = NULL;
 			const ElfW(Word *) chain = NULL;
 			char *strtab = NULL;
+			ElfW(Sym) *symtab = NULL;
 
 			if (!load_offset)
 				continue;
@@ -247,7 +287,7 @@ static int dl_wrapback(struct dl_phdr_info* info, size_t info_size, void *vdso)
 			dyn_start = (ElfW(Dyn) *)(info->dlpi_addr +  info->dlpi_phdr[i].p_vaddr);
 
 			/*
-			 *  Find hash table and strtab first
+			 *  Find hash table(s), strtab and symtab first
 			 */
 			for (dyn = dyn_start; dyn->d_tag != DT_NULL; dyn++) {
 				switch (dyn->d_tag) {
@@ -257,64 +297,69 @@ static int dl_wrapback(struct dl_phdr_info* info, size_t info_size, void *vdso)
 					bucket = &hash[2];
 					chain = &hash[buckets + 2];
 					break;
+				case DT_GNU_HASH:
+					gnu_hash = (const uint32_t *)(dyn->d_un.d_ptr + info->dlpi_addr);
+					break;
 				case DT_STRTAB:
 					strtab = (char *)(dyn->d_un.d_ptr + info->dlpi_addr);
+					break;
+				case DT_SYMTAB:
+					symtab = (ElfW(Sym *))(dyn->d_un.d_ptr + info->dlpi_addr);
 					break;
 				default:
 					break;
 				}
 			}
 
-			/* No hash table or strtab, abort symbol search */
-			if ((!hash) || (!strtab))
-				return 0;
+			/* No symtab or strtab, abort symbol search */
+			if ((!symtab) || (!strtab))
+				continue;
 
-			for (dyn = dyn_start; dyn->d_tag != DT_NULL; dyn++) {
-				if (dyn->d_tag == DT_SYMTAB) {
-					ElfW(Sym) *symtab = (ElfW(Sym *))(dyn->d_un.d_ptr + info->dlpi_addr);
+			if (hash) {
+				/*
+				 *  Classic ELF hash table: scan through all the chains
+				 *  in each bucket looking for relevant symbols
+				 */
+				for (j = 0; j < buckets; j++) {
+					ElfW(Word) ch;
 
-					/*
-					 *  Scan through all the chains in each bucket looking
-					 *  for relevant symbols
-					 */
-					for (j = 0; j < buckets; j++) {
-						ElfW(Word) ch;
-
-						for (ch = bucket[j]; ch != STN_UNDEF; ch = chain[ch]) {
-							const ElfW(Sym) *sym = &symtab[ch];
-							stress_vdso_sym_t *vdso_sym;
-							char *name = strtab + sym->st_name;
-							stress_vdso_func_t func;
-
-							if ((ELF64_ST_TYPE(sym->st_info) != STT_FUNC) ||
-							    ((ELF64_ST_BIND(sym->st_info) != STB_GLOBAL) &&
-							     (ELF64_ST_BIND(sym->st_info) != STB_WEAK)) ||
-							    (sym->st_shndx == SHN_UNDEF))
-								continue;
-
-							/*
-							 *  Do we have a wrapper for this function?
-							 */
-							func = func_find(name);
-							if (!func)
-								continue;
-
-							/*
-							 *  Add to list of wrapable vDSO functions
-							 */
-							vdso_sym = (stress_vdso_sym_t *)calloc(1, sizeof(*vdso_sym));
-							if (vdso_sym == NULL)
-								return -1;
-
-							vdso_sym->name = name;
-							vdso_sym->addr = (void *)(sym->st_value + (uintptr_t)load_offset);
-							vdso_sym->func = func;
-							vdso_sym->dummy_func = wrap_dummy;
-							vdso_sym->next = vdso_sym_list;
-							vdso_sym_list = vdso_sym;
-						}
+					for (ch = bucket[j]; ch != STN_UNDEF; ch = chain[ch]) {
+						if (dl_wrapback_add_sym(&symtab[ch], strtab, load_offset) < 0)
+							return -1;
 					}
 				}
+			} else if (gnu_hash) {
+				/*
+				 *  GNU hash table: symbols from symoffset onwards are
+				 *  covered by the parallel chain array, the low bit of
+				 *  a chain hash value marks the end of a bucket's chain
+				 */
+				const uint32_t nbuckets = gnu_hash[0];
+				const uint32_t symoffset = gnu_hash[1];
+				const uint32_t bloom_size = gnu_hash[2];
+				const uint32_t *gnu_buckets = gnu_hash + 4 +
+					(bloom_size * (sizeof(ElfW(Addr)) / sizeof(uint32_t)));
+				const uint32_t *gnu_chain = gnu_buckets + nbuckets;
+
+				for (j = 0; j < nbuckets; j++) {
+					uint32_t sym_idx = gnu_buckets[j];
+
+					if (sym_idx < symoffset)
+						continue;
+
+					for (;;) {
+						const uint32_t hashval = gnu_chain[sym_idx - symoffset];
+
+						if (dl_wrapback_add_sym(&symtab[sym_idx], strtab, load_offset) < 0)
+							return -1;
+						if (hashval & 1)
+							break;
+						sym_idx++;
+					}
+				}
+			} else {
+				/* No usable hash table, abort symbol search */
+				continue;
 			}
 		}
 	}
