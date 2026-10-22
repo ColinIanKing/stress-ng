@@ -262,7 +262,7 @@ static void stress_madvise_opts_show(void)
 	for (i = 0; i < SIZEOF_ARRAY(madvise_random_options); i++)
 		opts[i] = madvise_random_options[i].name;
 
-	qsort_bm(opts, SIZEOF_ARRAY(opts), sizeof(char *), stress_sort_cmp_str);
+	shim_qsort(opts, SIZEOF_ARRAY(opts), sizeof(char *), stress_sort_cmp_str);
 
 	(void)fprintf(stderr, "supported advice:");
 	for (i = 0; i < SIZEOF_ARRAY(madvise_random_options); i++)
