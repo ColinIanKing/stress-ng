@@ -101,7 +101,12 @@ size_t stress_memory_page_size_get(void)
     !defined(__fiwix)
 /*
  *  stress_memory_available_get()
- *	get linux MemAvailable information
+ *	get linux MemAvailable information, this is an estimate
+ *	of the amount of memory available for userspace allocations,
+ *	without causing swapping or OOM, see si_mem_available() in
+ *	Linux mm/show_mem.c
+ *	Note this cannot be determined sysinfo(), we have to parse
+ *	the slower /proc/meminfo interface.
  */
 static size_t stress_memory_available_get(void)
 {
