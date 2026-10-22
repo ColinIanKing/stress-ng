@@ -1346,7 +1346,7 @@ static int OPTIMIZE3 stress_v4l2(stress_args_t *args)
 
 	if (stress_instance_zero(args)) {
 		/* show device and driver info */
-		qsort_bm(devs, n_devs, sizeof(stress_v4l2_dev_t), stress_v4l2_dev_cmp);
+		shim_qsort(devs, n_devs, sizeof(stress_v4l2_dev_t), stress_v4l2_dev_cmp);
 		pr_inf("%s: %-18.18s %s\n", args->name, "device", "driver");
 		for (i = 0; i < n_devs; i++)
 			pr_inf("%s: %-18.18s %s\n", args->name, devs[i].path, devs[i].driver);
