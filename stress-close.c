@@ -241,6 +241,12 @@ static void *stress_close_func(void *arg)
 		if (valid_fd >= 0)
 			VOID_RET(int, close(valid_fd));
 
+#if defined(CLOSE_RANGE_EXCEPT)
+		VOID_RET(int, shim_close_range(0, FDS_START - 1, CLOSE_RANGE_EXCEPT));
+#endif
+#if defined(CLOSE_RANGE_CLOEXEC_ONLY)
+		VOID_RET(int, shim_close_range(FDS_START, FDS_START + FDS_TO_DUP, CLOSE_RANGE_CLOEXEC_ONLY));
+#endif
 		/*
 		 *  close a range of fds (valid_fd has alwready been closed
 		 *  so this checks that a single fd close failure doesn't
