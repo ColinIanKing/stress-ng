@@ -154,7 +154,7 @@ static size_t stress_v4l2_devs_get(
 	if (i == 0)
 		goto dp_close;
 
-	new_devs = calloc(i, sizeof(*new_devs));
+	new_devs = (stress_v4l2_dev_t *)calloc(i, sizeof(*new_devs));
 	if (!new_devs) {
 		pr_inf_skip("%s: failed to allocate %zu video device structures, skipping stressor\n",
 			args->name, i);
