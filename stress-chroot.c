@@ -120,13 +120,44 @@ static void do_chroot(
 	int *errno1,
 	int *errno2)
 {
+#if defined(HAVE_FCHROOT) ||	\
+    defined(__NR_fchroot)
+	static bool fchroot_supported = true;
+#endif
 	double t1;
 	double t2;
+
+#if defined(HAVE_FCHROOT) ||	\
+    defined(__NR_fchroot)
+	if (fchroot_supported && stress_mwc1()) {
+		int fd;
+
+		fd = open(path, O_RDONLY | O_DIRECTORY);
+		if (fd >= 0)  {
+			errno = 0;
+			t1 = stress_time_now();
+			*ret1 = shim_fchroot(fd, 0);
+			*errno1 = errno;
+			t2 = stress_time_now();
+			(void)close(fd);
+
+			if (*ret1 != -1)
+				goto chroot_check;
+			if (*errno1 == ENOSYS)
+				fchroot_supported = false;
+		}
+	}
+#endif
 
 	t1 = stress_time_now();
 	*ret1 = chroot(path);
 	*errno1 = errno;
 	t2 = stress_time_now();
+
+#if defined(HAVE_FCHROOT) ||	\
+    defined(__NR_fchroot)
+chroot_check:
+#endif
 	if (*ret1 == 0) {
 		data->metrics.duration += t2 - t1;
 		data->metrics.count += 1.0;
@@ -481,6 +512,9 @@ static int stress_chroot(stress_args_t *args)
 	do {
 		pid_t pid;
 
+		/* force next random bit */
+		(void)stress_mwc1();
+
 		pid = stress_retry_fork(args, 0);
 		if (pid < 0) {
 			if (UNLIKELY(!stress_continue(args)))
@@ -546,6 +580,10 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("vmalloc"),
 
 	STRESS_EX_SYSCALL("chroot"),
+#if defined(HAVE_FCHROOT) ||	\
+    defined(__NR_fchroot)
+	STRESS_EX_SYSCALL("fchroot"),
+#endif
 
 	STRESS_EX_END,
 };
