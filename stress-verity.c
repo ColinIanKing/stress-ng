@@ -245,6 +245,10 @@ static int stress_verity(stress_args_t *args)
 				args->name, filename, errno, strerror(errno));
 			goto clean;
 		}
+#if defined(HAVE_READAHEAD)
+		 VOID_RET(ssize_t, readahead(fd, 0, OFFSET_CHUNKS * OFFSET_SCALE));
+#endif
+
 		for (i = 0; i < OFFSET_CHUNKS; i++) {
 			const off_t off = (off_t)i * OFFSET_SCALE;
 			ssize_t n;
