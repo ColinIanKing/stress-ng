@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-mmap.h"
 
 #include <sys/ioctl.h>
 
@@ -108,6 +109,7 @@ static int stress_verity(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 	do {
+		void *mapping;
 		char block[512];
 		char digest_buf[256];
 		struct fsverity_enable_arg enable;
@@ -246,7 +248,7 @@ static int stress_verity(stress_args_t *args)
 			goto clean;
 		}
 #if defined(HAVE_READAHEAD)
-		 VOID_RET(ssize_t, readahead(fd, 0, OFFSET_CHUNKS * OFFSET_SCALE));
+		VOID_RET(ssize_t, readahead(fd, 0, OFFSET_CHUNKS * OFFSET_SCALE));
 #endif
 
 		for (i = 0; i < OFFSET_CHUNKS; i++) {
@@ -286,6 +288,11 @@ static int stress_verity(stress_args_t *args)
 #else
 		UNEXPECTED
 #endif
+
+		mapping = stress_mmap_populate(NULL, OFFSET_CHUNKS * OFFSET_SCALE,
+				PROT_READ, MAP_PRIVATE, fd, 0);
+		if (mapping != MAP_FAILED)
+			(void)munmap(mapping, OFFSET_CHUNKS * OFFSET_SCALE);
 
 		(void)close(fd);
 		(void)shim_unlink(filename);
