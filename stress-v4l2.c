@@ -41,6 +41,7 @@ static const stress_help_t help[] = {
 typedef struct stress_v4l2_dev {
 	char *path;
 	char driver[32];
+	int open_errno;
 } stress_v4l2_dev_t;
 
 typedef int (*stress_v4l2_func_t)(stress_args_t *args, const int fd, stress_v4l2_dev_t *dev);
@@ -1275,8 +1276,10 @@ static int stress_v4l2_dev(stress_args_t *args, stress_v4l2_dev_t *dev)
 	int fd;
 
 	fd = open(dev->path, O_RDWR);
-	if (fd < 0)
+	if (fd < 0) {
+		dev->open_errno = errno;
 		return -1;
+	}
 	for (j = 0; (j < SIZEOF_ARRAY(stress_v4l2_funcs)) && stress_continue(args); j++) {
 		stress_bogo_inc(args);
 		stress_v4l2_funcs[j](args, fd, dev);
@@ -1308,6 +1311,7 @@ static int OPTIMIZE3 stress_v4l2(stress_args_t *args)
 	size_t i;
 	size_t n_devs;
 	stress_v4l2_dev_t *devs = NULL;
+	char *msg = "";
 
 	n_devs = stress_v4l2_devs_get(args, &devs);
 	if (n_devs == 0) {
@@ -1320,12 +1324,25 @@ static int OPTIMIZE3 stress_v4l2(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 	do {
+		size_t open_fail = 0;
+
 		for (i = 0; (i < n_devs) && stress_continue(args); i++) {
 			stress_v4l2_dev(args, &devs[i]);
 		}
+		for (i = 0; i < n_devs; i++) {
+			if (devs[i].open_errno == EACCES)
+				msg = " (access denied, re-run as root)";
+			if (devs[i].open_errno)
+				open_fail++;
+		}
+		if (open_fail == n_devs) {
+			pr_inf_skip("%s: failed to open /dev/video devices%s, skipping stressor\n",
+				args->name, msg);
+			rc = EXIT_NO_RESOURCE;
+			goto deinit;
+		}
 	} while (stress_continue(args));
 
-	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
 	if (stress_instance_zero(args)) {
 		/* show device and driver info */
@@ -1334,6 +1351,9 @@ static int OPTIMIZE3 stress_v4l2(stress_args_t *args)
 		for (i = 0; i < n_devs; i++)
 			pr_inf("%s: %-18.18s %s\n", args->name, devs[i].path, devs[i].driver);
 	}
+
+deinit:
+	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
 devs_free:
 	stress_v4l2_devs_free(devs, n_devs);
