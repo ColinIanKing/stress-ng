@@ -3322,3 +3322,17 @@ int shim_getpwuid_r(
 #endif
 }
 
+/*
+ *  shim_fchroot()
+ *  	shim wrapper around the Linux 7.2 fchroot system call
+ */
+int shim_fchroot(int fd, unsigned int flags)
+{
+#if defined(HAVE_FCHROOT)
+	return fchroot(fd, flags);
+#elif defined(__NR_fchroot)
+	return (int)syscall(__NR_fchroot, fd, flags);
+#else
+	return (int)shim_enosys(0, fd, flags);
+#endif
+}

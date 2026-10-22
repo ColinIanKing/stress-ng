@@ -830,5 +830,6 @@ extern struct tm *shim_localtime_r(const time_t *timep,
 	struct tm *result);
 extern int shim_getpwuid_r(uid_t uid, struct passwd *pwd, char *buf,
         size_t size, struct passwd **result);
+extern int shim_fchroot(int fd, unsigned int flags);
 
 #endif
