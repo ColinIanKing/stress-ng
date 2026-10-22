@@ -1784,6 +1784,9 @@ const struct option stress_long_options[] = {
 	{ "utime-fsync",	0,	NULL,	OPT_utime_fsync },
 	{ "utime-ops",		1,	NULL,	OPT_utime_ops },
 
+	{ "v4l2",		1,	NULL,	OPT_v4l2 },
+	{ "v4l2-ops",		1,	NULL,	OPT_v4l2_ops },
+
 	{ "varyload",		1,	NULL,	OPT_varyload },
 	{ "varyload-method",	1,	NULL,	OPT_varyload_method },
 	{ "varyload-ms",	1,	NULL,	OPT_varyload_ms },

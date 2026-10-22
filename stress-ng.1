@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "20 October 2026"
+.TH STRESS-NG 1 "22 October 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -445,6 +445,9 @@ translation lookaside buffer flushes
 T}
 user-time	T{
 around 99% or more execution time in user space
+T}
+v4l2	T{
+video for linux (version 2) exercising
 T}
 virt	T{
 virtual machine operations
@@ -10850,6 +10853,17 @@ writes.
 .TP
 .B \-\-utime\-ops N
 stop utime stress workers after N utime bogo operations.
+.RE
+.TP
+.B Video for Linux version 2 stressor
+.RS 5
+.TQ
+.B \-\-v4l2 N
+start N workers that exercise various v4l2 ioctl commands on all /dev/video 
+devices using valid and invalid arguements.
+.TP
+.B \-\-v4l2\-ops N
+stop after N v4l2 ioctl bogo operations.
 .RE
 .TP
 .B Varying load stressor

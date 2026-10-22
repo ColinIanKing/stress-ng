@@ -1862,6 +1862,9 @@ typedef enum {
 	OPT_utime_fsync,
 	OPT_utime_ops,
 
+	OPT_v4l2,
+	OPT_v4l2_ops,
+
 	OPT_varyload,
 	OPT_varyload_method,
 	OPT_varyload_ms,

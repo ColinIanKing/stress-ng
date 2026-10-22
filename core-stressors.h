@@ -389,6 +389,7 @@
 	MACRO(userfaultfd)	\
 	MACRO(usersyscall)	\
 	MACRO(utime)		\
+	MACRO(v4l2)		\
 	MACRO(varyload)		\
 	MACRO(vdso)		\
 	MACRO(veccmp)		\
