@@ -207,7 +207,14 @@ int stress_memory_info_get(stress_memory_info_t *info)
 		info->freemem = page_size * stress_bsd_getsysctl_uint32("vm.stats.vm.v_free_count");
 		info->sharedmem = 0;
 		info->buffermem = 0;
-		info->availablemem = 0;
+		/*
+		 *  free mem is guaranteed to be free and inactive
+		 *  is reclaimable under pressure, so use both for
+		 *  availablemem, as per 'top' measurements.
+		 */
+		info->availablemem = page_size *
+			 (stress_bsd_getsysctl_uint32("vm.stats.vm.v_free_count") +
+			  stress_bsd_getsysctl_uint32("vm.stats.vm.v_inactive_count"));
 		info->totalswap = 0;
 		info->freeswap = 0;
 		info->shmall = 0;
@@ -223,7 +230,7 @@ int stress_memory_info_get(stress_memory_info_t *info)
 			info->totalmem = (size_t)u.npages * u.pagesize;
 			info->freemem = (size_t)u.free * u.pagesize;
 			info->sharedmem = 0;
-			info->buffermem = 0;
+			info->buffermem = (size_t)u.filepages * u.pagesize;
 			info->availablemem = 0;
 			info->totalswap = (size_t)u.swpages * u.pagesize;
 			info->freeswap = info->totalswap - (size_t)u.swpginuse * u.pagesize;
@@ -254,6 +261,7 @@ int stress_memory_info_get(stress_memory_info_t *info)
 			info->sharedmem = 0;
 			info->buffermem = 0;
 			info->availablemem = 0;
+			info->availablemem = page_size * (vm_stat.free_count + vm_stat.inactive_count);
 			info->totalswap = 0;
 			info->freeswap = 0;
 			info->shmall = 0;
