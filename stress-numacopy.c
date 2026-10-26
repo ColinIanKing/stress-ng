@@ -399,7 +399,7 @@ static int stress_numanode_cpus(
 				count++;
 			}
 		}
-		numa_cpus[node].cpus = calloc((size_t)count, sizeof(*numa_cpus[node].cpus));
+		numa_cpus[node].cpus = (uint32_t *)calloc((size_t)count, sizeof(*numa_cpus[node].cpus));
 		if (!numa_cpus[node].cpus) {
 			free(cpus);
 			return -1;
@@ -483,7 +483,7 @@ static int stress_numacopy(stress_args_t *args)
 	}
 
 	if (affinity != NUMACOPY_AFFINITY_NONE) {
-		numa_cpus = calloc((size_t)max_cpus, sizeof(*numa_cpus));
+		numa_cpus = (stress_numacopy_cpus_t *)calloc((size_t)max_cpus, sizeof(*numa_cpus));
 		if (!numa_cpus) {
 			pr_inf_skip("%s: cannot allocate %" PRId32 " NUMA CPU structures, "
 				"skipping stressor\n", args->name, max_cpus);
