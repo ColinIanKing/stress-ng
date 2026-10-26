@@ -486,13 +486,13 @@ static int stress_tlb_numa(stress_args_t *args)
 	/*
 	 *  allocate pages array to point to even mmap'd pages
 	 */
-	tlb_numa.pages1 = calloc(tlb_numa.mmap_pages, sizeof(uint8_t *));
+	tlb_numa.pages1 = (uint8_t **)calloc(tlb_numa.mmap_pages, sizeof(uint8_t *));
 	if (!tlb_numa.pages1) {
 		pr_inf_skip("%s: allocate %zu pointers failed%s, skipping stressor\n",
 			args->name, tlb_numa.mmap_pages, stress_memory_free_get());
 		return EXIT_NO_RESOURCE;
 	}
-	tlb_numa.pages2 = calloc(tlb_numa.mmap_pages, sizeof(uint8_t *));
+	tlb_numa.pages2 = (uint8_t **)calloc(tlb_numa.mmap_pages, sizeof(uint8_t *));
 	if (!tlb_numa.pages2) {
 		pr_inf_skip("%s: allocate %zu pointers failed%s, skipping stressor\n",
 			args->name, tlb_numa.mmap_pages, stress_memory_free_get());
