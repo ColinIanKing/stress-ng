@@ -364,7 +364,7 @@ static int stress_pinmem_child(stress_args_t *args, void *child_context)
 		context->nr_iovecs = (context->buf_size + STRESS_GB - 1) / STRESS_GB;
 		if (UNLIKELY(context->nr_iovecs < 1))
 			context->nr_iovecs = 1;
-		context->iovecs = calloc(context->nr_iovecs, sizeof(*context->iovecs));
+		context->iovecs = (struct iovec *)calloc(context->nr_iovecs, sizeof(*context->iovecs));
 		if (!context->iovecs) {
 			pr_inf_skip("%s: failed to allocate %zu iovecs, skipping stressor\n",
 				args->name, context->nr_iovecs);
