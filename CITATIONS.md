@@ -235,6 +235,7 @@
  * [FlexServe: A Fast and Secure LLM Serving System for Mobile Devices with Flexible Resource Isolation](https://arxiv.org/html/2603.09046v1)
  * [Graph Neural Networks for Anomaly Detection in Cloud Infrastructure](https://www.scirp.org/journal/paperinformation?paperid=146528)
  * [GreenPipe: Power Modeling for Containerized DNN Inference on Kubernetes Edge Nodes](https://arxiv.org/html/2609.04952v1)
+ * [GPU-resident Execution for Timing-predictable Sensor Processing Systems](https://arxiv.org/html/2610.13809v1)
  * [Ichnos+: Estimating the Carbon Footprint of Scientific Workflows Using Fitted Power Models](https://arxiv.org/html/2607.10586v1)
  * [IOLeak: Side-channel Information Leakage by Monitoring CPU Frequency Scaling through I/Os](https://dl.acm.org/doi/10.1145/3830017)
  * [K8S Power Irrigation: Deep Reinforcement Learning for Performance-Aware Power Efficiency of Kubernetes Cloud-Native Microservices](https://arxiv.org/html/2605.25218v1)
@@ -257,3 +258,4 @@
  * [UnICom: A Universally High-Performant I/O Completion Mechanism for Modern Computer Systems](https://www.usenix.org/system/files/fast26-pan.pdf)
  * [Verification and Validation (V&V)-in-the-Loop for RISC-V Design: The Holistic Vision of BZL](https://arxiv.org/html/2604.27013v1)
  * [Wire-Level Interrupt-to-Decision Latency of On-Sensor MLC versus Host Inference on the NVIDIA Jetson Orin Nano: A Pre-Registered Measurement Study](https://arxiv.org/pdf/2606.00524)
+
