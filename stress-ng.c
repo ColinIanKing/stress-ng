@@ -2369,7 +2369,7 @@ static void stress_exercise_dump(FILE *yaml)
 					continue;
 				}
 
-				array = calloc(n, sizeof(*array));
+				array = (char **)calloc(n, sizeof(*array));
 				if (!array)
 					continue;
 
@@ -2382,7 +2382,7 @@ static void stress_exercise_dump(FILE *yaml)
 
 				shim_qsort(array, n, sizeof(*array), stress_sort_cmp_str);
 
-				str = calloc(len, sizeof(*str));
+				str = (char *)calloc(len, sizeof(*str));
 				if (!str) {
 					free(array);
 					continue;
@@ -3514,7 +3514,7 @@ static inline void stress_random_stressors_set(void)
 		stress_list_item_t *item;
 		size_t n_items;
 
-		items = calloc(stress_stressor_list.n_items, sizeof(*items));
+		items = (stress_list_item_t **)calloc(stress_stressor_list.n_items, sizeof(*items));
 		if (!items) {
 			(void)fprintf(stderr, "allocate %zu stressor items failed\n",
 				stress_stressor_list.n_items);
@@ -3804,7 +3804,7 @@ static void stress_exercises_features_unique(
 			    (stress_feature_tree_find(root, name) == NULL)) {
 				stress_feature_tree_t *node;
 
-				node = calloc(1, sizeof(*node));
+				node = (stress_feature_tree_t *)calloc(1, sizeof(*node));
 				if (!node)
 					break;
 				node->name = name;
@@ -3814,7 +3814,7 @@ static void stress_exercises_features_unique(
 		}
 	}
 
-	str = calloc(len, sizeof(*str));
+	str = (char *)calloc(len, sizeof(*str));
 	if (!str) {
 		(void)fprintf(stderr, "option %s feature '%s' not known\n", opt, feature);
 		return;
@@ -3859,7 +3859,7 @@ static void stress_exercises_detail_show(
 			if (n == 0)
 				continue;
 
-			array = calloc(n, sizeof(*array));
+			array = (char **)calloc(n, sizeof(*array));
 			if (!array)
 				continue;
 
@@ -3872,7 +3872,7 @@ static void stress_exercises_detail_show(
 
 			shim_qsort(array, n, sizeof(*array), stress_sort_cmp_str);
 
-			newstr = calloc(len, sizeof(*newstr));
+			newstr = (char *)calloc(len, sizeof(*newstr));
 			if (!newstr) {
 				free(array);
 				continue;
