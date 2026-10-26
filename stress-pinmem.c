@@ -62,6 +62,8 @@ typedef struct stress_pinmem_context {
 	size_t pinmem_method;
 	size_t nr_iovecs;
 	size_t buf_size;
+	double mincore_pages_incore;
+	double mincore_pages_total;
 	uint64_t count;
 	int io_uring_fd;
 	bool pinmem_cycle;
@@ -256,6 +258,39 @@ static void stress_pinmem_init(const uint32_t instances)
 	(void)stress_memory_info_get(&mem_info);
 }
 
+/*
+ *  stress_pinmem_mincore()
+ *	keep a tally of pages physically mapped
+ */
+static void OPTIMIZE3 stress_pinmem_mincore(
+	stress_pinmem_context_t *context,
+	const size_t page_size)
+{
+	unsigned char vec[65536];
+	const size_t vec_pages = sizeof(vec) * page_size;
+	uintptr_t ptr = (uintptr_t)context->buf;
+	const uintptr_t ptr_end = ptr + context->buf_size;
+	register size_t count = 0;
+
+	while (ptr < ptr_end) {
+		const size_t residual = (ptr_end - ptr);
+		const size_t size = STRESS_MINIMUM(residual, vec_pages);
+		int ret;
+
+		ret = shim_mincore(context->buf, size, vec);
+		if (LIKELY(ret == 0)) {
+			register size_t i;
+
+			for (i = 0; i < size / page_size; i++)
+				count += vec[i];
+		} else
+			return;	/* mincore fail */
+		ptr += size;
+	}
+	context->mincore_pages_incore += (double)count;
+	context->mincore_pages_total += (double)context->buf_size / page_size;
+}
+
 static int stress_pinmem_child(stress_args_t *args, void *child_context)
 {
 	stress_pinmem_context_t *context = (stress_pinmem_context_t *)child_context;
@@ -354,6 +389,8 @@ static int stress_pinmem_child(stress_args_t *args, void *child_context)
 				break;
 			}
 			stress_mmap_set_light(context->buf, context->buf_size, page_size);
+			stress_pinmem_mincore(context, page_size);
+			shim_sched_yield();
 			if (stress_pinmem_unpin(args, context) < 0) {
 				rc = EXIT_FAILURE;
 				break;
@@ -367,6 +404,7 @@ static int stress_pinmem_child(stress_args_t *args, void *child_context)
 		}
 		do {
 			stress_mmap_set_light(context->buf, context->buf_size, page_size);
+			stress_pinmem_mincore(context, page_size);
 			shim_sched_yield();
 			stress_bogo_inc(args);
 		} while (stress_continue(args));
@@ -395,6 +433,7 @@ static int stress_pinmem(stress_args_t *args)
 	stress_pinmem_context_t *context;
 	size_t pinmem_bytes;
 	int rc;
+	double pc;
 
 	if (mem_info.availablemem == 0) {
 		pr_inf("%s: failed to determine memory sizes, skipping stressor\n",
@@ -421,6 +460,8 @@ static int stress_pinmem(stress_args_t *args)
 	context->pinmem_cycle = false;
 	context->pinmem_bytes = pinmem_bytes;
 	context->pinmem_method = PINMEM_METHOD_IO_URING;
+	context->mincore_pages_incore = 0.0;
+	context->mincore_pages_total = 0.0;
 
 	(void)stress_setting_get("pinmem-cycle", &context->pinmem_cycle);
 	(void)stress_setting_get("pinmem-method", &context->pinmem_method);
@@ -460,6 +501,10 @@ static int stress_pinmem(stress_args_t *args)
 	}
 
 	rc = stress_oomable_child(args, (void *)context, stress_pinmem_child, STRESS_OOMABLE_NORMAL);
+
+	pc = (context->mincore_pages_total > 0.0) ?
+		(context->mincore_pages_incore * 100.0) / context->mincore_pages_total: 0.0;
+	stress_metrics_set(args, "% pages physically mapped", pc, STRESS_METRIC_GEOMETRIC_MEAN);
 
 unmap_context:
 	(void)munmap((void *)context, sizeof(*context));
