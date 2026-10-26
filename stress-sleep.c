@@ -446,7 +446,7 @@ static int stress_sleep(stress_args_t *args)
 			sleep_max = MIN_SLEEP;
 	}
 
-	ctxts = calloc(sleep_max, sizeof(*ctxts));
+	ctxts = (stress_ctxt_t *)calloc(sleep_max, sizeof(*ctxts));
 	if (!ctxts) {
 		pr_inf_skip("%s: failed to allocate %zu sleep contexts, skipping stressor\n",
 			args->name, sleep_max);
