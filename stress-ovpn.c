@@ -722,7 +722,7 @@ static nl_ctx_t *nl_ctx_alloc_flags(
 	int ret;
 	const char *args_name = ovpn->args_name;
 
-	ctx = calloc(1, sizeof(*ctx));
+	ctx = (nl_ctx_t *)calloc(1, sizeof(*ctx));
 	if (!ctx)
 		return NULL;
 
