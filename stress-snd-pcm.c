@@ -76,7 +76,7 @@ static int stress_snd_pcm(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	snd_devs = calloc(n_snd_devs, sizeof(*snd_devs));
+	snd_devs = (stress_snd_pcm_dev_info_t *)calloc(n_snd_devs, sizeof(*snd_devs));
 	if (!snd_devs) {
 		pr_inf_skip("%s: failed to allocate %zu pcm device structs, skipping stressor\n",
 			args->name, n_snd_devs);
