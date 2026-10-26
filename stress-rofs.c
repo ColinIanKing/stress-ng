@@ -805,7 +805,7 @@ static int stress_rofs_scandir(stress_args_t *args, const char *path, stress_rof
 		if (stress_fs_filename_dotty(de->d_name))
 			continue;
 
-		info = calloc(1, sizeof(*info));
+		info = (stress_rofs_info_t *)calloc(1, sizeof(*info));
 		if (!info)
 			break;
 		(void)shim_strscpy(info->d_name, de->d_name, sizeof(info->d_name));
@@ -949,7 +949,7 @@ static int stress_rofs(stress_args_t *args)
 		for (j = 0; j < n_paths; j++)
 			n += shim_strlen(paths[j]) + 2;
 
-		str = calloc(n, sizeof(*str));
+		str = (char *)calloc(n, sizeof(*str));
 		if (str) {
 			for (j = 0; j < n_paths; j++)  {
 				if (j > 0)
