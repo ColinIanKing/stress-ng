@@ -24,6 +24,8 @@
 #include "core-sort.h"
 
 #include <ctype.h>
+#include <dirent.h>
+#include <sys/stat.h>
 #include <sys/ioctl.h>
 
 #if defined(HAVE_LINUX_FIEMAP_H)
@@ -683,6 +685,46 @@ int stress_fs_temp_dir_make_args(stress_args_t *args)
  *  stress_fs_temp_dir_rm()
  *	remove a temporary directory
  */
+static int stress_fs_temp_dir_rm_recursive(const char *path)
+{
+	DIR *dp;
+	struct dirent *d;
+	int ret = 0;
+
+	dp = opendir(path);
+	if (!dp)
+		return -errno;
+
+	while ((d = readdir(dp)) != NULL) {
+		char child[PATH_MAX];
+		struct stat st;
+
+		if (strcmp(d->d_name, ".") == 0 || strcmp(d->d_name, "..") == 0)
+			continue;
+
+		if (snprintf(child, sizeof(child), "%s/%s", path, d->d_name) >= (int)sizeof(child)) {
+			ret = -ENAMETOOLONG;
+			continue;
+		}
+
+		if (lstat(child, &st) < 0)
+			continue;
+
+		if (S_ISDIR(st.st_mode)) {
+			if (stress_fs_temp_dir_rm_recursive(child) < 0)
+				ret = -errno;
+		} else {
+			if (unlink(child) < 0)
+				ret = -errno;
+		}
+	}
+	(void)closedir(dp);
+
+	if (rmdir(path) < 0 && ret == 0)
+		ret = -errno;
+	return ret;
+}
+
 int stress_fs_temp_dir_rm(
 	const char *name,
 	const pid_t pid,
@@ -692,11 +734,15 @@ int stress_fs_temp_dir_rm(
 	char tmp[PATH_MAX + 1];
 
 	stress_fs_temp_dir(tmp, sizeof(tmp), name, pid, instance);
-	ret = shim_rmdir(tmp);
+	/*
+	 * Recursively remove any leftover files/directories first.
+	 * A plain rmdir() fails (and leaves the tree) when a stressor
+	 * is killed before it can unlink its own files.
+	 */
+	ret = stress_fs_temp_dir_rm_recursive(tmp);
 	if (UNLIKELY(ret < 0)) {
-		ret = -errno;
 		pr_fail("%s: rmdir '%s' failed, errno=%d (%s)\n",
-			name, tmp, errno, strerror(errno));
+			name, tmp, -ret, strerror(-ret));
 	}
 
 	return ret;
