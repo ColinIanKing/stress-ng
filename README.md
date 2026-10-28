@@ -649,7 +649,9 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
  * [mm/memcontrol: avoid false sharing between vmstats and events](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=c1afbd5de131f5e3c4fc7559acf055f8d9d86868)
  * [s390/pai: Support CPU hotplug for PMU PAI](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id==9ecc4d033879f7761f2df07e20cd2fbec00fd90b)
  * [powerpc/entry: Fix double accounting of user time on interrupt entry](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=11ae2e1dc58304a48816fc8ca4afa8f2ef9d1bdf)
-
+ * [sched_ext: Handle proxy-exec races in remote DSQ transfers](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=13ae184e4b8279dcc7b84bf58e987a60d9aad69a)
+ * [sched_ext: Don't leave balance callbacks queued across a pick retry](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=ff0545e0c263727b200f60af47d0364e4d041bde)
+ * [mm/madvise: add cond_resched() in THP branch of madvise_cold_or_pageout_pte_range()](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=f5cfc8e3b20ad71949a1e5623ff45882c063a71b)
 
 ## Kernel improvements that used stress-ng
 
