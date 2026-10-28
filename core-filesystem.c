@@ -680,6 +680,193 @@ int stress_fs_temp_dir_make_args(stress_args_t *args)
 }
 
 /*
+ *  stress_fs_filename_dotty()
+ *	is filename "." or "..", name maybe null
+ */
+bool CONST OPTIMIZE3 stress_fs_filename_dotty(const char *name)
+{
+	if (UNLIKELY(!name))
+		return false;
+	if (name[0] == '.') {
+		if (name[1] == '\0')
+			return true;
+		if ((name[1] == '.') && LIKELY((name[2] == '\0')))
+			return true;
+	}
+	return false;
+}
+
+/*
+ *  stress_fs_dirent_filter_dotty()
+ *  	filter out dot files . and .. for scandir(), dirent and
+ *  	d->d_name are valid
+ */
+static int CONST OPTIMIZE3 stress_fs_dirent_filter_dotty(const struct dirent *d)
+{
+	const char *d_name = d->d_name;
+
+	if (d_name[0] == '.') {
+		if (d_name[1] == '\0')
+			return 0;
+		if ((d_name[1] == '.') && LIKELY((d_name[2] == '\0')))
+			return 0;
+	}
+	return 1;
+}
+
+/*
+ *  static_fs_inode_flags_unset()
+ *	unset the inode flag bits specified in flag
+ */
+static void static_fs_inode_flags_unset(const char *filename, const int flag)
+{
+#if defined(FS_IOC_SETFLAGS)
+	int fd;
+        const long int new_flag = 0;
+
+	if (UNLIKELY(!filename))
+		return;
+	fd = open(filename, O_RDWR | flag);
+	if (UNLIKELY(fd < 0))
+		return;
+
+        VOID_RET(int, ioctl(fd, FS_IOC_SETFLAGS, &new_flag));
+	(void)close(fd);
+#else
+	(void)filename;
+	(void)flag;
+#endif
+}
+
+/*
+ *  stress_fs_clean_dir_files()
+ *  	recursively delete files in directories
+ */
+static int stress_fs_clean_dir_files(
+	const char *temp_path,
+	const size_t temp_path_len,
+	char *path,
+	const size_t path_posn,
+	const bool warn_rm_failed)
+{
+	struct stat statbuf;
+	char *ptr;
+	const char *end;
+	int n;
+	struct dirent **names = NULL;
+	int rc = 0;
+	int ret;
+
+	if (UNLIKELY(!temp_path || !path))
+		return 0;
+
+	if (UNLIKELY(shim_stat(path, &statbuf) < 0)) {
+		pr_dbg("stress-ng: failed to stat %s, errno=%d (%s)\n", path, errno, strerror(errno));
+		return 0;
+	}
+
+	/* We don't follow symlinks */
+	if (S_ISLNK(statbuf.st_mode))
+		return 0;
+
+	/* We don't remove paths with .. in */
+	if (shim_strstr(path, ".."))
+		return 0;
+
+	/* We don't remove paths that our out of the scope */
+	if (shim_strncmp(path, temp_path, temp_path_len))
+		return 0;
+
+	n = scandir(path, &names, stress_fs_dirent_filter_dotty, alphasort);
+	if (n < 0) {
+		ret = shim_rmdir(path);
+		if ((ret < 0) && (errno != ENOENT) && warn_rm_failed)
+			return -1;
+		return 0;
+	}
+
+	ptr = path + path_posn;
+	end = path + PATH_MAX;
+
+	while (n--) {
+		size_t name_len = shim_strlen(names[n]->d_name) + 1;
+
+		/* No more space */
+		if (ptr + name_len > end) {
+			free(names[n]);
+			continue;
+		}
+
+		(void)snprintf(ptr, (size_t)(end - ptr), "/%s", names[n]->d_name);
+		name_len = shim_strlen(ptr);
+
+#if defined(DT_DIR) &&	\
+    defined(DT_LNK) &&	\
+    defined(DT_REG)
+		/* Modern fast d_type method */
+		switch (names[n]->d_type) {
+		case DT_DIR:
+			free(names[n]);
+#if defined(O_DIRECTORY)
+			static_fs_inode_flags_unset(temp_path, O_DIRECTORY);
+#endif
+			stress_fs_chattr_flags_unset(path);
+			stress_fs_clean_dir_files(temp_path, temp_path_len, path, path_posn + name_len, warn_rm_failed);
+			ret = shim_rmdir(path);
+			if ((ret < 0) && (errno != ENOENT) && warn_rm_failed)
+				rc = -1;
+			break;
+		case DT_LNK:
+		case DT_REG:
+			free(names[n]);
+			static_fs_inode_flags_unset(temp_path, 0);
+			stress_fs_chattr_flags_unset(path);
+			if (shim_strstr(path, "swap"))
+				(void)stress_memory_swap_off(path);
+			ret = shim_unlink(path);
+			if ((ret < 0) && (errno != ENOENT) && warn_rm_failed)
+				rc = -1;
+			break;
+		default:
+			free(names[n]);
+			break;
+		}
+#else
+		/* Slower stat method */
+		free(names[n]);
+		ret = shim_stat(path, &statbuf);
+		if (ret < 0)
+			continue;
+
+		if ((statbuf.st_mode & S_IFMT) == S_IFDIR) {
+#if defined(O_DIRECTORY)
+			static_fs_inode_flags_unset(temp_path, O_DIRECTORY);
+#endif
+			stress_fs_chattr_flags_unset(temp_path);
+			stress_fs_clean_dir_files(temp_path, temp_path_len, path, path_posn + name_len, warn_rm_failed);
+			ret = shim_rmdir(path);
+			if ((ret < 0) && (errno != ENOENT) && warn_rm_failed)
+				rc = -1;
+		} else if (((statbuf.st_mode & S_IFMT) == S_IFLNK) ||
+			   ((statbuf.st_mode & S_IFMT) == S_IFREG)) {
+			static_fs_inode_flags_unset(temp_path, 0);
+			stress_fs_chattr_flags_unset(temp_path);
+			ret = unlink(path);
+			if ((ret < 0) && (errno != ENOENT) && warn_rm_failed)
+				rc = -1;
+		}
+#endif
+	}
+	*ptr = '\0';
+	free(names);
+	ret = shim_rmdir(path);
+	if ((ret < 0) && (errno != ENOENT) && warn_rm_failed)
+		rc = -1;
+
+	return rc;
+}
+
+/*
  *  stress_fs_temp_dir_rm()
  *	remove a temporary directory
  */
@@ -688,18 +875,10 @@ int stress_fs_temp_dir_rm(
 	const pid_t pid,
 	const uint32_t instance)
 {
-	int ret;
-	char tmp[PATH_MAX + 1];
+	if (g_opt_flags & OPT_FLAGS_KEEP_FILES)
+		return 0;
 
-	stress_fs_temp_dir(tmp, sizeof(tmp), name, pid, instance);
-	ret = shim_rmdir(tmp);
-	if (UNLIKELY(ret < 0)) {
-		ret = -errno;
-		pr_fail("%s: rmdir '%s' failed, errno=%d (%s)\n",
-			name, tmp, errno, strerror(errno));
-	}
-
-	return ret;
+	return stress_fs_clean_dir(name, pid, instance, true);
 }
 
 /*
@@ -708,7 +887,10 @@ int stress_fs_temp_dir_rm(
  */
 int stress_fs_temp_dir_rm_args(stress_args_t *args)
 {
-	return stress_fs_temp_dir_rm(args->name, args->pid, args->instance);
+	if (g_opt_flags & OPT_FLAGS_KEEP_FILES)
+		return 0;
+
+	return stress_fs_clean_dir(args->name, args->pid, args->instance, true);
 }
 
 /*
@@ -1591,190 +1773,16 @@ void stress_fs_chattr_flags_unset(const char *pathname)
 }
 
 /*
- *  stress_fs_dirent_filter_dotty()
- *  	filter out dot files . and .. for scandir(), dirent and
- *  	d->d_name are valid
- */
-static int CONST OPTIMIZE3 stress_fs_dirent_filter_dotty(const struct dirent *d)
-{
-	const char *d_name = d->d_name;
-
-	if (d_name[0] == '.') {
-		if (d_name[1] == '\0')
-			return 0;
-		if ((d_name[1] == '.') && LIKELY((d_name[2] == '\0')))
-			return 0;
-	}
-	return 1;
-}
-
-/*
- *  stress_fs_filename_dotty()
- *	is filename "." or "..", name maybe null
- */
-bool CONST OPTIMIZE3 stress_fs_filename_dotty(const char *name)
-{
-	if (UNLIKELY(!name))
-		return false;
-	if (name[0] == '.') {
-		if (name[1] == '\0')
-			return true;
-		if ((name[1] == '.') && LIKELY((name[2] == '\0')))
-			return true;
-	}
-	return false;
-}
-
-/*
- *  static_fs_inode_flags_unset()
- *	unset the inode flag bits specified in flag
- */
-static void static_fs_inode_flags_unset(const char *filename, const int flag)
-{
-#if defined(FS_IOC_SETFLAGS)
-	int fd;
-        const long int new_flag = 0;
-
-	if (UNLIKELY(!filename))
-		return;
-	fd = open(filename, O_RDWR | flag);
-	if (UNLIKELY(fd < 0))
-		return;
-
-        VOID_RET(int, ioctl(fd, FS_IOC_SETFLAGS, &new_flag));
-	(void)close(fd);
-#else
-	(void)filename;
-	(void)flag;
-#endif
-}
-
-/*
- *  stress_fs_clean_dir_files()
- *  	recursively delete files in directories
- */
-static void stress_fs_clean_dir_files(
-	const char *temp_path,
-	const size_t temp_path_len,
-	char *path,
-	const size_t path_posn)
-{
-	struct stat statbuf;
-	char *ptr;
-	const char *end;
-	int n;
-	struct dirent **names = NULL;
-
-	if (UNLIKELY(!temp_path || !path))
-		return;
-
-	if (UNLIKELY(shim_stat(path, &statbuf) < 0)) {
-		pr_dbg("stress-ng: failed to stat %s, errno=%d (%s)\n", path, errno, strerror(errno));
-		return;
-	}
-
-	/* We don't follow symlinks */
-	if (S_ISLNK(statbuf.st_mode))
-		return;
-
-	/* We don't remove paths with .. in */
-	if (shim_strstr(path, ".."))
-		return;
-
-	/* We don't remove paths that our out of the scope */
-	if (shim_strncmp(path, temp_path, temp_path_len))
-		return;
-
-	n = scandir(path, &names, stress_fs_dirent_filter_dotty, alphasort);
-	if (n < 0) {
-		(void)shim_rmdir(path);
-		return;
-	}
-
-	ptr = path + path_posn;
-	end = path + PATH_MAX;
-
-	while (n--) {
-		size_t name_len = shim_strlen(names[n]->d_name) + 1;
-#if !defined(DT_DIR) ||	\
-    !defined(DT_LNK) ||	\
-    !defined(DT_REG)
-		int ret;
-#endif
-
-		/* No more space */
-		if (ptr + name_len > end) {
-			free(names[n]);
-			continue;
-		}
-
-		(void)snprintf(ptr, (size_t)(end - ptr), "/%s", names[n]->d_name);
-		name_len = shim_strlen(ptr);
-
-#if defined(DT_DIR) &&	\
-    defined(DT_LNK) &&	\
-    defined(DT_REG)
-		/* Modern fast d_type method */
-		switch (names[n]->d_type) {
-		case DT_DIR:
-			free(names[n]);
-#if defined(O_DIRECTORY)
-			static_fs_inode_flags_unset(temp_path, O_DIRECTORY);
-#endif
-			stress_fs_chattr_flags_unset(path);
-			stress_fs_clean_dir_files(temp_path, temp_path_len, path, path_posn + name_len);
-			(void)shim_rmdir(path);
-			break;
-		case DT_LNK:
-		case DT_REG:
-			free(names[n]);
-			static_fs_inode_flags_unset(temp_path, 0);
-			stress_fs_chattr_flags_unset(path);
-			if (shim_strstr(path, "swap"))
-				(void)stress_memory_swap_off(path);
-			(void)shim_unlink(path);
-			break;
-		default:
-			free(names[n]);
-			break;
-		}
-#else
-		/* Slower stat method */
-		free(names[n]);
-		ret = shim_stat(path, &statbuf);
-		if (ret < 0)
-			continue;
-
-		if ((statbuf.st_mode & S_IFMT) == S_IFDIR) {
-#if defined(O_DIRECTORY)
-			static_fs_inode_flags_unset(temp_path, O_DIRECTORY);
-#endif
-			stress_fs_chattr_flags_unset(temp_path);
-			stress_fs_clean_dir_files(temp_path, temp_path_len, path, path_posn + name_len);
-			(void)shim_rmdir(path);
-		} else if (((statbuf.st_mode & S_IFMT) == S_IFLNK) ||
-			   ((statbuf.st_mode & S_IFMT) == S_IFREG)) {
-			static_fs_inode_flags_unset(temp_path, 0);
-			stress_fs_chattr_flags_unset(temp_path);
-			(void)unlink(path);
-		}
-#endif
-	}
-	*ptr = '\0';
-	free(names);
-	(void)shim_rmdir(path);
-}
-
-/*
  *  stress_fs_clean_dir()
  *	perform tidy up of any residual temp files; this
  *	happens if a stressor was terminated before it could
  *	tidy itself up, e.g. OOM'd or KILL'd
  */
-void stress_fs_clean_dir(
+int stress_fs_clean_dir(
 	const char *name,
 	const pid_t pid,
-	const uint32_t instance)
+	const uint32_t instance,
+	const bool warn_rm_failed)
 {
 	const char *temp_path = stress_fs_temp_path_get();
 	const size_t temp_path_len = shim_strlen(temp_path);
@@ -1785,9 +1793,10 @@ void stress_fs_clean_dir(
 		(void)stress_fs_temp_dir(path, sizeof(path), name, pid, instance);
 		if (access(path, F_OK) == 0) {
 			pr_dbg("%s: removing temporary files in %s\n", name, path);
-			stress_fs_clean_dir_files(temp_path, temp_path_len, path, shim_strnlen(path, sizeof(path)));
+			return stress_fs_clean_dir_files(temp_path, temp_path_len, path, shim_strnlen(path, sizeof(path)), warn_rm_failed);
 		}
 	}
+	return 0;
 }
 
 /*

@@ -1281,10 +1281,12 @@ static stress_stats_t *stress_child_wait(
 		stress_stats_t *stats = stress_stats_pid_find(pid);
 
 		if (stats) {
+			stress_args_t *args = &stats->args;
 			stats->s_pid.reaped = true;
 			stats->s_pid.wait_status = status;
 
 			stress_wait_status(stats, success, resource_success, metrics_success);
+			(void)stress_fs_clean_dir(args->name, args->pid, args->instance, false);
 
 			return stats;
 		}
