@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "22 October 2026"
+.TH STRESS-NG 1 "28 October 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -1984,11 +1984,11 @@ stop cacheline workers after N loops of the byte exercising in a cacheline.
 .RS 5
 .TQ
 .B \-\-cap N
-start N workers that read per process capabilities via calls to capget(2)
-(Linux only).
+start N workers that exercise per process capabilities via calls to capget(2) and
+capset(2), (Linux only).
 .TP
 .B \-\-cap\-ops N
-stop after N cap bogo operations.
+stop after N capset/capget bogo operations.
 .RE
 .TP
 .B Cgroup stressor

@@ -27,8 +27,8 @@
 #endif
 
 static const stress_help_t help[] = {
-	{ NULL,	"cap N",	"start N workers exercising capget" },
-	{ NULL,	"cap-ops N",	"stop cap workers after N bogo capget operations" },
+	{ NULL,	"cap N",	"start N workers exercising capget and capset" },
+	{ NULL,	"cap-ops N",	"stop cap workers after N bogo capget/capset operations" },
 	{ NULL,	NULL,		NULL }
 };
 
