@@ -186,8 +186,8 @@ static const stress_fs_name_t stress_fs_names[] = {
 #if defined(FUSE_SUPER_MAGIC)
 	{ FUSE_SUPER_MAGIC,	"fuse" },
 #endif
-#if defined(BCACHEFS_STATFS_MAGIC)
-	{ BCACHEFS_STATFS_MAGIC, "bcachefs" },
+#if defined(BCACHEFS_SUPER_MAGIC)
+	{ BCACHEFS_SUPER_MAGIC,	"bcachefs" },
 #else
 	{ 0xca451a4e,		"bcachefs" },
 #endif
@@ -328,6 +328,15 @@ static const stress_fs_name_t stress_fs_names[] = {
 #endif
 #if defined(PID_FS_MAGIC)
 	{ PID_FS_MAGIC,		"pidfs" },
+#endif
+#if defined(GUEST_MEMFD_MAGIC)
+	{ GUEST_MEMFD_MAGIC,	"guest_memfd" },
+#endif
+#if defined(NULL_FS_MAGIC)
+	{ NULL_FS_MAGIC,	"nullfs" },
+#endif
+#if defined(FAIL_FS_MAGIC)
+	{ FAIL_FS_MAGIC,	"failfs" },
 #endif
 #if defined(UBIFS_SUPER_MAGIC)
 	{ UBIFS_SUPER_MAGIC,	"ubifs" },
