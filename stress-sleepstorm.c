@@ -138,8 +138,22 @@ static void * OPTIMIZE3 stress_sleepstorm_func(void *parg)
 	pthread_t self = pthread_self();
 #endif
 	double t1;
+	const pid_t tid = shim_gettid();
 
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
+
+	/*
+	 *  where possible, make pthread slightly less
+	 *  priority than parent controlling process
+	 */
+	if (tid >= 0) {
+		int prio;
+
+		errno = 0;
+		prio = getpriority(PRIO_PROCESS, tid);
+		if ((errno == 0) && (prio < 19))
+			(void)setpriority(PRIO_PROCESS, tid, prio + 1);
+	}
 
 	t1 = stress_time_now();
 	while (keep_thread_running()) {
