@@ -43,7 +43,7 @@ static const stress_help_t help[] = {
 	{ NULL, "sleepstorm-cpumix",     "randomly mix threads to different CPUs" },
 	{ NULL,	"sleepstorm-ops N",      "stop pthread workers after N bogo threads created" },
 	{ NULL, "sleepstorm-pthreads N", "specify number of concurrent pthreads per stressor instance" },
-	{ NULL, "sleepstorm-sleep-ms",   "specify sleep time in milliseconds" },
+	{ NULL, "sleepstorm-sleep-ms N", "specify sleep time in milliseconds" },
 	{ NULL,	"sleepstorm-yield M",    "select yielding method [ always | never | random ]" },
 	{ NULL,	NULL,                    NULL }
 };
