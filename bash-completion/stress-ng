@@ -166,6 +166,7 @@ _stress_ng()
 	'--radixsort-method' | \
 	'--rawdev-method' | \
 	'--rotate-method' | \
+	'--sleepstorm-yield' | \
 	'--sparsematrix-method' | \
 	'--spinmem-method' | \
 	'--str-method' | \
@@ -416,6 +417,7 @@ _stress_ng()
 	'--shm-sysv-mlock' | \
 	'--skip-silent' | \
 	'--sleep-affinity' | \
+	'--sleepstorm-cpumix' | \
 	'--smart' | \
 	'--sn' | \
 	'--sock-nodelay' | \
