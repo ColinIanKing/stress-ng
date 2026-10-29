@@ -498,16 +498,16 @@ int shim_fallocate(int fd, int mode, off_t offset, off_t len)
  *  shim_gettid()
  *	wrapper for gettid(2), get thread identification
  */
-int shim_gettid(void)
+pid_t shim_gettid(void)
 {
 #if defined(HAVE_GETTID)
 	return gettid();
 #elif defined(__NR_gettid) &&	\
       defined(HAVE_SYSCALL)
-	return (int)syscall(__NR_gettid);
+	return (pid_t)syscall(__NR_gettid);
 #else
 	UNEXPECTED
-	return (int)shim_enosys(0);
+	return (pid_t)shim_enosys(0);
 #endif
 }
 

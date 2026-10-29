@@ -648,7 +648,7 @@ extern ssize_t shim_copy_file_range(int fd_in, shim_off64_t *off_in, int fd_out,
 extern int shim_posix_fadvise(int fd, off_t offset, off_t size, int advice);
 extern int shim_posix_fallocate(int fd, off_t offset, off_t len);
 extern int shim_fallocate(int fd, int mode, off_t offset, off_t len);
-extern int shim_gettid(void);
+extern pid_t shim_gettid(void);
 extern long int shim_getcpu(unsigned int *cpu, unsigned int *node, void *tcache);
 extern int shim_getdents(unsigned int fd, struct shim_linux_dirent *dirp,
 	unsigned int count);
