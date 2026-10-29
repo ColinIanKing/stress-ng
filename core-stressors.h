@@ -333,6 +333,7 @@
 	MACRO(sigxfsz)		\
 	MACRO(skiplist)		\
 	MACRO(sleep)		\
+	MACRO(sleepstorm)	\
 	MACRO(smi)		\
 	MACRO(snd_pcm)		\
 	MACRO(snd_timer)	\

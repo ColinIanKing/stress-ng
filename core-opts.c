@@ -1500,6 +1500,13 @@ const struct option stress_long_options[] = {
 	{ "sleep-max",		1,	NULL,	OPT_sleep_max },
 	{ "sleep-ops",		1,	NULL,	OPT_sleep_ops },
 
+	{ "sleepstorm",		1,	NULL,	OPT_sleepstorm },
+	{ "sleepstorm-cpumix",	0,	NULL,	OPT_sleepstorm_cpumix },
+	{ "sleepstorm-ops",	1,	NULL,	OPT_sleepstorm_ops },
+	{ "sleepstorm-pthreads",1,	NULL,	OPT_sleepstorm_pthreads },
+	{ "sleepstorm-sleep-ms",1,	NULL,	OPT_sleepstorm_sleep_ms },
+	{ "sleepstorm-yield",	1,	NULL,	OPT_sleepstorm_yield },
+
 	{ "smart",		0,	NULL,	OPT_smart },
 
 	{ "smi",		1,	NULL,	OPT_smi },

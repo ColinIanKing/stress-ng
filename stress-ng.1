@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "28 October 2026"
+.TH STRESS-NG 1 "29 October 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -9501,6 +9501,39 @@ start P threads per worker. The default is 1024, the maximum allowed is
 .TP
 .B \-\-sleep\-ops N
 stop after N sleep bogo operations.
+.RE
+.TP
+.B Sleeping pthread wakeup storm stressor
+.RS 5
+.TQ
+.B \-\-sleepstorm N
+start N workers that run multiple pthreads that wait on a real
+time signal from the parent stressor instance. The wakeup signal
+from the parent occurs periodically (default every 50 milliseconds)
+creating a storm of runnable pthreads that execute for a short time
+before waiting on the next signal. The default of 64 pthreads
+are created per stressor instance.  The sleepstorm stressor is designed
+to exercise large spikes of runnable processes which exercises
+the scheduler when selecting the next runnable processes.
+.TP
+.B \-\-sleepstorm\-cpumix
+move pthreads to randomly chosen CPUs for CPU mixing
+.TP
+.B \-\-sleepstorm\-ops N
+stop after N rounds of pthread wakeups
+.TP
+.B \-\-sleepstorm\-pthreads N
+specify the number of pthreads to spawn per stressor instance, range 1 to
+30000 with a defaut of 64.
+.TP
+.B \-\-sleepstorm\-sleep\-ms N
+sleep for N milliseconds after waking up all the pthreads, range 1 to 1000
+with a default of 50 (e.g. 200 Hz)
+.TP
+.B \-\-sleepstorm\-yield [ always | never | random ]
+specify the method of calling sched_yield(2) in each pthread. Methods are
+always (every time a pthread is woken up), never (never yield) and random
+(randomly choose between yielding or not yielding on each wakeup).
 .RE
 .TP
 .B System management interrupts (SMI) stressor

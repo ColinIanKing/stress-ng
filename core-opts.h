@@ -1440,6 +1440,13 @@ typedef enum {
 	OPT_schedpolicy_ops,
 	OPT_schedpolicy_rand,
 
+	OPT_sleepstorm,
+	OPT_sleepstorm_cpumix,
+	OPT_sleepstorm_ops,
+	OPT_sleepstorm_pthreads,
+	OPT_sleepstorm_sleep_ms,
+	OPT_sleepstorm_yield,
+
 	OPT_sched_deadline,
 	OPT_sched_period,
 	OPT_sched_reclaim,
