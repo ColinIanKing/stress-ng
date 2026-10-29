@@ -317,8 +317,11 @@ static int stress_sleepstorm(stress_args_t *args)
 
 reap:
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
+	stop_running();
+
 	for (j = 0; j < i; j++) {
 		if (pthreads[j].ret == 0) {
+			(void)pthread_kill(pthreads[j].pthread, SIGKILL);
 			ret = pthread_cancel(pthreads[j].pthread);
 			if (UNLIKELY((ret) && (ret != ESRCH))) {
 				pr_fail("%s: pthread_cancel failed (parent), errno=%d (%s)\n",
