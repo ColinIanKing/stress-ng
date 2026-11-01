@@ -977,14 +977,15 @@ void OPTIMIZE3 stress_cpu_fp_subnormals_enable(void)
  *  call __cpu_indicator_init() and then compare __cpu_model.__cpu_subtype
  *  to pick an "arch=" clone. Layout is fixed by the libgcc ABI.
  */
-struct stress_cpu_model_t {
+struct __processor_model {
 	unsigned int __cpu_vendor;
 	unsigned int __cpu_type;
 	unsigned int __cpu_subtype;
 	unsigned int __cpu_features[1];
 };
 
-extern struct stress_cpu_model_t __cpu_model;
+extern struct __processor_model __cpu_model;
+
 extern void __real___cpu_indicator_init(void);
 
 void __wrap___cpu_indicator_init(void);

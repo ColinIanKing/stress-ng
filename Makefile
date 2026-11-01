@@ -231,6 +231,7 @@ endif
 #
 ifeq ($(LTO),1)
 override CFLAGS += $(foreach flag,-flto=auto,$(cc_supports_flag))
+override LDFLAGS += $(foreach flag,-Wno-lto-type-mismatch,$(cc_supports_flag))
 endif
 
 ifeq ($(GARBAGE_COLLECT),1)
