@@ -135,7 +135,7 @@ static void * OPTIMIZE3 stress_sleepstorm_func(void *parg)
 	const stress_pthread_args_t *spa = (stress_pthread_args_t *)parg;
 	stress_sleepstorm_pthread_t *pthread = (stress_sleepstorm_pthread_t *)spa->data;
 	stress_args_t *args = spa->args;
-#if defined(HAVE_SCHED_SETAFFINITY) && \
+#if defined(HAVE_PTHREAD_SETAFFINITY_NP) && \
     defined(HAVE_CPU_SET_T)
 	pthread_t self = pthread_self();
 #endif
@@ -165,7 +165,7 @@ static void * OPTIMIZE3 stress_sleepstorm_func(void *parg)
 		double t3;
 		double t4;
 
-#if defined(HAVE_SCHED_SETAFFINITY) && \
+#if defined(HAVE_PTHREAD_SETAFFINITY_NP) && \
     defined(HAVE_CPU_SET_T)
 		if (sleepstorm_cpumix && (sleepstorm_cpus != NULL)) {
 			const uint32_t idx = stress_mwc32modn(sleepstorm_n_cpus);
