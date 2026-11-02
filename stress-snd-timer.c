@@ -151,8 +151,8 @@ static int stress_snd_timer(stress_args_t *args)
 				double t = (double)data.tstamp.tv_sec +
 					   ((double)data.tstamp.tv_nsec * 1.0E-9);
 				if (t < t_prev) {
-					pr_fail("%s: timestamp %f less than previous timestamp %f\n",
-						args->name, t_prev, t);
+					pr_fail("%s: latest timestamp %f less than previous timestamp %f\n",
+						args->name, t, t_prev);
 				}
 				(void)ioctl(fd, SNDRV_TIMER_IOCTL_START);
 				t_prev = t;
