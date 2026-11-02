@@ -16,6 +16,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+#define _POSIX_PTHREAD_SEMANTICS
+
 #include "stress-ng.h"
 #include "core-affinity.h"
 #include "core-arch.h"
