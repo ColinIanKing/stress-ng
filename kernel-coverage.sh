@@ -357,6 +357,7 @@ if [[ -e /proc/sys/vm/oom_kill_allocating_task ]]; then
 fi
 
 sudo modprobe ovpn
+sudo modprobe vivid
 fallocate -l 2G $SWAP
 chmod 0600 $SWAP
 sudo chown root:root $SWAP
