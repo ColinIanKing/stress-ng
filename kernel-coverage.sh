@@ -814,6 +814,10 @@ do_stress --shm-sysv -1 --shm-sysv-mlock
 do_stress --sleep -1 --sleep-max 4096
 do_stress --sleep -1 --sleep-affinity
 
+do_stress --sleepstorm -1 --sleepstorm-cpumix
+do_stress --sleepstorm -1 --sleepstorm-sleep-ms 1
+do_stress --sleepstorm -1 --sleepstorm-yield never
+
 do_stress --sock -1 --sock-nodelay
 do_stress --sock -1 --sock-domain ipv4
 do_stress --sock -1 --sock-domain ipv6
