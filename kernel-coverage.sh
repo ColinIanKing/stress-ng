@@ -369,6 +369,12 @@ if [[ -f	/sys/kernel/debug/tracing/trace_stat/branch_all ]]; then
 	sudo cat  /sys/kernel/debug/tracing/trace_stat/branch_all > branch_all.start
 fi
 
+
+DURATION=120
+do_stress --bad-ioctl -1 --pathological
+do_stress --bad-ioctl -1 --pathological --bad-ioctl-alldev
+do_stress --sysbadaddr 8
+
 DURATION=600
 do_stress --rofs -1 --iostat 1
 DURATION=180
@@ -952,10 +958,6 @@ do_stress --procfs 32
 DURATION=360
 do_stress --sysinval 8 --pathological
 
-DURATION=120
-do_stress --bad-ioctl -1 --pathological
-do_stress --bad-ioctl -1 --pathological --bad-ioctl-alldev
-do_stress --sysbadaddr 8
 
 #
 #  And exercise I/O with plenty of time for file setup
@@ -984,7 +986,7 @@ sudo lcov -c --branch-coverage -o kernel.info --keep-going >& /dev/null
 #
 #  Convert to html
 #
-sudo genhtml --ignore-errors inconsistent -o html kernel.info
+sudo genhtml --ignore-errors inconsistent --filter missing -o html kernel.info
 #
 #  Convert to ascii for machine parsing
 #
