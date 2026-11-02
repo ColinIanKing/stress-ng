@@ -59,7 +59,8 @@ static const char *stress_sleepstorm_method(const size_t i)
         return (i < SIZEOF_ARRAY(stress_sleepstorm_methods)) ? stress_sleepstorm_methods[i] : NULL;
 }
 
-#if defined(HAVE_LIB_PTHREAD)
+#if defined(HAVE_LIB_PTHREAD) &&	\
+    defined(SIGRTMIN)
 
 /* per pthread data */
 typedef struct {
@@ -91,7 +92,8 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-#if defined(HAVE_LIB_PTHREAD)
+#if defined(HAVE_LIB_PTHREAD) &&	\
+    defined(SIGRTMIN)
 
 #define DEFAULT_STACK_MIN		(8 * KB)
 
@@ -397,6 +399,6 @@ const stressor_info_t stress_sleepstorm_info = {
 	.opts = opts,
 	.verify = VERIFY_NONE,
 	.help = help,
-	.unimplemented_reason = "built without pthread support"
+	.unimplemented_reason = "built without pthread support or SIGRTMIN"
 };
 #endif
