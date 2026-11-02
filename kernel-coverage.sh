@@ -711,6 +711,8 @@ do_stress --pagemove -1 --pagemove-numa
 
 do_stress --pagescatter -1 --pagescatter-numa
 
+do_stress --pinmem -1 --pinmem-cycle --pinmem-bytes 8M --pinmem-method all
+
 do_stress --pipe -1 --pipe-size 64K
 do_stress --pipe -1 --pipe-size 1M
 do_stress --pipe -1 --pipe-data-size 64
