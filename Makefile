@@ -18,9 +18,9 @@
 #
 
 #
-# Codename "capable computer crasher"
+# Codename "tenacious task thrasher"
 #
-VERSION=0.22.01
+VERSION=0.22.02
 
 #
 # Determine supported toolchains
