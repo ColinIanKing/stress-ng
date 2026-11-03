@@ -27,6 +27,59 @@ echo "Logging to $LOG"
 
 rm -f $LOG
 
+failtype_set()
+{
+	if [ "$EUID" -ne 0 ]; then
+		echo "setting fault injection needs to be run as root"
+		exit
+	fi
+	echo "setting $FAILTYPE fault injection"
+	echo Y > /sys/kernel/debug/$FAILTYPE/task-filter
+	echo 5 > /sys/kernel/debug/$FAILTYPE/probability
+	echo 50 > /sys/kernel/debug/$FAILTYPE/interval
+	echo -1 > /sys/kernel/debug/$FAILTYPE/times
+	echo 0 > /sys/kernel/debug/$FAILTYPE/space
+	echo 2 > /sys/kernel/debug/$FAILTYPE/verbose
+	echo Y > /sys/kernel/debug/$FAILTYPE/ignore-gfp-wait
+}
+
+usage()
+{
+	echo "-h help"
+	echo "-f [ failslab | fail_page_alloc | fail_futex | fail_sunrpc | \\"
+	echo "     fail_make_request | fail_mmc_request | fail_mmc_request | \\"
+        echo "     fail_function | fail_skb_realloc ]"
+	exit 0
+}
+
+while getopts ":f:h" arg;
+do
+	case $arg in
+	f) # Specify strength, either 45 or 90.
+		FAILTYPE=${OPTARG}
+		case ${FAILTYPE} in
+		failslab | \
+		fail_page_alloc | \
+		fail_futex | \
+		fail_sunrpc | \
+		fail_make_request | \
+		fail_mmc_request | \
+		fail_function | \
+		fail_skb_realloc)
+			failtype_set
+			;;
+		*)
+			usage
+			exit 0
+		esac
+		;;
+	h | *) # Display help.
+		usage
+		exit 0
+		;;
+	esac
+done
+
 #
 # stress-ng kernel coverage test:
 #  - requires lcov to be installed
