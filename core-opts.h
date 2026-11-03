@@ -367,6 +367,7 @@ typedef enum {
 	OPT_ctrig_ops,
 
 	OPT_cyclic,
+	OPT_cyclic_budget,
 	OPT_cyclic_dist,
 	OPT_cyclic_method,
 	OPT_cyclic_ops,

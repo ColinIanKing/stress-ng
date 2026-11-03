@@ -67,6 +67,9 @@ typedef struct {
 	double		latency_mean;	/* average latency */
 	int64_t		latency_mode;	/* first mode */
 	double		std_dev;	/* standard deviation */
+	int64_t		run_max_ns;	/* max latency of all samples, recorded or not */
+	uint64_t	budget_ns;	/* latency budget, 0 = disabled */
+	uint64_t	budget_overruns;	/* number of samples exceeding budget_ns */
 } stress_rt_stats_t;
 
 typedef int (*stress_cyclic_func)(stress_args_t *args, stress_rt_stats_t *rt_stats, uint64_t cyclic_sleep);
@@ -78,6 +81,7 @@ typedef struct {
 
 static const stress_help_t help[] = {
 	{ NULL,	"cyclic N",		"start N cyclic real time benchmark stressors" },
+	{ NULL,	"cyclic-budget N",	"fail if any latency sample exceeds N nanoseconds" },
 	{ NULL,	"cyclic-dist N",	"calculate distribution of interval N nanosecs" },
 	{ NULL,	"cyclic-method M",	"specify cyclic method M, default is clock_ns" },
 	{ NULL,	"cyclic-ops N",		"stop after N cyclic timing cycles" },
@@ -115,6 +119,26 @@ static const stress_policy_t cyclic_policies[] = {
 };
 
 #define NUM_CYCLIC_POLICIES	(SIZEOF_ARRAY(cyclic_policies))
+
+/*
+ *  stress_cyclic_record()
+ *	record a latency sample; only the first cyclic_samples are
+ *	kept for the statistics, but the running maximum and budget
+ *	overrun count cover every sample of the run
+ */
+static inline void stress_cyclic_record(stress_rt_stats_t *rt_stats, const int64_t delta_ns)
+{
+	if (rt_stats->index < rt_stats->cyclic_samples)
+		rt_stats->latencies[rt_stats->index++] = delta_ns;
+	rt_stats->index_reqd++;
+
+	rt_stats->ns += (double)delta_ns;
+
+	if (delta_ns > rt_stats->run_max_ns)
+		rt_stats->run_max_ns = delta_ns;
+	if (rt_stats->budget_ns && (delta_ns > (int64_t)rt_stats->budget_ns))
+		rt_stats->budget_overruns++;
+}
 
 /*
  *  stress_cyclic_find_policy()
@@ -172,11 +196,7 @@ static void stress_cyclic_stats(
 		   (t2->tv_nsec - t1->tv_nsec);
 	delta_ns -= cyclic_sleep;
 
-	if (rt_stats->index < rt_stats->cyclic_samples)
-		rt_stats->latencies[rt_stats->index++] = delta_ns;
-	rt_stats->index_reqd++;
-
-	rt_stats->ns += (double)delta_ns;
+	stress_cyclic_record(rt_stats, delta_ns);
 }
 #else
 	UNEXPECTED
@@ -280,11 +300,7 @@ static int stress_cyclic_poll(
 		if (delta_ns >= (int64_t)cyclic_sleep) {
 			delta_ns -= cyclic_sleep;
 
-			if (rt_stats->index < rt_stats->cyclic_samples)
-				rt_stats->latencies[rt_stats->index++] = delta_ns;
-			rt_stats->index_reqd++;
-
-			rt_stats->ns += (double)delta_ns;
+			stress_cyclic_record(rt_stats, delta_ns);
 			break;
 		}
 	}
@@ -385,11 +401,7 @@ static int stress_cyclic_itimer(
 		(itimer_time.tv_nsec - t1.tv_nsec);
 	delta_ns -= cyclic_sleep;
 
-	if (rt_stats->index < rt_stats->cyclic_samples)
-		rt_stats->latencies[rt_stats->index++] = delta_ns;
-	rt_stats->index_reqd++;
-
-	rt_stats->ns += (double)delta_ns;
+	stress_cyclic_record(rt_stats, delta_ns);
 
 	(void)timer_delete(timerid);
 
@@ -636,10 +648,11 @@ static int stress_cyclic(stress_args_t *args)
 	CLOBBERED uint64_t timeout;
 	uint64_t cyclic_sleep = DEFAULT_DELAY_NS;
 	uint64_t cyclic_dist = 0;
+	uint64_t cyclic_budget = 0;
 	int32_t cyclic_prio = INT32_MAX;
 	size_t cyclic_samples = DEFAULT_SAMPLES;
 	CLOBBERED int policy;
-	int rc = EXIT_SUCCESS;
+	CLOBBERED int rc = EXIT_SUCCESS;
 #if defined(SCHED_FIFO)
 	size_t cyclic_policy = stress_cyclic_find_policy(SCHED_FIFO);
 #else
@@ -654,6 +667,7 @@ static int stress_cyclic(stress_args_t *args)
 	char sched_ext_op[128];
 
 	timeout  = g_opt_timeout;
+	(void)stress_setting_get("cyclic-budget", &cyclic_budget);
 	(void)stress_setting_get("cyclic-dist", &cyclic_dist);
 	(void)stress_setting_get("cyclic-method", &cyclic_method);
 	(void)stress_setting_get("cyclic-policy", &cyclic_policy);
@@ -748,6 +762,9 @@ static int stress_cyclic(stress_args_t *args)
 	stress_memory_anon_name_set(rt_stats->latencies, rt_stats->latencies_size, "latencies");
 	rt_stats->min_ns = INT64_MAX;
 	rt_stats->max_ns = INT64_MIN;
+	rt_stats->run_max_ns = INT64_MIN;
+	rt_stats->budget_ns = cyclic_budget;
+	rt_stats->budget_overruns = 0;
 	rt_stats->ns = 0.0;
 #if defined(HAVE_SCHED_GET_PRIORITY_MIN)
 	rt_stats->min_prio = sched_get_priority_min(policy);
@@ -977,6 +994,20 @@ tidy:
 		}
 	}
 
+	if (cyclic_budget > 0) {
+		if (rt_stats->index_reqd == 0) {
+			pr_inf("%s: no samples collected, cannot evaluate latency budget\n", args->name);
+		} else if (rt_stats->budget_overruns) {
+			pr_fail("%s: latency budget exceeded: %" PRIu64 " of %zu samples > %" PRIu64 " ns, max latency %" PRId64 " ns\n",
+				args->name, rt_stats->budget_overruns, rt_stats->index_reqd,
+				cyclic_budget, rt_stats->run_max_ns);
+			rc = EXIT_FAILURE;
+		} else {
+			pr_inf("%s: latency budget met: max latency %" PRId64 " ns <= %" PRIu64 " ns over %zu samples\n",
+				args->name, rt_stats->run_max_ns, cyclic_budget, rt_stats->index_reqd);
+		}
+	}
+
 finish:
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
@@ -999,6 +1030,7 @@ static const char *stress_cyclic_policies(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
+	{ OPT_cyclic_budget,  "cyclic-budget",  TYPE_ID_UINT64, 1, INT64_MAX, NULL },
 	{ OPT_cyclic_dist,    "cyclic-dist",    TYPE_ID_UINT64, 1, 10000000, NULL },
 	{ OPT_cyclic_method,  "cyclic-method",  TYPE_ID_SIZE_T_METHOD, 0, 0, stress_cyclic_methods },
 	{ OPT_cyclic_policy,  "cyclic-policy",  TYPE_ID_SIZE_T_METHOD, 0, 0, stress_cyclic_policies },

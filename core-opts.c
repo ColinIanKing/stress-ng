@@ -240,6 +240,7 @@ const struct option stress_long_options[] = {
 	{ "ctrig-ops",		1,	NULL,	OPT_ctrig_ops },
 
 	{ "cyclic",		1,	NULL,	OPT_cyclic },
+	{ "cyclic-budget",	1,	NULL,	OPT_cyclic_budget },
 	{ "cyclic-dist",	1,	NULL,	OPT_cyclic_dist },
 	{ "cyclic-method",	1,	NULL,	OPT_cyclic_method },
 	{ "cyclic-ops",		1,	NULL,	OPT_cyclic_ops },
