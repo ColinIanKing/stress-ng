@@ -304,7 +304,7 @@ clear_journal()
 
 do_stress()
 {
-	ARGS="-t $DURATION --pathological --timestamp --tz --syslog --perf --no-rand-seed --times --metrics --klog-check --status 5 -x smi -v --interrupts --change-cpu"
+	ARGS="-t $DURATION --make-it-fail --pathological --timestamp --tz --syslog --perf --no-rand-seed --times --metrics --klog-check --status 5 -x smi -v --interrupts --change-cpu"
 	if grep -q "\-\-oom\-pipe" <<< "$*"; then
 		ARGS="$ARGS --oomable"
 	fi
