@@ -2758,6 +2758,12 @@ cyclic stressor instance. One has to run this stressor with CAP_SYS_NICE
 capability to enable the real time scheduling policies. The FIFO scheduling
 policy is the default.
 .TP
+.B \-\-cyclic\-budget N
+fail the stressor if the maximum measured latency exceeds N nanoseconds.
+This allows the cyclic stressor to be used as a pass/fail latency check,
+for example to verify that a real time task meets its worst case latency
+requirement while other workloads are running.
+.TP
 .B \-\-cyclic\-dist N
 calculate and print a latency distribution with the interval of N nanoseconds.
 This is helpful to see where the latencies are clustering.
