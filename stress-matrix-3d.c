@@ -75,6 +75,10 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_add(
 {
 	register size_t i;
 
+	ASSUME_SEPERATE_STORAGE(a, b);
+	ASSUME_SEPERATE_STORAGE(a, r);
+	ASSUME_SEPERATE_STORAGE(b, r);
+
 	for (i = 0; i < n; i++) {
 		register size_t j;
 
@@ -101,6 +105,10 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_add(
 {
 	register size_t k;
 
+	ASSUME_SEPERATE_STORAGE(a, b);
+	ASSUME_SEPERATE_STORAGE(a, r);
+	ASSUME_SEPERATE_STORAGE(b, r);
+
 	for (k = 0; k < n; k++) {
 		register size_t j;
 
@@ -125,6 +133,10 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_sub(
 	stress_matrix_3d_type_t r[RESTRICT n][n][n])
 {
 	register size_t i;
+
+	ASSUME_SEPERATE_STORAGE(a, b);
+	ASSUME_SEPERATE_STORAGE(a, r);
+	ASSUME_SEPERATE_STORAGE(b, r);
 
 	for (i = 0; i < n; i++) {
 		register size_t j;
@@ -151,6 +163,10 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_sub(
 	stress_matrix_3d_type_t r[RESTRICT n][n][n])
 {
 	register size_t k;
+
+	ASSUME_SEPERATE_STORAGE(a, b);
+	ASSUME_SEPERATE_STORAGE(a, r);
+	ASSUME_SEPERATE_STORAGE(b, r);
 
 	for (k = 0; k < n; k++) {
 		register size_t j;
@@ -179,6 +195,8 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_trans(
 
 	(void)b;
 
+	ASSUME_SEPERATE_STORAGE(a, r);
+
 	for (i = 0; i < n; i++) {
 		register size_t j;
 
@@ -205,6 +223,8 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_trans(
 	register size_t k;
 
 	(void)b;
+
+	ASSUME_SEPERATE_STORAGE(a, r);
 
 	for (k = 0; k < n; k++) {
 		register size_t j;
@@ -233,6 +253,8 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_mult(
 	stress_matrix_3d_type_t v = b[0][0][0];
 
 	(void)b;
+
+	ASSUME_SEPERATE_STORAGE(a, r);
 
 	for (i = 0; i < n; i++) {
 		register size_t j;
@@ -263,6 +285,8 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_mult(
 
 	(void)b;
 
+	ASSUME_SEPERATE_STORAGE(a, r);
+
 	for (k = 0; k < n; k++) {
 		register size_t j;
 
@@ -290,6 +314,8 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_div(
 	const stress_matrix_3d_type_t v = b[0][0][0];
 
 	(void)b;
+
+	ASSUME_SEPERATE_STORAGE(a, r);
 
 	for (i = 0; i < n; i++) {
 		register size_t j;
@@ -320,6 +346,8 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_div(
 
 	(void)b;
 
+	ASSUME_SEPERATE_STORAGE(a, r);
+
 	for (k = 0; k < n; k++) {
 		register size_t j;
 
@@ -345,6 +373,10 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_hadamard(
 	stress_matrix_3d_type_t r[RESTRICT n][n][n])
 {
 	register size_t i;
+
+	ASSUME_SEPERATE_STORAGE(a, b);
+	ASSUME_SEPERATE_STORAGE(a, r);
+	ASSUME_SEPERATE_STORAGE(b, r);
 
 	for (i = 0; i < n; i++) {
 		register size_t j;
@@ -372,6 +404,10 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_hadamard(
 	stress_matrix_3d_type_t r[RESTRICT n][n][n])
 {
 	register size_t k;
+
+	ASSUME_SEPERATE_STORAGE(a, b);
+	ASSUME_SEPERATE_STORAGE(a, r);
+	ASSUME_SEPERATE_STORAGE(b, r);
 
 	for (k = 0; k < n; k++) {
 		register size_t j;
@@ -401,6 +437,8 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_frobenius(
 	stress_matrix_3d_type_t sum = 0.0;
 
 	(void)r;
+
+	ASSUME_SEPERATE_STORAGE(a, b);
 
 	for (i = 0; i < n; i++) {
 		register size_t j;
@@ -433,6 +471,8 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_frobenius(
 
 	(void)r;
 
+	ASSUME_SEPERATE_STORAGE(a, b);
+
 	for (k = 0; k < n; k++) {
 		register size_t j;
 
@@ -460,6 +500,8 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_copy(
 	register size_t i;
 
 	(void)b;
+
+	ASSUME_SEPERATE_STORAGE(a, r);
 
 	for (i = 0; i < n; i++) {
 		register size_t j;
@@ -489,6 +531,8 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_copy(
 
 	(void)b;
 
+	ASSUME_SEPERATE_STORAGE(a, r);
+
 	for (k = 0; k < n; k++) {
 		register size_t j;
 
@@ -515,6 +559,10 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_mean(
 {
 	register size_t i;
 
+	ASSUME_SEPERATE_STORAGE(a, b);
+	ASSUME_SEPERATE_STORAGE(a, r);
+	ASSUME_SEPERATE_STORAGE(b, r);
+
 	for (i = 0; i < n; i++) {
 		register size_t j;
 
@@ -540,6 +588,10 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_mean(
 	stress_matrix_3d_type_t r[RESTRICT n][n][n])
 {
 	register size_t k;
+
+	ASSUME_SEPERATE_STORAGE(a, b);
+	ASSUME_SEPERATE_STORAGE(a, r);
+	ASSUME_SEPERATE_STORAGE(b, r);
 
 	for (k = 0; k < n; k++) {
 		register size_t j;
@@ -626,6 +678,8 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_negate(
 
 	(void)b;
 
+	ASSUME_SEPERATE_STORAGE(a, r);
+
 	for (i = 0; i < n; i++) {
 		register size_t j;
 
@@ -653,6 +707,8 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_negate(
 	register size_t k;
 
 	(void)b;
+
+	ASSUME_SEPERATE_STORAGE(a, r);
 
 	for (k = 0; k < n; k++) {
 		register size_t j;
@@ -769,6 +825,10 @@ static void OPTIMIZE3 stress_matrix_3d_xyz_all(
 {
 	double t;
 
+	ASSUME_SEPERATE_STORAGE(a, b);
+	ASSUME_SEPERATE_STORAGE(a, r);
+	ASSUME_SEPERATE_STORAGE(b, r);
+
 	current_method = matrix_3d_methods[method_all_index].name;
 
 	t = stress_time_now();
@@ -788,6 +848,10 @@ static void OPTIMIZE3 stress_matrix_3d_zyx_all(
 	stress_matrix_3d_type_t r[RESTRICT n][n][n])
 {
 	double t;
+
+	ASSUME_SEPERATE_STORAGE(a, b);
+	ASSUME_SEPERATE_STORAGE(a, r);
+	ASSUME_SEPERATE_STORAGE(b, r);
 
 	current_method = matrix_3d_methods[method_all_index].name;
 
