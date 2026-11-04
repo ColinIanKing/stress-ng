@@ -53,7 +53,6 @@ static const stress_help_t help[] = {
     defined(HAVE_PTSNAME)
 
 typedef struct {
-	char *followername;
 	int leader;
 	int follower;
 } stress_pty_info_t;
@@ -139,6 +138,8 @@ static int stress_pty(stress_args_t *args)
 		size_t n;
 
 		for (n = 0; n < pty_max; n++) {
+			char *followername;
+
 			ptys[n].follower = -1;
 			ptys[n].leader = open("/dev/ptmx", O_RDWR);
 			if (ptys[n].leader < 0) {
@@ -152,8 +153,8 @@ static int stress_pty(stress_args_t *args)
 				rc = EXIT_FAILURE;
 				goto clean;
 			} else {
-				ptys[n].followername = ptsname(ptys[n].leader);
-				if (UNLIKELY(!ptys[n].followername)) {
+				followername = ptsname(ptys[n].leader);
+				if (UNLIKELY(!followername)) {
 					pr_fail("%s: ptsname failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					rc = EXIT_FAILURE;
@@ -171,13 +172,13 @@ static int stress_pty(stress_args_t *args)
 					rc = EXIT_FAILURE;
 					goto clean;
 				}
-				ptys[n].follower = open(ptys[n].followername, O_RDWR);
+				ptys[n].follower = open(followername, O_RDWR);
 				if (UNLIKELY(ptys[n].follower < 0)) {
 					if (errno == EINTR)
 						break;
 					if (errno != EMFILE) {
 						pr_fail("%s: open '%s' failed, errno=%d (%s)\n",
-							args->name, ptys[n].followername, errno, strerror(errno));
+							args->name, followername, errno, strerror(errno));
 						rc = EXIT_FAILURE;
 						goto clean;
 					}
