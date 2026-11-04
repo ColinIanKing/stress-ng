@@ -1139,4 +1139,10 @@ static inline __uint128_t CONST ALWAYS_INLINE shim_ror128n(const __uint128_t x, 
 #define shim_ror64(x)	shim_ror64n((x), 1)
 #define shim_ror128(x)	shim_ror128n((x), 1)
 
+#if defined(HAVE_BUILTIN_ASSUME_SEPARATE_STORAGE)
+#define ASSUME_SEPERATE_STORAGE(a, b)	__builtin_assume_separate_storage(a, b)
+#else
+#define ASSUME_SEPERATE_STORAGE(a, b)	do { } while (0)
+#endif
+
 #endif
