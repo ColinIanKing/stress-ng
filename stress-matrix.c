@@ -74,6 +74,10 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_prod(
 {
 	size_t i;
 
+	ASSUME_SEPERATE_STORAGE(a, b);
+	ASSUME_SEPERATE_STORAGE(a, r);
+	ASSUME_SEPERATE_STORAGE(b, r);
+
 	for (i = 0; i < n; i++) {
 		register size_t j;
 
@@ -100,6 +104,10 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_prod(
 {
 	size_t j;
 
+	ASSUME_SEPERATE_STORAGE(a, b);
+	ASSUME_SEPERATE_STORAGE(a, r);
+	ASSUME_SEPERATE_STORAGE(b, r);
+
 	for (j = 0; j < n; j++) {
 		register size_t i;
 
@@ -125,6 +133,10 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_add(
 {
 	register size_t i;
 
+	ASSUME_SEPERATE_STORAGE(a, b);
+	ASSUME_SEPERATE_STORAGE(a, r);
+	ASSUME_SEPERATE_STORAGE(b, r);
+
 	for (i = 0; i < n; i++) {
 		register size_t j;
 
@@ -147,6 +159,10 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_add(
 {
 	register size_t j;
 
+	ASSUME_SEPERATE_STORAGE(a, b);
+	ASSUME_SEPERATE_STORAGE(a, r);
+	ASSUME_SEPERATE_STORAGE(b, r);
+
 	for (j = 0; j < n; j++) {
 		register size_t i;
 
@@ -167,6 +183,10 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_sub(
 	stress_matrix_type_t r[RESTRICT n][n])
 {
 	register size_t i;
+
+	ASSUME_SEPERATE_STORAGE(a, b);
+	ASSUME_SEPERATE_STORAGE(a, r);
+	ASSUME_SEPERATE_STORAGE(b, r);
 
 	for (i = 0; i < n; i++) {
 		register size_t j;
@@ -190,6 +210,10 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_sub(
 {
 	register size_t j;
 
+	ASSUME_SEPERATE_STORAGE(a, b);
+	ASSUME_SEPERATE_STORAGE(a, r);
+	ASSUME_SEPERATE_STORAGE(b, r);
+
 	for (j = 0; j < n; j++) {
 
 		register size_t i;
@@ -212,6 +236,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_trans(
 	register size_t i;
 
 	(void)b;
+	ASSUME_SEPERATE_STORAGE(a, r);
 
 	for (i = 0; i < n; i++) {
 		register size_t j;
@@ -236,6 +261,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_trans(
 	register size_t j;
 
 	(void)b;
+	ASSUME_SEPERATE_STORAGE(a, r);
 
 	for (j = 0; j < n; j++) {
 		register size_t i;
@@ -258,6 +284,10 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_mult(
 {
 	register size_t i;
 	const stress_matrix_type_t v = b[0][0];
+
+	ASSUME_SEPERATE_STORAGE(a, b);
+	ASSUME_SEPERATE_STORAGE(a, r);
+	ASSUME_SEPERATE_STORAGE(b, r);
 
 	for (i = 0; i < n; i++) {
 		register size_t j;
@@ -282,6 +312,10 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_mult(
 	register size_t j;
 	const stress_matrix_type_t v = b[0][0];
 
+	ASSUME_SEPERATE_STORAGE(a, b);
+	ASSUME_SEPERATE_STORAGE(a, r);
+	ASSUME_SEPERATE_STORAGE(b, r);
+
 	for (j = 0; j < n; j++) {
 		register size_t i;
 
@@ -303,6 +337,10 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_div(
 {
 	register size_t i;
 	const stress_matrix_type_t v = b[0][0];
+
+	ASSUME_SEPERATE_STORAGE(a, b);
+	ASSUME_SEPERATE_STORAGE(a, r);
+	ASSUME_SEPERATE_STORAGE(b, r);
 
 	for (i = 0; i < n; i++) {
 		register size_t j;
@@ -327,6 +365,10 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_div(
 	register size_t j;
 	const stress_matrix_type_t v = b[0][0];
 
+	ASSUME_SEPERATE_STORAGE(a, b);
+	ASSUME_SEPERATE_STORAGE(a, r);
+	ASSUME_SEPERATE_STORAGE(b, r);
+
 	for (j = 0; j < n; j++) {
 		register size_t i;
 
@@ -348,6 +390,10 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_hadamard(
 	stress_matrix_type_t r[RESTRICT n][n])
 {
 	register size_t i;
+
+	ASSUME_SEPERATE_STORAGE(a, b);
+	ASSUME_SEPERATE_STORAGE(a, r);
+	ASSUME_SEPERATE_STORAGE(b, r);
 
 	for (i = 0; i < n; i++) {
 		register size_t j;
@@ -371,6 +417,10 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_hadamard(
 	stress_matrix_type_t r[RESTRICT n][n])
 {
 	register size_t j;
+
+	ASSUME_SEPERATE_STORAGE(a, b);
+	ASSUME_SEPERATE_STORAGE(a, r);
+	ASSUME_SEPERATE_STORAGE(b, r);
 
 	for (j = 0; j < n; j++) {
 		register size_t i;
@@ -396,6 +446,8 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_frobenius(
 	stress_matrix_type_t sum = 0.0;
 
 	(void)r;
+
+	ASSUME_SEPERATE_STORAGE(a, b);
 
 	for (i = 0; i < n; i++) {
 		register size_t j;
@@ -424,6 +476,8 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_frobenius(
 
 	(void)r;
 
+	ASSUME_SEPERATE_STORAGE(a, b);
+
 	for (j = 0; j < n; j++) {
 		register size_t i;
 
@@ -447,6 +501,8 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_copy(
 	register size_t i;
 
 	(void)b;
+
+	ASSUME_SEPERATE_STORAGE(a, r);
 
 	for (i = 0; i < n; i++) {
 		register size_t j;
@@ -472,6 +528,8 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_copy(
 
 	(void)b;
 
+	ASSUME_SEPERATE_STORAGE(a, r);
+
 	for (j = 0; j < n; j++) {
 		register size_t i;
 
@@ -494,6 +552,10 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_mean(
 {
 	register size_t i;
 
+	ASSUME_SEPERATE_STORAGE(a, b);
+	ASSUME_SEPERATE_STORAGE(a, r);
+	ASSUME_SEPERATE_STORAGE(b, r);
+
 	for (i = 0; i < n; i++) {
 		register size_t j;
 
@@ -515,6 +577,10 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_mean(
 	stress_matrix_type_t r[RESTRICT n][n])
 {
 	register size_t j;
+
+	ASSUME_SEPERATE_STORAGE(a, b);
+	ASSUME_SEPERATE_STORAGE(a, r);
+	ASSUME_SEPERATE_STORAGE(b, r);
 
 	for (j = 0; j < n; j++) {
 		register size_t i;
@@ -589,6 +655,8 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_negate(
 
 	(void)b;
 
+	ASSUME_SEPERATE_STORAGE(a, r);
+
 	for (i = 0; i < n; i++) {
 		register size_t j;
 
@@ -611,8 +679,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_negate(
 {
 	register size_t j;
 
-	(void)a;
 	(void)b;
+
+	ASSUME_SEPERATE_STORAGE(a, r);
 
 	for (j = 0; j < n; j++) {
 		register size_t i;
@@ -686,6 +755,8 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_square(
 
 	(void)b;
 
+	ASSUME_SEPERATE_STORAGE(a, r);
+
 	for (i = 0; i < n; i++) {
 		register size_t j;
 
@@ -713,6 +784,8 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_square(
 	size_t j;
 
 	(void)b;
+
+	ASSUME_SEPERATE_STORAGE(a, r);
 
 	for (j = 0; j < n; j++) {
 		register size_t i;
@@ -783,6 +856,10 @@ static void OPTIMIZE3 stress_matrix_xy_all(
 {
 	double t;
 
+	ASSUME_SEPERATE_STORAGE(a, b);
+	ASSUME_SEPERATE_STORAGE(a, r);
+	ASSUME_SEPERATE_STORAGE(b, r);
+
 	current_method = matrix_methods[method_all_index].name;
 
 	t = stress_time_now();
@@ -802,6 +879,10 @@ static void OPTIMIZE3 stress_matrix_yx_all(
 	stress_matrix_type_t r[RESTRICT n][n])
 {
 	double t;
+
+	ASSUME_SEPERATE_STORAGE(a, b);
+	ASSUME_SEPERATE_STORAGE(a, r);
+	ASSUME_SEPERATE_STORAGE(b, r);
 
 	current_method = matrix_methods[method_all_index].name;
 
