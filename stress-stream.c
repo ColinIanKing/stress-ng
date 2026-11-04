@@ -118,6 +118,9 @@ static inline void x (						\
 	register uint64_t i;					\
 	register double volatile *RESTRICT cv = c;		\
 								\
+	ASSUME_SEPERATE_STORAGE(c, a);				\
+	ASSUME_SEPERATE_STORAGE(cv, a);				\
+								\
 PRAGMA_UNROLL_N(8)						\
 	for (i = 0; i < n; i += 4) {				\
 		STORE(cv[i + 0], a[i + 0]);			\
@@ -151,6 +154,8 @@ static inline void 		x (				\
 	double *const RESTRICT fp_ops)				\
 {								\
 	register uint64_t i;					\
+								\
+	ASSUME_SEPERATE_STORAGE(c, a);				\
 								\
 PRAGMA_UNROLL_N(8)						\
 	for (i = 0; i < n; i += 4) {				\
@@ -189,6 +194,11 @@ static inline void x (						\
 	register uint64_t i;					\
 	register double volatile *RESTRICT cv = c;		\
 								\
+	ASSUME_SEPERATE_STORAGE(c, a);				\
+	ASSUME_SEPERATE_STORAGE(cv, a);				\
+	ASSUME_SEPERATE_STORAGE(c, idx1);			\
+	ASSUME_SEPERATE_STORAGE(cv, idx1);			\
+								\
 PRAGMA_UNROLL_N(8)						\
 	for (i = 0; i < n; i++) {				\
 		const size_t idx = idx1[i];			\
@@ -226,6 +236,14 @@ static inline void x(						\
 	register uint64_t i;					\
 	register double volatile *RESTRICT cv = c;		\
 								\
+	ASSUME_SEPERATE_STORAGE(c, a);				\
+	ASSUME_SEPERATE_STORAGE(cv, a);				\
+	ASSUME_SEPERATE_STORAGE(c, idx1);			\
+	ASSUME_SEPERATE_STORAGE(cv, idx1);			\
+	ASSUME_SEPERATE_STORAGE(c, idx2);			\
+	ASSUME_SEPERATE_STORAGE(cv, idx2);			\
+	ASSUME_SEPERATE_STORAGE(idx1, idx2);			\
+								\
 PRAGMA_UNROLL_N(8)						\
 	for (i = 0; i < n; i++)					\
 		STORE(cv[idx1[i]], a[idx2[i]]);			\
@@ -260,6 +278,18 @@ static inline void x(						\
 	register uint64_t i;					\
 	register double volatile *RESTRICT cv = c;		\
 								\
+	ASSUME_SEPERATE_STORAGE(c, a);				\
+	ASSUME_SEPERATE_STORAGE(cv, a);				\
+	ASSUME_SEPERATE_STORAGE(c, idx1);			\
+	ASSUME_SEPERATE_STORAGE(cv, idx1);			\
+	ASSUME_SEPERATE_STORAGE(c, idx2);			\
+	ASSUME_SEPERATE_STORAGE(cv, idx2);			\
+	ASSUME_SEPERATE_STORAGE(c, idx3);			\
+	ASSUME_SEPERATE_STORAGE(cv, idx3);			\
+	ASSUME_SEPERATE_STORAGE(idx1, idx2);			\
+	ASSUME_SEPERATE_STORAGE(idx1, idx3);			\
+	ASSUME_SEPERATE_STORAGE(idx2, idx3);			\
+								\
 PRAGMA_UNROLL_N(8)						\
 	for (i = 0; i < n; i++)					\
 		STORE(cv[idx3[idx1[i]]], a[idx2[i]]);		\
@@ -292,6 +322,9 @@ static inline void x(						\
 {								\
 	register uint64_t i;					\
 	register double volatile *RESTRICT bv = b;		\
+								\
+	ASSUME_SEPERATE_STORAGE(b, c);				\
+	ASSUME_SEPERATE_STORAGE(bv, c);				\
 								\
 PRAGMA_UNROLL_N(8)						\
 	for (i = 0; i < n; i += 4) {				\
@@ -327,6 +360,8 @@ static inline void x(						\
 	double *const RESTRICT fp_ops)				\
 {								\
 	register uint64_t i;					\
+								\
+	ASSUME_SEPERATE_STORAGE(b, c);				\
 								\
 PRAGMA_UNROLL_N(8)						\
 	for (i = 0; i < n; i += 4) {				\
@@ -366,6 +401,11 @@ static inline void x(						\
 	register uint64_t i;					\
 	register double volatile *RESTRICT bv = b;		\
 								\
+	ASSUME_SEPERATE_STORAGE(b, c);				\
+	ASSUME_SEPERATE_STORAGE(bv, c);				\
+	ASSUME_SEPERATE_STORAGE(b, idx1);			\
+	ASSUME_SEPERATE_STORAGE(bv, idx1);			\
+								\
 PRAGMA_UNROLL_N(8)						\
 	for (i = 0; i < n; i++) {				\
 		const size_t idx = idx1[i];			\
@@ -403,6 +443,14 @@ static inline void x(						\
 	register uint64_t i;					\
 	register double volatile *RESTRICT bv = b;		\
 								\
+	ASSUME_SEPERATE_STORAGE(b, c);				\
+	ASSUME_SEPERATE_STORAGE(bv, c);				\
+	ASSUME_SEPERATE_STORAGE(b, idx1);			\
+	ASSUME_SEPERATE_STORAGE(bv, idx1);			\
+	ASSUME_SEPERATE_STORAGE(b, idx2);			\
+	ASSUME_SEPERATE_STORAGE(bv, idx2);			\
+	ASSUME_SEPERATE_STORAGE(idx1, idx2);			\
+								\
 PRAGMA_UNROLL_N(8)						\
 	for (i = 0; i < n; i++)					\
 		STORE(bv[idx1[i]], q * c[idx2[i]]);		\
@@ -438,6 +486,18 @@ static inline void x(						\
 	register uint64_t i;					\
 	register double volatile *RESTRICT bv = b;		\
 								\
+	ASSUME_SEPERATE_STORAGE(b, c);				\
+	ASSUME_SEPERATE_STORAGE(bv, c);				\
+	ASSUME_SEPERATE_STORAGE(b, idx1);			\
+	ASSUME_SEPERATE_STORAGE(bv, idx1);			\
+	ASSUME_SEPERATE_STORAGE(b, idx2);			\
+	ASSUME_SEPERATE_STORAGE(bv, idx2);			\
+	ASSUME_SEPERATE_STORAGE(b, idx3);			\
+	ASSUME_SEPERATE_STORAGE(bv, idx3);			\
+	ASSUME_SEPERATE_STORAGE(idx1, idx2);			\
+	ASSUME_SEPERATE_STORAGE(idx1, idx3);			\
+	ASSUME_SEPERATE_STORAGE(idx2, idx3);			\
+								\
 PRAGMA_UNROLL_N(8)						\
 	for (i = 0; i < n; i++)					\
 		STORE(bv[idx3[idx1[i]]], q * c[idx2[i]]);	\
@@ -470,6 +530,12 @@ static inline void x(						\
 {								\
 	register uint64_t i;					\
 	register double volatile *RESTRICT cv = c;		\
+								\
+	ASSUME_SEPERATE_STORAGE(a, b);				\
+	ASSUME_SEPERATE_STORAGE(a, c);				\
+	ASSUME_SEPERATE_STORAGE(a, cv);				\
+	ASSUME_SEPERATE_STORAGE(b, c);				\
+	ASSUME_SEPERATE_STORAGE(b, cv);				\
 								\
 PRAGMA_UNROLL_N(8)						\
 	for (i = 0; i < n; i += 4) {				\
@@ -506,6 +572,10 @@ static inline void x(						\
 	double *const RESTRICT fp_ops)				\
 {								\
 	register uint64_t i;					\
+								\
+	ASSUME_SEPERATE_STORAGE(a, b);				\
+	ASSUME_SEPERATE_STORAGE(a, c);				\
+	ASSUME_SEPERATE_STORAGE(b, c);				\
 								\
 PRAGMA_UNROLL_N(8)						\
 	for (i = 0; i < n; i += 4) {				\
@@ -546,6 +616,16 @@ static inline void x(						\
 	register uint64_t i;					\
 	register double volatile *RESTRICT cv = c;		\
 								\
+	ASSUME_SEPERATE_STORAGE(a, b);				\
+	ASSUME_SEPERATE_STORAGE(a, c);				\
+	ASSUME_SEPERATE_STORAGE(a, cv);				\
+	ASSUME_SEPERATE_STORAGE(a, idx1);			\
+	ASSUME_SEPERATE_STORAGE(b, c);				\
+	ASSUME_SEPERATE_STORAGE(b, cv);				\
+	ASSUME_SEPERATE_STORAGE(b, idx1);			\
+	ASSUME_SEPERATE_STORAGE(c, idx1);			\
+	ASSUME_SEPERATE_STORAGE(cv, idx1);			\
+								\
 PRAGMA_UNROLL_N(8)						\
 	for (i = 0; i < n; i++) {				\
 		const size_t idx = idx1[i];			\
@@ -582,6 +662,21 @@ static inline void x(						\
 {								\
 	register uint64_t i;					\
 	register double volatile *RESTRICT cv = c;		\
+								\
+	ASSUME_SEPERATE_STORAGE(a, b);				\
+	ASSUME_SEPERATE_STORAGE(a, c);				\
+	ASSUME_SEPERATE_STORAGE(a, cv);				\
+	ASSUME_SEPERATE_STORAGE(a, idx1);			\
+	ASSUME_SEPERATE_STORAGE(a, idx2);			\
+	ASSUME_SEPERATE_STORAGE(b, c);				\
+	ASSUME_SEPERATE_STORAGE(b, cv);				\
+	ASSUME_SEPERATE_STORAGE(b, idx1);			\
+	ASSUME_SEPERATE_STORAGE(b, idx2);			\
+	ASSUME_SEPERATE_STORAGE(c, idx1);			\
+	ASSUME_SEPERATE_STORAGE(c, idx2);			\
+	ASSUME_SEPERATE_STORAGE(cv, idx1);			\
+	ASSUME_SEPERATE_STORAGE(cv, idx2);			\
+	ASSUME_SEPERATE_STORAGE(idx1, idx2);			\
 								\
 PRAGMA_UNROLL_N(8)						\
 	for (i = 0; i < n; i++) {				\
@@ -622,6 +717,27 @@ static inline void x(						\
 	register uint64_t i;					\
 	register double volatile *RESTRICT cv = c;		\
 								\
+	ASSUME_SEPERATE_STORAGE(a, b);				\
+	ASSUME_SEPERATE_STORAGE(a, c);				\
+	ASSUME_SEPERATE_STORAGE(a, cv);				\
+	ASSUME_SEPERATE_STORAGE(a, idx1);			\
+	ASSUME_SEPERATE_STORAGE(a, idx2);			\
+	ASSUME_SEPERATE_STORAGE(a, idx3);			\
+	ASSUME_SEPERATE_STORAGE(b, c);				\
+	ASSUME_SEPERATE_STORAGE(b, cv);				\
+	ASSUME_SEPERATE_STORAGE(b, idx1);			\
+	ASSUME_SEPERATE_STORAGE(b, idx2);			\
+	ASSUME_SEPERATE_STORAGE(b, idx3);			\
+	ASSUME_SEPERATE_STORAGE(c, idx1);			\
+	ASSUME_SEPERATE_STORAGE(c, idx2);			\
+	ASSUME_SEPERATE_STORAGE(c, idx3);			\
+	ASSUME_SEPERATE_STORAGE(cv, idx1);			\
+	ASSUME_SEPERATE_STORAGE(cv, idx2);			\
+	ASSUME_SEPERATE_STORAGE(cv, idx3);			\
+	ASSUME_SEPERATE_STORAGE(idx1, idx2);			\
+	ASSUME_SEPERATE_STORAGE(idx1, idx3);			\
+	ASSUME_SEPERATE_STORAGE(idx2, idx3);			\
+								\
 PRAGMA_UNROLL_N(8)						\
 	for (i = 0; i < n; i++)					\
 		STORE(cv[idx1[i]], a[idx2[i]] + b[idx3[i]]);	\
@@ -655,6 +771,12 @@ static inline void x(						\
 {								\
 	register uint64_t i;					\
 	register double volatile *RESTRICT av = a;		\
+								\
+	ASSUME_SEPERATE_STORAGE(a, b);				\
+	ASSUME_SEPERATE_STORAGE(a, c);				\
+	ASSUME_SEPERATE_STORAGE(av, b);				\
+	ASSUME_SEPERATE_STORAGE(av, c);				\
+	ASSUME_SEPERATE_STORAGE(b, c);				\
 								\
 PRAGMA_UNROLL_N(8)						\
 	for (i = 0; i < n; i += 4) {				\
@@ -692,6 +814,10 @@ static inline void x(						\
 	double *const RESTRICT fp_ops)				\
 {								\
 	register uint64_t i;					\
+								\
+	ASSUME_SEPERATE_STORAGE(a, b);				\
+	ASSUME_SEPERATE_STORAGE(a, c);				\
+	ASSUME_SEPERATE_STORAGE(b, c);				\
 								\
 PRAGMA_UNROLL_N(8)						\
 	for (i = 0; i < n; i += 4) {				\
@@ -732,6 +858,16 @@ static inline void x(						\
 	register uint64_t i;					\
 	register double volatile *RESTRICT av = a;		\
 								\
+	ASSUME_SEPERATE_STORAGE(a, b);				\
+	ASSUME_SEPERATE_STORAGE(a, c);				\
+	ASSUME_SEPERATE_STORAGE(a, idx1);			\
+	ASSUME_SEPERATE_STORAGE(av, b);				\
+	ASSUME_SEPERATE_STORAGE(av, c);				\
+	ASSUME_SEPERATE_STORAGE(av, idx1);			\
+	ASSUME_SEPERATE_STORAGE(b, c);				\
+	ASSUME_SEPERATE_STORAGE(b, idx1);			\
+	ASSUME_SEPERATE_STORAGE(c, idx1);			\
+								\
 PRAGMA_UNROLL_N(8)						\
 	for (i = 0; i < n; i++) {				\
 		const size_t idx = idx1[i];			\
@@ -768,6 +904,21 @@ static inline void x(						\
 {								\
 	register uint64_t i;					\
 	register double volatile *RESTRICT av = a;		\
+								\
+	ASSUME_SEPERATE_STORAGE(a, b);				\
+	ASSUME_SEPERATE_STORAGE(a, c);				\
+	ASSUME_SEPERATE_STORAGE(a, idx1);			\
+	ASSUME_SEPERATE_STORAGE(a, idx2);			\
+	ASSUME_SEPERATE_STORAGE(av, b);				\
+	ASSUME_SEPERATE_STORAGE(av, c);				\
+	ASSUME_SEPERATE_STORAGE(av, idx1);			\
+	ASSUME_SEPERATE_STORAGE(av, idx2);			\
+	ASSUME_SEPERATE_STORAGE(b, c);				\
+	ASSUME_SEPERATE_STORAGE(b, idx1);			\
+	ASSUME_SEPERATE_STORAGE(b, idx2);			\
+	ASSUME_SEPERATE_STORAGE(c, idx1);			\
+	ASSUME_SEPERATE_STORAGE(c, idx2);			\
+	ASSUME_SEPERATE_STORAGE(idx1, idx2);			\
 								\
 PRAGMA_UNROLL_N(8)						\
 	for (i = 0; i < n; i++) {				\
@@ -809,6 +960,27 @@ static inline void x(						\
 	register uint64_t i;					\
 	register double volatile *RESTRICT av = a;		\
 								\
+	ASSUME_SEPERATE_STORAGE(a, b);				\
+	ASSUME_SEPERATE_STORAGE(a, c);				\
+	ASSUME_SEPERATE_STORAGE(a, idx1);			\
+	ASSUME_SEPERATE_STORAGE(a, idx2);			\
+	ASSUME_SEPERATE_STORAGE(a, idx3);			\
+	ASSUME_SEPERATE_STORAGE(av, b);				\
+	ASSUME_SEPERATE_STORAGE(av, c);				\
+	ASSUME_SEPERATE_STORAGE(av, idx1);			\
+	ASSUME_SEPERATE_STORAGE(av, idx2);			\
+	ASSUME_SEPERATE_STORAGE(av, idx3);			\
+	ASSUME_SEPERATE_STORAGE(b, c);				\
+	ASSUME_SEPERATE_STORAGE(b, idx1);			\
+	ASSUME_SEPERATE_STORAGE(b, idx2);			\
+	ASSUME_SEPERATE_STORAGE(b, idx3);			\
+	ASSUME_SEPERATE_STORAGE(c, idx1);			\
+	ASSUME_SEPERATE_STORAGE(c, idx2);			\
+	ASSUME_SEPERATE_STORAGE(c, idx3);			\
+	ASSUME_SEPERATE_STORAGE(idx1, idx2);			\
+	ASSUME_SEPERATE_STORAGE(idx1, idx3);			\
+	ASSUME_SEPERATE_STORAGE(idx2, idx3);			\
+								\
 PRAGMA_UNROLL_N(8)						\
 	for (i = 0; i < n; i++)					\
 		STORE(av[idx1[i]], b[idx2[i]] +			\
@@ -843,6 +1015,10 @@ static inline ALWAYS_INLINE void stress_stream_init_data(
 	register double v = (double)r * divisor;
 	register double *ptr;
 	register const double *ptr_end;
+
+	ASSUME_SEPERATE_STORAGE(a, b);
+	ASSUME_SEPERATE_STORAGE(a, c);
+	ASSUME_SEPERATE_STORAGE(b, c);
 
 PRAGMA_UNROLL_N(4)
 	for (ptr = a, ptr_end = a + n; ptr < ptr_end; ptr += 4) {
@@ -880,6 +1056,10 @@ static double TARGET_CLONES OPTIMIZE3 stress_stream_checksum_data(
 {
 	double checksum = 0.0;
 	register uint64_t i;
+
+	ASSUME_SEPERATE_STORAGE(a, b);
+	ASSUME_SEPERATE_STORAGE(a, c);
+	ASSUME_SEPERATE_STORAGE(b, c);
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < n; i++) {
@@ -1027,6 +1207,22 @@ static void OPTIMIZE3 TARGET_CLONES stress_stream_exercise(
 #if !defined(HAVE_PRAGMA_PREFETCH)
 	(void)stream_prefetch;
 #endif
+
+	ASSUME_SEPERATE_STORAGE(a, b);
+	ASSUME_SEPERATE_STORAGE(a, c);
+	ASSUME_SEPERATE_STORAGE(a, idx1);
+	ASSUME_SEPERATE_STORAGE(a, idx2);
+	ASSUME_SEPERATE_STORAGE(a, idx3);
+	ASSUME_SEPERATE_STORAGE(b, c);
+	ASSUME_SEPERATE_STORAGE(b, idx1);
+	ASSUME_SEPERATE_STORAGE(b, idx2);
+	ASSUME_SEPERATE_STORAGE(b, idx3);
+	ASSUME_SEPERATE_STORAGE(c, idx1);
+	ASSUME_SEPERATE_STORAGE(c, idx3);
+	ASSUME_SEPERATE_STORAGE(c, idx3);
+	ASSUME_SEPERATE_STORAGE(idx1, idx2);
+	ASSUME_SEPERATE_STORAGE(idx1, idx3);
+	ASSUME_SEPERATE_STORAGE(idx2, idx3);
 
 	switch (stream_index) {
 	case 3:
