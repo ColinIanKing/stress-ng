@@ -99,6 +99,7 @@ static void stress_fp_check(
     !defined(HAVE_COMPILER_MUSL) &&	\
     !defined(STRESS_ARCH_ARC64) &&	\
     !defined(__SOFTFP__) &&		\
+    !defined(__riscv_float_abi_soft) &&	\
     NEED_GNUC(4,8,0)
 	if (stress_double_same(val, val_expected, is_nan, is_inf) &&
 	    (fetestexcept(excepts_expected) & excepts_expected) &&
