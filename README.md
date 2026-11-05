@@ -710,7 +710,7 @@ I appreciate information concerning kernel bugs or performance regressions found
 * [Linux Foundation, ELISA, June 2024](https://www.youtube.com/watch?v=-B1K-xpICtQ)
 * [Linux Foundation, ELISA Workshop, June 2026](https://directory.elisa.tech/workshops/2026-06-London/D2-13-15_Improving_kernel_test_coverage_with_stress-ng_Colin_King.pdf)
 * [Linux Plumbers Conference, Oct 2026, Paper](https://lpc.events/event/20/contributions/2358/attachments/2172/4824/stress-ng-lpc-2026-prague.pdf)
-* [Linux Plumbers Conference, Oct 2026, Video]](https://www.youtube.com/watch?v=Klzvyhur6xk)
+* [Linux Plumbers Conference, Oct 2026, Video](https://www.youtube.com/watch?v=Klzvyhur6xk)
 
 ## Citations
 
