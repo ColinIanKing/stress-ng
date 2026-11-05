@@ -331,7 +331,6 @@ static int stress_readpages(stress_args_t *args)
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (data != MAP_FAILED) {
 		stress_mmap_set(data, data_size, page_size);
-		stress_mmap_discontiguous(data, data_size);
 		if (stress_instance_zero(args))
 			stress_memory_usage_get(args, data_size, data_size * args->instances);
 	}
