@@ -135,8 +135,14 @@ static void stress_setting_show_setting(
 			setting->u.sint, show_type ? " (signed int)" : "");
 		break;
 	case TYPE_ID_OFF_T:
+	case TYPE_ID_OFF_T_BYTES_FS:
 		pr_func(" %-20.20s %ju %s\n", setting->name,
 			(uintmax_t)setting->u.off, show_type ? " (off_t)" : "");
+		break;
+	case TYPE_ID_OFF_T_BYTES_FS_PERCENT:
+		pr_func(" %-20.20s %s%% %s\n", setting->name,
+			stress_uint64_to_str(tmp, sizeof(tmp), (uint64_t)setting->u.off, 1, false),
+			show_type ? " (off_t)" : "");
 		break;
 	case TYPE_ID_STR:
 		pr_func(" %-20.20s %s %s\n", setting->name,
@@ -321,6 +327,8 @@ static int stress_setting_generic_set(
 		setting->u.sint = *(const int *)value;
 		break;
 	case TYPE_ID_OFF_T:
+	case TYPE_ID_OFF_T_BYTES_FS:
+	case TYPE_ID_OFF_T_BYTES_FS_PERCENT:
 		setting->u.off = *(const off_t *)value;
 		break;
 	case TYPE_ID_STR:
@@ -475,8 +483,13 @@ bool stress_setting_get(const char *name, void *value)
 				*(int *)value = setting->u.sint;
 				break;
 			case TYPE_ID_OFF_T:
+			case TYPE_ID_OFF_T_BYTES_FS:
 				set = true;
 				*(off_t *)value = setting->u.off;
+				break;
+			case TYPE_ID_OFF_T_BYTES_FS_PERCENT:
+				set = true;
+				*(uint64_t *)value = setting->u.uint64 * (stress_fs_size_get() / 100);
 				break;
 			case TYPE_ID_STR:
 				set = true;

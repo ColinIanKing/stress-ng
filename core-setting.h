@@ -49,6 +49,8 @@ typedef enum {
 	TYPE_ID_INT_DOMAIN,		/* net domain */
 	TYPE_ID_INT_PORT,		/* net port */
 	TYPE_ID_OFF_T,			/* off_t is always in bytes units */
+	TYPE_ID_OFF_T_BYTES_FS,		/* size_t in bytes units, file system */
+	TYPE_ID_OFF_T_BYTES_FS_PERCENT,	/* size_t in bytes units, file system */
 	TYPE_ID_STR,			/* char * */
 	TYPE_ID_BOOL,			/* bool */
 	TYPE_ID_SIZE_T_METHOD,		/* method index */

@@ -785,7 +785,7 @@ int stress_parse_opt(const char *stressor_name, const char *opt_arg, const stres
 		stress_check_range(opt_name, (uint64_t)setting.u.size, min, max);
 		return stress_setting_set(stressor_name, opt_name, TYPE_ID_SIZE_T, &setting.u.size);
 	case TYPE_ID_SIZE_T_BYTES:
-		/* size_t in butess units, generic */
+		/* size_t in bytes units, generic */
 		setting.u.size = (size_t)stress_get_uint64_byte(opt_arg);
 		stress_check_range(opt_name, (uint64_t)setting.u.size, min, max);
 		return stress_setting_set(stressor_name, opt_name, TYPE_ID_SIZE_T_BYTES, &setting.u.size);
@@ -850,6 +850,13 @@ int stress_parse_opt(const char *stressor_name, const char *opt_arg, const stres
 		setting.u.off = (off_t)stress_get_uint64_byte_filesystem(opt_arg, 1, &percentage);
 		stress_check_range_bytes(opt_name, (uint64_t)setting.u.off, min, max);
 		return stress_setting_set(stressor_name, opt_name, TYPE_ID_OFF_T, &setting.u.off);
+	case TYPE_ID_OFF_T_BYTES_FS:
+		/* size_t in file system bytes units */
+		setting.u.off = (off_t)stress_get_uint64_byte_filesystem(opt_arg, 1, &percentage);
+		if (percentage)
+			return stress_setting_set(stressor_name, opt_name, TYPE_ID_OFF_T_BYTES_FS_PERCENT, &setting.u.off);
+		stress_check_range(opt_name, (uint64_t)setting.u.off, min, max);
+		return stress_setting_set(stressor_name, opt_name, TYPE_ID_OFF_T_BYTES_FS, &setting.u.off);
 	case TYPE_ID_STR:
 		return stress_setting_set(stressor_name, opt_name, TYPE_ID_STR, opt_arg);
 	case TYPE_ID_BOOL:
