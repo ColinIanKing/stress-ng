@@ -1368,6 +1368,10 @@ typedef enum {
 	OPT_readahead_bytes,
 	OPT_readahead_ops,
 
+	OPT_readpages,
+	OPT_readpages_ops,
+	OPT_readpages_prefetch,
+
 	OPT_reboot,
 	OPT_reboot_ops,
 

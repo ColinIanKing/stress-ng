@@ -1282,6 +1282,11 @@ const struct option stress_long_options[] = {
 	{ "readahead-bytes",	1,	NULL,	OPT_readahead_bytes },
 	{ "readahead-ops",	1,	NULL,	OPT_readahead_ops },
 
+
+	{ "readpages",		1,	NULL,	OPT_readpages },
+	{ "readpages-ops",	1,	NULL,	OPT_readpages_ops },
+	{ "readpages-prefetch", 0,	NULL,	OPT_readpages_prefetch },
+
 	{ "reboot",		1,	NULL,	OPT_reboot },
 	{ "reboot-ops",		1,	NULL,	OPT_reboot_ops },
 

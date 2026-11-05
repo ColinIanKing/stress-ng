@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "2 November 2026"
+.TH STRESS-NG 1 "5 November 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -8611,6 +8611,24 @@ GBytes using the suffix b, k, m or g.
 .TP
 .B \-\-readahead\-ops N
 stop readahead stress workers after N bogo read operations.
+.RE
+.TP
+.B Read pages stressor
+.RS 5
+.TQ
+.B \-\-readpages N
+start N workers that read every readable page in their address space. This
+traverses the address space of the stressor and reads every byte in every read-only
+accessible page. Data is read using 128 bit integer reads if supported, otherwise
+64 bit integer reads are used. This exercises page lookup, translation lookaside
+buffers, memory bus reads and the data cache. Linux only.
+.TP
+.B \-\-readpages\-ops N
+stop after N reads of the entire process address space.
+.TP
+.B \-\-readpages\-prefetch
+where available, enable prefetching of data to help improve the speed of page
+reads. This will fall back to normal memory reading if prefetching is not available.
 .RE
 .TP
 .B Reboot stressor

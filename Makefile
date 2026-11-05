@@ -770,6 +770,7 @@ STRESS_SRC = \
 	stress-rawudp.c \
 	stress-rdrand.c \
 	stress-readahead.c \
+	stress-readpages.c \
 	stress-reboot.c \
 	stress-regex.c \
 	stress-regs.c \

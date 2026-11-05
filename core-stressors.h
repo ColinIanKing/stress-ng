@@ -279,6 +279,7 @@
 	MACRO(rawudp)		\
 	MACRO(rdrand)		\
 	MACRO(readahead)	\
+	MACRO(readpages)	\
 	MACRO(reboot)		\
 	MACRO(regex)		\
 	MACRO(regs)		\
