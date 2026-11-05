@@ -44,7 +44,7 @@ UNEXPECTED
 #endif
 
 static const stress_opt_t opts[] = {
-	{ OPT_sync_file_bytes, "sync-file-bytes", TYPE_ID_OFF_T, MIN_SYNC_FILE_BYTES, MAX_SYNC_FILE_BYTES, NULL },
+	{ OPT_sync_file_bytes, "sync-file-bytes", TYPE_ID_OFF_T_BYTES_FS, MIN_SYNC_FILE_BYTES, MAX_SYNC_FILE_BYTES, NULL },
 	END_OPT,
 };
 
