@@ -31,7 +31,7 @@ static const stress_help_t help[] = {
 };
 
 static const stress_opt_t opts[] = {
-	{ OPT_fallocate_bytes, "fallocate-bytes", TYPE_ID_OFF_T, MIN_FALLOCATE_BYTES, MAX_FALLOCATE_BYTES, NULL },
+	{ OPT_fallocate_bytes, "fallocate-bytes", TYPE_ID_OFF_T_BYTES_FS, MIN_FALLOCATE_BYTES, MAX_FALLOCATE_BYTES, NULL },
 	END_OPT,
 };
 
