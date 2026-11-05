@@ -28,7 +28,7 @@
  *      return true if 64 bit value n is prime
  *      http://en.wikipedia.org/wiki/Primality_test
  */
-bool CONST stress_prime64_check(const uint64_t n)
+bool CONST OPTIMIZE3 stress_prime64_check(const uint64_t n)
 {
 	register uint64_t i;
 	register uint64_t max;
@@ -54,7 +54,7 @@ bool CONST stress_prime64_check(const uint64_t n)
  *	call will return the next prime to keep the
  *	primes different each call.
  */
-uint64_t stress_prime64_next_get(const uint64_t n)
+uint64_t OPTIMIZE3 stress_prime64_next_get(const uint64_t n)
 {
 	static uint64_t p = 1009;
 	const uint64_t odd_n = (n & 0x0ffffffffffffffeUL) + 1;
@@ -81,7 +81,7 @@ uint64_t stress_prime64_next_get(const uint64_t n)
  *	used for file name striding. Minimum is 1009,
  *	max is unbounded. Return a prime > n.
  */
-uint64_t stress_prime64_get(const uint64_t n)
+uint64_t OPTIMIZE3 stress_prime64_get(const uint64_t n)
 {
 	uint64_t p = 1009;
 	const uint64_t odd_n = (n & 0x0ffffffffffffffeUL) + 1;
