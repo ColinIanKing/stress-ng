@@ -242,7 +242,7 @@ static int stress_dirmany(stress_args_t *args)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_dirmany_bytes, "dirmany-bytes", TYPE_ID_OFF_T, MIN_DIRMANY_BYTES, MAX_DIRMANY_BYTES, NULL },
+	{ OPT_dirmany_bytes, "dirmany-bytes", TYPE_ID_OFF_T_BYTES_FS, MIN_DIRMANY_BYTES, MAX_DIRMANY_BYTES, NULL },
 	END_OPT,
 };
 
