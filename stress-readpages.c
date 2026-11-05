@@ -39,7 +39,9 @@ static const stress_opt_t opts[] = {
 
 typedef void (*readpages_func_t)(const uintptr_t begin, const uintptr_t end);
 
-#define PREFETCH_OFFSET	(128)
+#define PREFETCH_OFFSET		(128)
+#define PREFETCH_RD		(0)
+#define PREFETCH_LOCALIITY	(3)
 
 #define PTR_OFFSET(ptr)		(void *)(((uintptr_t)ptr) + PREFETCH_OFFSET)
 
@@ -56,28 +58,28 @@ static void OPTIMIZE3 stress_readpages_mapping_prefetch(
 	volatile __uint128_t *ptr;
 
 	for (ptr = (__uint128_t *)begin; ptr < (__uint128_t *)end;) {
-		shim_builtin_prefetch(PTR_OFFSET(ptr), 2, 3);
+		shim_builtin_prefetch(PTR_OFFSET(ptr), PREFETCH_RD, PREFETCH_LOCALIITY);
 		(void)*(ptr + 0);
 		(void)*(ptr + 1);
 		(void)*(ptr + 2);
 		(void)*(ptr + 3);
 		ptr += 4;
 
-		shim_builtin_prefetch(PTR_OFFSET(ptr), 2, 3);
+		shim_builtin_prefetch(PTR_OFFSET(ptr), PREFETCH_RD, PREFETCH_LOCALIITY);
 		(void)*(ptr + 0);
 		(void)*(ptr + 1);
 		(void)*(ptr + 2);
 		(void)*(ptr + 3);
 		ptr += 4;
 
-		shim_builtin_prefetch(PTR_OFFSET(ptr), 2, 3);
+		shim_builtin_prefetch(PTR_OFFSET(ptr), PREFETCH_RD, PREFETCH_LOCALIITY);
 		(void)*(ptr + 0);
 		(void)*(ptr + 1);
 		(void)*(ptr + 2);
 		(void)*(ptr + 3);
 		ptr += 4;
 
-		shim_builtin_prefetch(PTR_OFFSET(ptr), 2, 3);
+		shim_builtin_prefetch(PTR_OFFSET(ptr), PREFETCH_RD, PREFETCH_LOCALIITY);
 		(void)*(ptr + 0);
 		(void)*(ptr + 1);
 		(void)*(ptr + 2);
@@ -135,7 +137,7 @@ static void OPTIMIZE3 stress_readpages_mapping_prefetch(
 	volatile uint64_t *ptr;
 
 	for (ptr = (uint64_t *)begin; ptr < (uint64_t *)end;) {
-		shim_builtin_prefetch(PTR_OFFSET(ptr), 2, 3);
+		shim_builtin_prefetch(PTR_OFFSET(ptr), PREFETCH_RD, PREFETCH_LOCALIITY);
 		(void)*(ptr + 0);
 		(void)*(ptr + 1);
 		(void)*(ptr + 2);
@@ -146,7 +148,7 @@ static void OPTIMIZE3 stress_readpages_mapping_prefetch(
 		(void)*(ptr + 7);
 		ptr += 8;
 
-		shim_builtin_prefetch(PTR_OFFSET(ptr), 2, 3);
+		shim_builtin_prefetch(PTR_OFFSET(ptr), PREFETCH_RD, PREFETCH_LOCALIITY);
 		(void)*(ptr + 0);
 		(void)*(ptr + 1);
 		(void)*(ptr + 2);
@@ -157,7 +159,7 @@ static void OPTIMIZE3 stress_readpages_mapping_prefetch(
 		(void)*(ptr + 7);
 		ptr += 8;
 
-		shim_builtin_prefetch(PTR_OFFSET(ptr), 2, 3);
+		shim_builtin_prefetch(PTR_OFFSET(ptr), PREFETCH_RD, PREFETCH_LOCALIITY);
 		(void)*(ptr + 0);
 		(void)*(ptr + 1);
 		(void)*(ptr + 2);
@@ -168,7 +170,7 @@ static void OPTIMIZE3 stress_readpages_mapping_prefetch(
 		(void)*(ptr + 7);
 		ptr += 8;
 
-		shim_builtin_prefetch(PTR_OFFSET(ptr), 2, 3);
+		shim_builtin_prefetch(PTR_OFFSET(ptr), PREFETCH_RD, PREFETCH_LOCALIITY);
 		(void)*(ptr + 0);
 		(void)*(ptr + 1);
 		(void)*(ptr + 2);
