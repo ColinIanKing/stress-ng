@@ -425,7 +425,7 @@ tidy_s_pids:
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_metamix_bytes, "metamix-bytes", TYPE_ID_OFF_T, MIN_METAMIX_BYTES, MAX_METAMIX_BYTES, NULL },
+	{ OPT_metamix_bytes, "metamix-bytes", TYPE_ID_OFF_T_BYTES_FS, MIN_METAMIX_BYTES, MAX_METAMIX_BYTES, NULL },
 	END_OPT,
 };
 
