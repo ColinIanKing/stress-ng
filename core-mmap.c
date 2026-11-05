@@ -683,7 +683,7 @@ void OPTIMIZE3 stress_mmap_discontiguous(void *addr, const size_t len)
 		4096,
 	};
 
-	for (i = 0; i < SIZEOF_ARRAY(page_sizes); i++) {
+	for (i = 0; (i < SIZEOF_ARRAY(page_sizes)) && stress_continue_flag(); i++) {
 		const size_t page_size = page_sizes[i];
 		register const size_t page_2_skip = page_size << 1;
 		register uint8_t *ptr = (uint8_t *)addr;
@@ -700,7 +700,7 @@ void OPTIMIZE3 stress_mmap_discontiguous(void *addr, const size_t len)
 		if (madvise(addr, len, MADV_DONTNEED) < 0)
 			return;
 
-		while (ptr < ptr_end) {
+		while ((ptr < ptr_end) && stress_continue_flag()) {
 			*(volatile uint8_t *)ptr;
 			ptr += page_2_skip;
 		}
