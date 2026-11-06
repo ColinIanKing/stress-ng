@@ -71,7 +71,7 @@ static const stress_opt_t opts[] = {
  *  stress_pty_hangup()
  *  	hangup pty fd, either don't hangup, use B0 CBAUD or tcssendbreak
  */
-static void stress_pty_hangup(const int fd)
+static inline ALWAYS_INLINE void stress_pty_hangup(const int fd)
 {
 	switch (stress_mwc8modn(3)) {
 	case 0:
@@ -589,7 +589,6 @@ static int stress_pty(stress_args_t *args)
 				int orig_ldisc;
 
 				if (ioctl(ptys[i].follower, TIOCGETD, &orig_ldisc) == 0) {
-					pr_block_begin();
 					for (ldisc = 0; ldisc < max_ldisc; ldisc++) {
 						int j;
 
@@ -604,7 +603,6 @@ static int stress_pty(stress_args_t *args)
 						}
 					}
 					VOID_RET(int, ioctl(ptys[i].follower, TIOCSETD, &orig_ldisc));
-					pr_block_end();
 					(void)shim_sched_yield();
 				}
 			}
