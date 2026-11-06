@@ -21,7 +21,8 @@
 #include "core-pragma.h"
 #include "core-target-clones.h"
 
-#define THRESH	(63)
+#define THRESH			(63)
+#define FISHER_YATES_SHUFFLE
 
 uint64_t stress_sort_compares ALIGN64;
 
@@ -87,6 +88,54 @@ void OPTIMIZE3 stress_sort_data_int32_init(int32_t *data, const size_t n)
 	}
 }
 
+#if defined(FISHER_YATES_SHUFFLE)
+
+#define MODULO_REDUCTION(val, max)	((uint32_t)(((uint64_t)(val) * (uint64_t)(max)) >> 32))
+
+/*
+ * stress_sort_data_int32_shuffle()
+ *	Fisher-Yates shuffle using modulo reduction random on random(n)
+ *	calculation
+ * 	https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
+ * 	NOTE: n must be < 2^32
+ */
+void OPTIMIZE3 stress_sort_data_int32_shuffle(int32_t *data, const size_t n)
+{
+	register uint32_t const a = 16843009;
+	register uint32_t const c = 826366247;
+	register uint32_t seed = stress_mwc32();
+	register uint32_t i;
+	register uint32_t *data32 = (uint32_t *)data;
+	register const uint32_t max = (uint32_t)n;
+
+	if (UNLIKELY((sizeof(n) > 32) && (n & ~(size_t)0xffffffffU))) {
+		pr_err("%s(): n too large\n", __func__);
+		return;
+	}
+
+#if defined(FISHER_YATES_REVERSE)
+	/* less optimial */
+	for (i = max - 1; i > 0; i--) {
+		register uint32_t j = MODULO_REDUCTION(seed, i + 1);
+		register const uint32_t tmp = data32[j];
+
+		data32[j] = data32[i];
+		seed = a * seed + c;
+		data32[i] = tmp;
+	}
+#else
+	/* forward is slightly faster on most systems */
+	for (i = 1; i < max; i++) {
+		register uint32_t j = MODULO_REDUCTION(seed, i + 1);
+		register const uint32_t tmp = data32[j];
+
+		data32[j] = data32[i];
+		seed = a * seed + c;
+		data32[i] = tmp;
+	}
+#endif
+}
+#else
 void OPTIMIZE3 stress_sort_data_int32_shuffle(int32_t *data, const size_t n)
 {
 	register uint32_t const a = 16843009;
@@ -120,6 +169,7 @@ PRAGMA_UNROLL_N(8)
 		}
 	}
 }
+#endif
 
 static void OPTIMIZE3 sort_swap8(void *p1, void *p2, register const size_t size)
 {
