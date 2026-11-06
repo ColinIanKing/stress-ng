@@ -583,7 +583,7 @@ static int stress_pagescatter(stress_args_t *args)
 		for (i = 0; i <= info->order; i++) {
 			size_t j;
 
-			(void)snprintf(buffer, sizeof(buffer), "%10d", 1U << i);
+			(void)snprintf(buffer, sizeof(buffer), "%10u", 1U << i);
 			for (j = 0; j < SCATTER_MAX; j++) {
 				if (info->rate[i].duration[j] > 0.0) {
 					double rate = info->rate[i].duration[j] > 0.0 ?
