@@ -234,23 +234,7 @@ done:
 	errno = saved_errno;
 }
 
-/*
- *  stress_signest_shuffle()
- *	randomly shuffle order of signals array
- */
-static inline void stress_signest_shuffle(void)
-{
-	register size_t i;
-
-	for (i = 0; i < max_signals; i++) {
-		register const size_t j = (size_t)stress_mwc32modn((uint32_t)max_signals);
-		stress_signal_t tmp;
-
-		tmp = signals[i];
-		signals[i] = signals[j];
-		signals[j] = tmp;
-	}
-}
+STRESS_SHUFFLE(stress_signest_shuffle, stress_signal_t)
 
 static int stress_signest_cmp(const void *p1, const void *p2)
 {
@@ -363,7 +347,7 @@ static int stress_signest(stress_args_t *args)
 		(void)shim_raise(signals[signal_index].signum);
 		raised++;
 		if (UNLIKELY((raised & 0x3f) == 0))
-			stress_signest_shuffle();
+			stress_signest_shuffle(signals, max_signals);
 	} while (stress_continue(args));
 
 finish:

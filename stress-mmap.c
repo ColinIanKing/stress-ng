@@ -26,6 +26,7 @@
 #include "core-mmap.h"
 #include "core-numa.h"
 #include "core-out-of-memory.h"
+#include "core-sort.h"
 
 #if defined(HAVE_SYS_PRCTL_H)
 #include <sys/prctl.h>
@@ -388,41 +389,7 @@ static void stress_mmap_invalid(
 		(void)stress_munmap_force(ptr, length);
 }
 
-/*
- *  stress_mmap_index_shuffle()
- *	single pass Fisher-Yates shuffle to mix up page mapping orders
- *
- *      note: for a perfectly fair random distribution we should be
- *	using stress_mwc*modn2() however this is an expensive
- *	operation for cases where n is not a power of 2 which is quite
- *	likely when running on systems with non-power of 2 instances.
- *	Using stress_mwc*() is much faster and is good enough for this
- *	kind of random-ish fast and dirty shuffle operation.
- */
-static void OPTIMIZE3 stress_mmap_index_shuffle(size_t *idx, const size_t n)
-{
-	register size_t i;
-
-	if (LIKELY(n <= 0xffffffff)) {
-		/* small index < 4GB of items we can use faster 32bit mod */
-		for (i = 1; i < n; i++) {
-			register const size_t j = (size_t)stress_mwc32modn((uint32_t)(i + 1));
-			register const size_t tmp = idx[i];
-
-			idx[i] = idx[j];
-			idx[j] = tmp;
-		}
-	} else {
-		/* large index > 4GB of items use slower 64bit mod */
-		for (i = 1; i < n; i++) {
-			register const size_t j = (size_t)stress_mwc64modn((uint32_t)(i + 1));
-			register const size_t tmp = idx[i];
-
-			idx[i] = idx[j];
-			idx[j] = tmp;
-		}
-	}
-}
+STRESS_SHUFFLE(stress_mmap_index_shuffle, size_t)
 
 /*
  *  stress_mmap_fast_munmap()

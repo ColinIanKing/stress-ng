@@ -20,6 +20,7 @@
 #include "core-builtin.h"
 #include "core-killpid.h"
 #include "core-mmap.h"
+#include "core-sort.h"
 
 #define UNLINK_PROCS		(3)
 #define UNLINK_FILES		(1024)	/* must be power of 2 and less than 65536 */
@@ -30,18 +31,7 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-static void stress_unlink_shuffle(size_t idx[UNLINK_FILES], const size_t mask)
-{
-	register size_t i;
-
-	for (i = 0; i < UNLINK_FILES; i++) {
-		register const size_t j = stress_mwc16() & mask;
-		register const size_t tmp = idx[i];
-
-		idx[i] = idx[j];
-		idx[j] = tmp;
-	}
-}
+STRESS_SHUFFLE(stress_unlink_shuffle, size_t)
 
 /*
  *  stress_unlink_exercise()
@@ -90,7 +80,7 @@ static void stress_unlink_exercise(
 		fds[i] = -1;
 	}
 
-	stress_unlink_shuffle(idx, mask);
+	stress_unlink_shuffle(idx, UNLINK_FILES);
 
 	do {
 		for (i = 0; i < UNLINK_FILES; i++)

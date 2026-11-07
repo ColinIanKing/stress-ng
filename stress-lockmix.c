@@ -21,6 +21,7 @@
 #include "core-builtin.h"
 #include "core-killpid.h"
 #include "core-signal.h"
+#include "core-sort.h"
 
 #if defined(HAVE_SYS_FILE_H)
 #include <sys/file.h>
@@ -491,6 +492,8 @@ static int stress_lockmix_contention(
 	return 0;
 }
 
+STRESS_SHUFFLE(stress_lockmix_shuffle, uint8_t)
+
 /*
  *  stress_lockmix
  *	stress file locking via advisory locking
@@ -596,14 +599,7 @@ redo:
 	for (i = 0; i < n; i++)
 		lock_types[lock_types_max++] = LOCKMIX_TYPE_LOCKOFD;
 #endif
-	for (i = 0; i < lock_types_max; i++) {
-		uint8_t tmp;
-		const size_t j = stress_mwcsizemodn(lock_types_max);
-
-		tmp = lock_types[i];
-		lock_types[i] = lock_types[j];
-		lock_types[j] = tmp;
-	}
+	stress_lockmix_shuffle(lock_types, lock_types_max);
 
 	if (stress_instance_zero(args))
 		stress_fs_usage_bytes(args, LOCK_FILE_SIZE, LOCK_FILE_SIZE * args->instances);

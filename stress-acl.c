@@ -19,6 +19,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-mmap.h"
+#include "core-sort.h"
 
 #if defined(HAVE_SYS_ACL_H)
 #include <sys/acl.h>
@@ -199,6 +200,8 @@ static inline void stress_acl_free(acl_t *acls, const size_t acl_count)
 	}
 }
 
+STRESS_SHUFFLE(stress_acl_shuffle, acl_t)
+
 /*
  *  stress_acl_setup()
  *	setup valid ACLs
@@ -309,19 +312,8 @@ static int stress_acl_setup(
 		}
 	}
 
-	if (acl_rand) {
-		register size_t i;
-		register const size_t n = *acl_count;
-
-		for (i = 0; i < n; i++) {
-			register acl_t tmp;
-			register const size_t j = (size_t)stress_mwc32modn((uint32_t)n);
-
-			tmp = acls[i];
-			acls[i] = acls[j];
-			acls[j] = tmp;
-		}
-	}
+	if (acl_rand)
+		stress_acl_shuffle(acls, *acl_count);
 	return EXIT_SUCCESS;
 }
 

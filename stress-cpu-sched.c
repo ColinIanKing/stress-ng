@@ -24,6 +24,7 @@
 #include "core-killpid.h"
 #include "core-numa.h"
 #include "core-out-of-memory.h"
+#include "core-sort.h"
 
 #include <sched.h>
 #include <time.h>
@@ -322,6 +323,8 @@ static int stress_cpu_sched_setscheduler(const pid_t pid)
 	return 0;
 }
 
+STRESS_SHUFFLE(stress_sched_pid_shuffle, stress_pid_t)
+
 /*
  *  stress_cpu_sched_mix_pids()
  *	change order of pids
@@ -337,15 +340,8 @@ static void stress_cpu_sched_mix_pids(stress_pid_t *mix_pids, stress_pid_t *orig
 		(void)shim_memcpy(mix_pids, orig_pids, n * sizeof(*mix_pids));
 		break;
 	case 1:
-		/* Fisher-Yates shuffle */
 		(void)shim_memcpy(mix_pids, orig_pids, n * sizeof(*mix_pids));
-		for (i = 1; i < n; i++) {
-			register const size_t j = stress_mwcsizemodn(i + 1);
-			stress_pid_t tmp = mix_pids[i];
-
-			mix_pids[i] = mix_pids[j];
-			mix_pids[j] = tmp;
-		}
+		stress_sched_pid_shuffle(mix_pids, n);
 		break;
 	case 2:
 		/* Reverse order */

@@ -20,6 +20,7 @@
 #include "core-arch.h"
 #include "core-asm-x86.h"
 #include "core-pragma.h"
+#include "core-sort.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"x86cpuid N",		"start N workers exercising the x86 cpuid instruction" },
@@ -115,6 +116,8 @@ static const stress_cpuid_regs_t ALIGN64 stress_cpuid_regs[] = {
 	{ 0xc0000006, 0x00000000, false },	/* Zhaoxin Feature Information */
 };
 
+STRESS_SHUFFLE(stress_x86cpuid_shuffle, uint8_t)
+
 static void OPTIMIZE3 stress_x86cpuid_reorder_regs(const size_t n, stress_cpuid_regs_t *reordered_cpu_regs)
 {
 	uint8_t ALIGN64 idx[SIZEOF_ARRAY(stress_cpuid_regs)];
@@ -123,14 +126,7 @@ static void OPTIMIZE3 stress_x86cpuid_reorder_regs(const size_t n, stress_cpuid_
 	for (i = 0; i < n; i++)
 		idx[i] = (uint8_t)i;
 
-	for (i = 0; i < n; i++) {
-		register const size_t j = stress_mwcsizemodn(n);
-		register uint8_t tmp;
-
-		tmp = idx[i];
-		idx[i] = idx[j];
-		idx[j] = tmp;
-	}
+	stress_x86cpuid_shuffle(idx, n);
 
 	for (i = 0; i < n; i++)
 		reordered_cpu_regs[i] = stress_cpuid_regs[idx[i]];

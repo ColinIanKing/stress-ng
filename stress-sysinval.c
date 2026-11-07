@@ -23,6 +23,7 @@
 #include "core-killpid.h"
 #include "core-out-of-memory.h"
 #include "core-signal.h"
+#include "core-sort.h"
 
 #include <sys/socket.h>
 
@@ -2641,6 +2642,8 @@ static void syscall_permute(
 	}
 }
 
+STRESS_SHUFFLE(stress_sysinval_shuffle, size_t)
+
 /*
  *  Call a system call in a child context so we don't clobber
  *  the parent
@@ -2666,7 +2669,6 @@ static inline int stress_do_syscall(stress_args_t *args)
 		_exit(EXIT_NO_RESOURCE);
 	} else if (pid == 0) {
 		size_t i;
-		size_t n;
 		size_t reorder[SYSCALL_ARGS_SIZE];
 
 		/* We don't want bad ops clobbering this region */
@@ -2692,29 +2694,14 @@ static inline int stress_do_syscall(stress_args_t *args)
 		stress_mwc_reseed();
 
 		while (stress_continue(args)) {
-			const size_t sz = SIZEOF_ARRAY(reorder);
-
 			for (i = 0; i < SIZEOF_ARRAY(reorder); i++)
 				reorder[i] = i;
 
 			/*
 			 * 50% of the time we do syscalls in shuffled order
 			 */
-			if (stress_mwc1()) {
-				/*
-				 *  Shuffle syscall order
-				 */
-				for (n = 0; n < 5; n++) {
-					for (i = 0; i < SIZEOF_ARRAY(reorder); i++) {
-						register size_t tmp;
-						register const size_t j = (sz == 0) ? 0 : stress_mwc32modn(sz);
-
-						tmp = reorder[i];
-						reorder[i] = reorder[j];
-						reorder[j] = tmp;
-					}
-				}
-			}
+			if (stress_mwc1())
+				stress_sysinval_shuffle(reorder, SIZEOF_ARRAY(reorder));
 
 			for (i = 0; LIKELY(stress_continue(args) && (i < SYSCALL_ARGS_SIZE)); i++) {
 				register const size_t j = reorder[i];

@@ -24,6 +24,7 @@
 #include "core-madvise.h"
 #include "core-mmap.h"
 #include "core-numa.h"
+#include "core-sort.h"
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 #include <linux/mempolicy.h>
@@ -169,6 +170,9 @@ static void stress_numa_check_maps(
 	(*total_nodes)++;
 	(void)fclose(fp);
 }
+
+STRESS_SHUFFLE(stress_numa_shuffle_addr, void *)
+STRESS_SHUFFLE(stress_numa_shuffle_nodes, int)
 
 /*
  *  stress_numa()
@@ -619,24 +623,10 @@ static int stress_numa(stress_args_t *args)
 				if (k >= num_pages)
 					k = 0;
 			}
-			if (numa_shuffle_addr) {
-				for (i = 1; i < num_pages; i++) {
-					register const size_t l = stress_mwc32modn((uint32_t)i + 1);
-					register void *tmp = pages[i];
-
-					pages[i] = pages[l];
-					pages[l] = tmp;
-				}
-			}
-			if (numa_shuffle_node) {
-				for (i = 1; i < num_pages; i++) {
-					register const size_t l = stress_mwc32modn((uint32_t)i + 1);
-					register int tmp = dest_nodes[i];
-
-					dest_nodes[i] = dest_nodes[l];
-					dest_nodes[l] = tmp;
-				}
-			}
+			if (numa_shuffle_addr)
+				stress_numa_shuffle_addr(pages, num_pages);
+			if (numa_shuffle_node)
+				stress_numa_shuffle_nodes(dest_nodes, num_pages);
 
 			/* Touch each page */
 			for (i = 0; i < num_pages; i++) {

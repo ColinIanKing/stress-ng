@@ -21,6 +21,7 @@
 #include "core-arch.h"
 #include "core-mmap.h"
 #include "core-pragma.h"
+#include "core-sort.h"
 
 #define MIN_REMAP_PAGES		(1)
 #define MAX_REMAP_PAGES		(0x80000000ULL)
@@ -136,6 +137,8 @@ static int OPTIMIZE3 remap_order(
 
 	return 0;
 }
+
+STRESS_SHUFFLE(stress_remap_shuffle, size_t)
 
 /*
  *  stress_remap
@@ -261,14 +264,7 @@ static int stress_remap(stress_args_t *args)
 PRAGMA_UNROLL_N(4)
 		for (i = 0; i < remap_pages; i++)
 			order[i] = i;
-PRAGMA_UNROLL_N(4)
-		for (i = 0; i < remap_pages; i++) {
-			size_t tmp, j = stress_mwc16() & (remap_pages - 1);
-
-			tmp = order[i];
-			order[i] = order[j];
-			order[j] = tmp;
-		}
+		stress_remap_shuffle(order, remap_pages);
 
 		if (UNLIKELY(remap_order(args, stride, data, remap_pages, order, page_size, remap_mlock, &duration, &count) < 0)) {
 			rc = EXIT_NO_RESOURCE;

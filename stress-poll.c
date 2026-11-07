@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-affinity.h"
 #include "core-killpid.h"
+#include "core-sort.h"
 
 #define MIN_POLL_FDS	(1)
 #define MAX_POLL_FDS	(8192)	/* Must be never larger than 65535 */
@@ -93,6 +94,8 @@ static ssize_t OPTIMIZE3 pipe_read(stress_args_t *args, const int fd, const size
 	return -1;
 }
 
+STRESS_SHUFFLE(stress_poll_shuffle, int)
+
 /*
  *  stress_poll()
  *	stress system by rapid polling system calls
@@ -152,17 +155,9 @@ static int OPTIMIZE3 stress_poll(stress_args_t *args)
 	}
 
 	/* randomize: shuffle rnd_fds_index */
-	for (i = 0; i < max_rnd_fds; i++) {
+	for (i = 0; i < max_rnd_fds; i++)
 		rnd_fds_index[i] = (int)(i % max_fds);
-	}
-	for (i = 0; i < max_rnd_fds; i++) {
-		register const size_t j = stress_mwc32modn((uint32_t)max_rnd_fds);
-		register int tmp;
-
-		tmp = rnd_fds_index[i];
-		rnd_fds_index[i] = rnd_fds_index[j];
-		rnd_fds_index[j] = tmp;
-	}
+	stress_poll_shuffle(rnd_fds_index, max_rnd_fds);
 
 	for (i = 0; i < max_fds; i++) {
 		if (pipe(pipe_fds[i].fd) < 0) {

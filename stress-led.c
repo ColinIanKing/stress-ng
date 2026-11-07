@@ -20,6 +20,7 @@
 #include "core-attribute.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
+#include "core-sort.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"led N",	"start N workers that read and set LED settings" },
@@ -118,6 +119,8 @@ static void stress_led_info_free(stress_led_info_t *led_info_list)
 	}
 }
 
+STRESS_SHUFFLE(stress_led_shuffle, struct dirent *)
+
 /*
  *  stress_led_info_get()
  *	get a list of LED device paths of stress_led_info items
@@ -133,14 +136,8 @@ static stress_led_info_t *stress_led_info_get(void)
 	n_devs = scandir(sys_devices, &led_list, stress_led_dot_filter, NULL);
 	if (n_devs < 0)
 		return NULL;
-	for (i = 0; i < n_devs; i++) {
-		const size_t j = stress_mwcsizemodn((size_t)n_devs);
-		struct dirent *tmp;
 
-		tmp = led_list[j];
-		led_list[j] = led_list[i];
-		led_list[i] = tmp;
-	}
+	stress_led_shuffle(led_list, n_devs);
 
 	for (i = 0; i < n_devs; i++) {
 		stress_led_info_t *led_info;

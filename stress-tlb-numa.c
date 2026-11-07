@@ -27,6 +27,7 @@
 #include "core-out-of-memory.h"
 #include "core-pragma.h"
 #include "core-pthread.h"
+#include "core-sort.h"
 
 #include <ctype.h>
 #include <sched.h>
@@ -84,25 +85,7 @@ typedef struct {
 	int		ret;			/* pthread create return */
 } stress_tlb_numa_pthread_t;
 
-/*
- *  stress_tlb_numa_shuffle_pages()
- *	randomly shuffle page mapping order
- */
-static void stress_tlb_numa_shuffle_pages(
-	uint8_t **pages,
-	const size_t n_pages)
-{
-	register size_t i;
-
-	for (i = 0; i < n_pages; i++) {
-		register uint8_t *tmp;
-		register const size_t j = stress_mwcsizemodn(n_pages);
-
-		tmp = pages[i];
-		pages[i] = pages[j];
-		pages[j] = tmp;
-	}
-}
+STRESS_SHUFFLE(stress_tlb_numa_shuffle_pages, uint8_t *)
 
 /*
  *  stress_tlb_numa_change_cpu()

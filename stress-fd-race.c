@@ -22,6 +22,7 @@
 #include "core-out-of-memory.h"
 #include "core-pthread.h"
 #include "core-signal.h"
+#include "core-sort.h"
 
 #include <sys/ioctl.h>
 #include <ctype.h>
@@ -98,6 +99,8 @@ static int stress_fd_race_close_range_flag(void)
 #endif
 }
 
+STRESS_SHUFFLE(stress_fd_shuffle, int)
+
 /*
  *  stress_fd_race_close_fds()
  *	close fds, use randomly chosen closing, either
@@ -145,15 +148,7 @@ static void stress_fd_race_close_fds(
 		break;
 	case 3:
 		/* Close fds in randomized order */
-		for (i = 1; i < n; i++) {
-			register const size_t j = stress_mwcsizemodn(i + 1);
-			register int tmp = fds[i];
-
-			fds[i] = fds[j];
-			fds[j] = tmp;
-		}
-		for (i = 0; i < n; i++)
-			(void)close(fds[i]);
+		stress_fd_shuffle(fds, n);
 		break;
 	}
 }

@@ -22,6 +22,7 @@
 #include <inttypes.h>
 #include "core-attribute.h"
 #include "core-builtin.h"
+#include "core-mwc.h"
 
 typedef void (*stress_sort_swap_func_t)(void *p1, void *p2, register size_t size);
 typedef void (*stress_sort_copy_func_t)(void *p1, void *p2, register size_t size);
@@ -127,5 +128,19 @@ STRESS_SORT_CMP_REV(int, int)
 
 #undef STRESS_SORT_CMP_FWD
 #undef STRESS_SORT_CMP_REV
+
+#define STRESS_SHUFFLE(func_name, type)					\
+static inline void ALWAYS_INLINE func_name(type *data, const size_t n)	\
+{									\
+	register size_t i;						\
+									\
+	for (i = 1; i < n; i++) {					\
+		register const size_t j = stress_mwcsizemodn(i + 1);	\
+		type tmp = data[i];					\
+									\
+		data[i] = data[j];					\
+		data[j] = tmp;						\
+	}								\
+}
 
 #endif
