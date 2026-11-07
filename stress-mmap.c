@@ -390,7 +390,7 @@ static void stress_mmap_invalid(
 
 /*
  *  stress_mmap_index_shuffle()
- *	single pass shuffle to mix up page mapping orders
+ *	single pass Fisher-Yates shuffle to mix up page mapping orders
  *
  *      note: for a perfectly fair random distribution we should be
  *	using stress_mwc*modn2() however this is an expensive
@@ -404,18 +404,19 @@ static void OPTIMIZE3 stress_mmap_index_shuffle(size_t *idx, const size_t n)
 	register size_t i;
 
 	if (LIKELY(n <= 0xffffffff)) {
-		/* small index < 4GB of items we can use 32bit mod */
-		for (i = 0; i < n; i++) {
+		/* small index < 4GB of items we can use faster 32bit mod */
+		for (i = 1; i < n; i++) {
+			register const size_t j = (size_t)stress_mwc32modn((uint32_t)(i + 1));
 			register const size_t tmp = idx[i];
-			register const size_t j = (size_t)stress_mwc32modn((uint32_t)n);
 
 			idx[i] = idx[j];
 			idx[j] = tmp;
 		}
 	} else {
+		/* large index > 4GB of items use slower 64bit mod */
 		for (i = 0; i < n; i++) {
+			register const size_t j = (size_t)stress_mwc64modn((uint32_t)(i + 1));
 			register const size_t tmp = idx[i];
-			register const size_t j = (size_t)stress_mwc64modn((uint64_t)n);
 
 			idx[i] = idx[j];
 			idx[j] = tmp;
