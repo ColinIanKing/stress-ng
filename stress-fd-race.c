@@ -145,13 +145,10 @@ static void stress_fd_race_close_fds(
 		break;
 	case 3:
 		/* Close fds in randomized order */
-		for (i = 0; i < n; i++) {
-			register size_t j;
-			register int tmp;
+		for (i = 1; i < n; i++) {
+			register const size_t j = stress_mwcsizemodn(i + 1);
+			register int tmp = fds[i];
 
-			j = stress_mwcsizemodn(n);
-
-			tmp = fds[i];
 			fds[i] = fds[j];
 			fds[j] = tmp;
 		}
