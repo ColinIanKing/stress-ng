@@ -328,8 +328,7 @@ static int stress_cpu_sched_setscheduler(const pid_t pid)
  */
 static void stress_cpu_sched_mix_pids(stress_pid_t *mix_pids, stress_pid_t *orig_pids, const size_t n)
 {
-	register int i;
-	register size_t j;
+	register size_t i;
 
 	switch (stress_mwc8modn(3)) {
 	default:
@@ -338,23 +337,20 @@ static void stress_cpu_sched_mix_pids(stress_pid_t *mix_pids, stress_pid_t *orig
 		(void)shim_memcpy(mix_pids, orig_pids, n * sizeof(*mix_pids));
 		break;
 	case 1:
-		/* Shuffle */
+		/* Fisher-Yates shuffle */
 		(void)shim_memcpy(mix_pids, orig_pids, n * sizeof(*mix_pids));
-		for (i = 0; i < 3; i++) {
-			for (j = 0; j < n; j++) {
-				stress_pid_t tmp;
-				const size_t k = stress_mwc8modn((uint8_t)n);
+		for (i = 1; i < n; i++) {
+			register const size_t j = stress_mwcsizemodn(i + 1);
+			stress_pid_t tmp = mix_pids[i];
 
-				tmp = mix_pids[j];
-				mix_pids[j] = mix_pids[k];
-				mix_pids[k] = tmp;
-			}
+			mix_pids[i] = mix_pids[j];
+			mix_pids[j] = tmp;
 		}
 		break;
 	case 2:
 		/* Reverse order */
-		for (j = 0; j < n; j++)
-			mix_pids[j] = orig_pids[(n - 1) - j];
+		for (i = 0; i < n; i++)
+			mix_pids[i] = orig_pids[(n - 1) - i];
 		break;
 	}
 }
