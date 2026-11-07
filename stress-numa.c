@@ -620,21 +620,19 @@ static int stress_numa(stress_args_t *args)
 					k = 0;
 			}
 			if (numa_shuffle_addr) {
-				for (i = 0; i < num_pages; i++) {
-					register const size_t l = stress_mwc32modn((uint32_t)num_pages);
-					register void *tmp;
+				for (i = 1; i < num_pages; i++) {
+					register const size_t l = stress_mwc32modn((uint32_t)i + 1);
+					register void *tmp = pages[i];
 
-					tmp = pages[i];
 					pages[i] = pages[l];
 					pages[l] = tmp;
 				}
 			}
 			if (numa_shuffle_node) {
-				for (i = 0; i < num_pages; i++) {
-					register const size_t l = stress_mwc32modn((uint32_t)num_pages);
-					register int tmp;
+				for (i = 1; i < num_pages; i++) {
+					register const size_t l = stress_mwc32modn((uint32_t)i + 1);
+					register int tmp = dest_nodes[i];
 
-					tmp = dest_nodes[i];
 					dest_nodes[i] = dest_nodes[l];
 					dest_nodes[l] = tmp;
 				}
