@@ -414,7 +414,7 @@ static void OPTIMIZE3 stress_mmap_index_shuffle(size_t *idx, const size_t n)
 		}
 	} else {
 		/* large index > 4GB of items use slower 64bit mod */
-		for (i = 0; i < n; i++) {
+		for (i = 1; i < n; i++) {
 			register const size_t j = (size_t)stress_mwc64modn((uint32_t)(i + 1));
 			register const size_t tmp = idx[i];
 
