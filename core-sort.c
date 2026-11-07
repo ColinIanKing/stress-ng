@@ -117,21 +117,21 @@ void OPTIMIZE3 stress_sort_data_int32_shuffle(int32_t *data, const size_t n)
 	/* less optimial */
 	for (i = max - 1; i > 0; i--) {
 		register uint32_t j = MODULO_REDUCTION(seed, i + 1);
-		register const uint32_t tmp = data32[j];
+		register const uint32_t tmp = data32[i];
 
-		data32[j] = data32[i];
+		data32[i] = data32[j];
 		seed = a * seed + c;
-		data32[i] = tmp;
+		data32[j] = tmp;
 	}
 #else
 	/* forward is slightly faster on most systems */
 	for (i = 1; i < max; i++) {
 		register uint32_t j = MODULO_REDUCTION(seed, i + 1);
-		register const uint32_t tmp = data32[j];
+		register const uint32_t tmp = data32[i];
 
-		data32[j] = data32[i];
+		data32[i] = data32[j];
 		seed = a * seed + c;
-		data32[i] = tmp;
+		data32[j] = tmp;
 	}
 #endif
 }
