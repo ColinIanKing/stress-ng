@@ -18,11 +18,12 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
-#include "core-cpu-cache.h"
 #include "core-builtin.h"
+#include "core-clocks.h"
+#include "core-cpu-cache.h"
 #include "core-io-priority.h"
 #include "core-signal.h"
-#include "core-clocks.h"
+#include "core-sort.h"
 
 #include <math.h>
 #include <sched.h>
@@ -494,34 +495,6 @@ static const char *syscall_xattr_name = "user.val";	/* xattr name */
      defined(HAVE_LREMOVEXATTR))
 static const char *syscall_lxattr_name = "trusted.val";	/* lxattr name */
 #endif
-
-/*
- *  syscall_shellsort_size_t()
- *	shellsort of size_t sized array
- *	this is used instead of qsort since some libc implementations
- *	do not provide qsort.
- */
-static void NOINLINE syscall_shellsort_size_t(
-	size_t *base,
-	size_t nmemb,
-	int (*cmp)(const void *, const void *))
-{
-	register size_t interval;
-
-	for (interval = nmemb / 2; interval > 0; interval /= 2) {
-		register ssize_t i;
-
-		for (i = interval; i < (ssize_t)nmemb; i++) {
-			register size_t j;
-			ssize_t tmp = base[i];
-
-			for (j = i; (j >= interval) && cmp(&base[j - interval], &tmp); j -= interval) {
-				base[j] = base[j - interval];
-			}
-			base[j] = tmp;
-		}
-	}
-}
 
 /*
  *  syscall_shared_error()
@@ -8809,9 +8782,10 @@ static void stress_syscall_report_syscall_top(stress_args_t *args)
 
 	/* Sort by average top */
 	if (syscall_top < STRESS_SYSCALLS_MAX)
-		syscall_shellsort_size_t(sort_index, STRESS_SYSCALLS_MAX, cmp_syscall_average);
+		 shim_qsort(sort_index, STRESS_SYSCALLS_MAX, sizeof(size_t), cmp_syscall_average);
+
 	/* Rank the top results by rank type */
-	syscall_shellsort_size_t(sort_index, syscall_top, syscall_ranks[syscall_rank].cmp);
+	shim_qsort(sort_index, syscall_top, sizeof(size_t), syscall_ranks[syscall_rank].cmp);
 
 	pr_block_begin();
 	pr_inf("%s: Top %zu fastest system calls (timings in nanosecs):\n",
@@ -8866,7 +8840,7 @@ static void stress_syscall_rank_calls_by_sort(const int percent)
 		sort_index[i] = i;
 	}
 
-	syscall_shellsort_size_t(sort_index, STRESS_SYSCALLS_MAX, cmp_test_duration);
+	shim_qsort(sort_index, STRESS_SYSCALLS_MAX, sizeof(size_t), cmp_test_duration);
 	max = (size_t)(STRESS_SYSCALLS_MAX * ((double)percent / 100.0));
 	for (n = 0, i = 0; (n < max) && (i < STRESS_SYSCALLS_MAX); i++) {
 		syscall_stats_t *ss = &syscall_stats[sort_index[i]];
