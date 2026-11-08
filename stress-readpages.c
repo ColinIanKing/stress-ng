@@ -22,7 +22,6 @@
 #include "core-madvise.h"
 #include "core-mmap.h"
 
-
 static const stress_help_t help[] = {
 	{ NULL, "readpages",          "start N workers reading their readable pages" },
 	{ NULL,	"readpages-ops N",    "stop after N bogo read operations" },
@@ -37,7 +36,13 @@ static const stress_opt_t opts[] = {
 
 #if defined(__linux__)
 
-typedef void (*readpages_func_t)(const uintptr_t begin, const uintptr_t end);
+typedef struct stress_readpages_map {
+	uintptr_t begin;	/* start of mapping */
+	uintptr_t end;		/* end of mapping */
+	size_t	  pages;	/* size of mapping in pages */
+} stress_readpages_map_t;
+
+typedef void (*readpages_func_t)(const stress_readpages_map_t *map);
 
 #define PREFETCH_OFFSET		(128)
 #define PREFETCH_RD		(0)
@@ -51,13 +56,11 @@ typedef void (*readpages_func_t)(const uintptr_t begin, const uintptr_t end);
  *  stress_readpages_mapping_prefetch()
  *	read mapped pages between begin and end with prefetching
  */
-static void OPTIMIZE3 stress_readpages_mapping_prefetch(
-	const uintptr_t begin,
-	const uintptr_t end)
+static void OPTIMIZE3 stress_readpages_mapping_prefetch(const stress_readpages_map_t *map)
 {
 	volatile __uint128_t *ptr;
 
-	for (ptr = (__uint128_t *)begin; ptr < (__uint128_t *)end;) {
+	for (ptr = (__uint128_t *)map->begin; ptr < (__uint128_t *)map->end;) {
 		shim_builtin_prefetch(PTR_OFFSET(ptr), PREFETCH_RD, PREFETCH_LOCALIITY);
 		(void)*(ptr + 0);
 		(void)*(ptr + 1);
@@ -92,13 +95,11 @@ static void OPTIMIZE3 stress_readpages_mapping_prefetch(
  *  stress_readpages_mapping()
  *	read mapped pages between begin and end
  */
-static void OPTIMIZE3 stress_readpages_mapping(
-	const uintptr_t begin,
-	const uintptr_t end)
+static void OPTIMIZE3 stress_readpages_mapping(const stress_readpages_map_t *map)
 {
 	volatile __uint128_t *ptr;
 
-	for (ptr = (__uint128_t *)begin; ptr < (__uint128_t *)end;) {
+	for (ptr = (__uint128_t *)map->begin; ptr < (__uint128_t *)map->end;) {
 		(void)*(ptr + 0);
 		(void)*(ptr + 1);
 		(void)*(ptr + 2);
@@ -130,13 +131,11 @@ static void OPTIMIZE3 stress_readpages_mapping(
  *  stress_readpages_mapping_prefetch()
  *	read mapped pages between begin and end with prefetching
  */
-static void OPTIMIZE3 stress_readpages_mapping_prefetch(
-	const uintptr_t begin,
-	const uintptr_t end)
+static void OPTIMIZE3 stress_readpages_mapping_prefetch(const stress_readpages_map_t *map)
 {
 	volatile uint64_t *ptr;
 
-	for (ptr = (uint64_t *)begin; ptr < (uint64_t *)end;) {
+	for (ptr = (uint64_t *)map->begin; ptr < (uint64_t *)map->end;) {
 		shim_builtin_prefetch(PTR_OFFSET(ptr), PREFETCH_RD, PREFETCH_LOCALIITY);
 		(void)*(ptr + 0);
 		(void)*(ptr + 1);
@@ -187,13 +186,11 @@ static void OPTIMIZE3 stress_readpages_mapping_prefetch(
  *  stress_readpages_mapping()
  *	read mapped pages between begin and end
  */
-static void OPTIMIZE3 stress_readpages_mapping(
-	const uintptr_t begin,
-	const uintptr_t end)
+static void OPTIMIZE3 stress_readpages_mapping(const stress_readpages_map_t *map)
 {
 	volatile uint64_t *ptr;
 
-	for (ptr = (uint64_t *)begin; ptr < (uint64_t *)end;) {
+	for (ptr = (uint64_t *)map->begin; ptr < (uint64_t *)map->end;) {
 		(void)*(ptr + 0);
 		(void)*(ptr + 1);
 		(void)*(ptr + 2);
@@ -238,64 +235,118 @@ static void OPTIMIZE3 stress_readpages_mapping(
 #endif
 
 /*
- *  stress_readpages_maps()
+ *  stress_readpages_ro_page()
+ *	get a read-only page mapping
  */
-static double OPTIMIZE3 stress_readpages_maps(
-	readpages_func_t readpages_func,
-	const size_t page_size)
+static int stress_readpages_ro_page(
+	const char *buffer,
+	const size_t page_size,
+	stress_readpages_map_t *map)
 {
-	char buffer[4096];
-	FILE *fp;
+	char tmppath[1024];
+	char prot[6];
+	uint64_t offset;
 	const uintmax_t max_addr = UINTMAX_MAX - (UINTMAX_MAX >> 1);
-	double n_pages = 0.0;
-	const double d_page_size = (double)page_size;
+	uint64_t begin;
+	uint64_t end;
+	int64_t  pages;
+	const size_t max_pages = 0x80000000UL / page_size;
+
+	tmppath[0] = '\0';
+	if (sscanf(buffer, "%" SCNx64 "-%" SCNx64
+		   " %5s %" SCNx64 " %*x:%*x %*d %1023s",
+		   &begin, &end, prot, &offset, tmppath) != 5) {
+		return -1;
+	}
+
+	/* Avoid non read-only pages */
+	if (prot[0] != 'r')
+		return -1;
+
+	/* Avoid vdso and vvar */
+	if (shim_strncmp("[v", tmppath, 2) == 0)
+		return -1;
+
+	/* Ignore bad ranges */
+	if ((begin >= end) || (begin == 0) || (end == 0) || (end >= max_addr))
+		return -1;
+
+	pages = (int64_t)(end / page_size) - (int64_t)(begin / page_size);
+	map->pages = (size_t)pages;
+
+	/* Skip invalid or huge ranges */
+	if ((map->pages == 0) || (map->pages > max_pages))
+		return -1;
+	map->begin = (uintptr_t)begin;
+	map->end = (uintptr_t)end;
+
+	return 0;
+}
+
+/*
+ *  stress_readpages_maps_get()
+ *  	get process space read-only mappings
+ */
+static size_t stress_readpages_maps_get(
+	const size_t page_size,
+	stress_readpages_map_t **maps)
+{
+	stress_readpages_map_t *new_maps;
+	FILE *fp;
+	char buffer[1024];
+	size_t n_maps;
+	size_t i;
+
+	if (!maps)
+		return 0;
+
+	*maps = NULL;
 
 	fp = fopen("/proc/self/maps", "r");
 	if (!fp)
-		return n_pages;
+		return 0;
 
-	/*
-	 * Look for field 0060b000-0060c000 r--p 0000b000 08:01 1901726
-	 */
-	while (fgets(buffer, sizeof(buffer), fp)) {
-		uint64_t begin;
-		uint64_t end;
-		uint64_t offset;
-		double len;
-		char tmppath[1024];
-		char prot[6];
+	for (n_maps = 0; fgets(buffer, sizeof(buffer), fp);) {
+		stress_readpages_map_t map;
 
-		tmppath[0] = '\0';
-		if (sscanf(buffer, "%" SCNx64 "-%" SCNx64
-		           " %5s %" SCNx64 " %*x:%*x %*d %1023s", &begin, &end, prot, &offset, tmppath) != 5) {
-			continue;
-		}
-
-		if (prot[0] != 'r')
-			continue;
-
-		/* Avoid vdso and vvar */
-		if (shim_strncmp("[v", tmppath, 2) == 0)
-			continue;
-
-		if ((begin > UINTPTR_MAX) || (end > UINTPTR_MAX))
-			continue;
-
-		/* Ignore bad ranges */
-		if ((begin >= end) || (begin == 0) || (end == 0) || (end >= max_addr))
-			continue;
-
-		len = (double)(end - begin);
-
-		/* Skip invalid ranges */
-		if ((len < d_page_size) || (len > (double)0x80000000UL))
-			continue;
-
-		readpages_func((uintptr_t)begin, (uintptr_t)end);
-		n_pages += len / d_page_size;
+		if (stress_readpages_ro_page(buffer, page_size, &map) == 0)
+			n_maps++;
+	}
+	if (n_maps == 0) {
+		(void)fclose(fp);
+		return 0;
+	}
+	new_maps = calloc(n_maps, sizeof(*new_maps));
+	if (!new_maps) {
+		(void)fclose(fp);
+		return 0;
+	}
+	rewind(fp);
+	for (i = 0; ((i < n_maps) && fgets(buffer, sizeof(buffer), fp));) {
+		if (stress_readpages_ro_page(buffer, page_size, &new_maps[i]) == 0)
+			i++;
 	}
 	(void)fclose(fp);
+	*maps = new_maps;
 
+	return n_maps;
+}
+
+/*
+ *  stress_readpages_maps()
+ */
+static size_t OPTIMIZE3 stress_readpages_maps(
+	readpages_func_t readpages_func,
+	const stress_readpages_map_t *maps,
+	const size_t n_maps)
+{
+	size_t n_pages = 0;
+	register size_t i;
+
+	for (i = 0; i < n_maps; i++) {
+		readpages_func(&maps[i]);
+		n_pages += maps[i].pages;
+	}
 	return n_pages;
 }
 
@@ -305,8 +356,8 @@ static double OPTIMIZE3 stress_readpages_maps(
  */
 static int stress_readpages(stress_args_t *args)
 {
+	const size_t page_size = args->page_size;
 	double total_pages = 0.0;
-	double max_pages = 0.0;
 	double duration;
 	double t;
 	double rate;
@@ -314,13 +365,22 @@ static int stress_readpages(stress_args_t *args)
 	const size_t data_size = 4 * STRESS_MB;
 	bool readpages_prefetch = false;
 	readpages_func_t readpages_func;
+	stress_readpages_map_t *maps = NULL;
 	void *data;
-	const size_t page_size = args->page_size;
+	size_t n_maps;
+	size_t max_pages = 0;
 	const pid_t pid = getpid();
 	int rc = EXIT_SUCCESS;
 	int advice[3];
 	int idx;
 	int i;
+
+	n_maps = stress_readpages_maps_get(page_size, &maps);
+	if (n_maps == 0) {
+		pr_inf_skip("%s: failed to read process mappings, skipping stressor\n",
+			args->name);
+		return EXIT_NO_RESOURCE;
+	}
 
 	(void)stress_setting_get("readpages-prefetch", &readpages_prefetch);
 	readpages_func = readpages_prefetch ?
@@ -354,12 +414,11 @@ static int stress_readpages(stress_args_t *args)
 
 	t = stress_time_now();
 	do {
-		const double pages = stress_readpages_maps(readpages_func, page_size);
+		const size_t pages = stress_readpages_maps(readpages_func, maps, n_maps);
 
-		total_pages += pages;
+		total_pages += (double)pages;
 		if (pages > max_pages)
 			max_pages = pages;
-
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 	duration = stress_time_now() - t;
@@ -369,12 +428,14 @@ static int stress_readpages(stress_args_t *args)
 	stress_metrics_set(args, msg, rate, STRESS_METRIC_GEOMETRIC_MEAN);
 	rate *= (double)page_size;
 	stress_metrics_set(args, "MB read per second", rate / (double)STRESS_MB, STRESS_METRIC_GEOMETRIC_MEAN);
-	stress_metrics_set(args, "unique pages were read", max_pages, STRESS_METRIC_GEOMETRIC_MEAN);
+	stress_metrics_set(args, "unique pages were read", (double)max_pages, STRESS_METRIC_GEOMETRIC_MEAN);
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
 	if (data != MAP_FAILED)
 		(void)munmap(data, data_size);
+
+	free(maps);
 
 	return rc;
 }
