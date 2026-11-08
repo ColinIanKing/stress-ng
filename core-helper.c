@@ -1957,7 +1957,11 @@ void stress_process_info(stress_args_t *args, const pid_t pid)
  */
 uint64_t stress_machine_id_get(void)
 {
-	uint64_t id = 0;
+	static uint64_t id = 0;
+
+	/* use the cached id from a previous call */
+	if (id != 0)
+		return id;
 
 #if defined(__linux__)
 	{
