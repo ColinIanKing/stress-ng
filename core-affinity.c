@@ -413,7 +413,6 @@ uint32_t stress_affinity_cpus_get(uint32_t **cpus, const bool use_affinity)
 	uint32_t i;
 	uint32_t n_cpus = (uint32_t)stress_cpus_configured_get();
 
-
 #if defined(HAVE_SCHED_GETAFFINITY) && \
     defined(HAVE_SCHED_SETAFFINITY) && \
     defined(HAVE_CPU_SET_T)
