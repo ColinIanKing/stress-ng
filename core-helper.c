@@ -1305,14 +1305,23 @@ int stress_kernel_release_get(void)
 	int major = 0;
 	int minor = 0;
 	int patchlevel = 0;
+	static int kernel_release = 0;
 
-	if (UNLIKELY(uname(&buf) < 0))
-		return -1;
+	if (kernel_release != 0)
+		return kernel_release;
 
-	if (sscanf(buf.release, "%d.%d.%d\n", &major, &minor, &patchlevel) < 1)
-		return -1;
+	if (UNLIKELY(uname(&buf) < 0)) {
+		kernel_release = -1;
+		return kernel_release;
+	}
 
-	return stress_kernel_release(major, minor, patchlevel);
+	if (sscanf(buf.release, "%d.%d.%d\n", &major, &minor, &patchlevel) < 1) {
+		kernel_release = -1;
+		return kernel_release;
+	}
+
+	kernel_release = stress_kernel_release(major, minor, patchlevel);
+	return kernel_release;
 #else
 	UNEXPECTED
 	return -1;
