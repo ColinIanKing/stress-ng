@@ -29,7 +29,7 @@ rm -f $LOG
 
 failtype_set()
 {
-	if [ "$EUID" -ne 0 ]; then
+	if [[ "$EUID" -ne 0 ]]; then
 		echo "setting fault injection needs to be run as root"
 		exit
 	fi
@@ -45,6 +45,7 @@ failtype_set()
 
 usage()
 {
+	echo "kernel-coverage.sh:"
 	echo "-h help"
 	echo "-f [ failslab | fail_page_alloc | fail_futex | fail_sunrpc | \\"
 	echo "     fail_make_request | fail_mmc_request | fail_mmc_request | \\"
