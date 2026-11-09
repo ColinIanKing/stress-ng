@@ -41,6 +41,72 @@ static const char stress_sys_cpu_prefix[] = "/sys/devices/system/cpu";
 static const char stress_cpu_cache_dir[] = "cache";
 #endif
 
+static uint32_t stress_cpu_cache_line_size = 0;
+
+/*
+ *  stress_cpu_cache_line_size_set()
+ *	set to smallest cache line size found so that cache
+ *	line operations stride on smallest cache line sizes
+ */
+static inline ALWAYS_INLINE void stress_cpu_cache_line_size_set(const uint32_t size)
+{
+	if ((size > 0) &&
+	    ((stress_cpu_cache_line_size == 0) ||
+	     (size < stress_cpu_cache_line_size)))
+		stress_cpu_cache_line_size = size;
+}
+
+/*
+ *  stress_cpu_cache_line_size_get()
+ *	get cache line size, used cached version or default
+ *	to arch specific L1 cache size found on modern variants
+ *	of the architecture.
+ */
+uint32_t stress_cpu_cache_line_size_get(void)
+{
+	if (stress_cpu_cache_line_size)
+		return stress_cpu_cache_line_size;
+#if defined(STRESS_ARCH_ALPHA)
+	stress_cpu_cache_line_size = 32;
+#elif defined(STRESS_ARCH_ARM) && defined(__aarch64__)
+	/* Apple's custom M-series processors use a larger 128-byte L1 cache line size */
+	stress_cpu_cache_line_size = 64;
+#elif defined(STRESS_ARCH_ARM)
+	/* old 32 bit ARM systems have 32 byte L1 cache line size */
+	stress_cpu_cache_line_size = 64;
+#elif defined(STRESS_ARCH_HPPA)
+	/* early and mid generation PA CPUs have 32 byte L1 cache line size */
+	stress_cpu_cache_line_size = 64;
+#elif defined(STRESS_ARCH_LOONG64)
+	stress_cpu_cache_line_size = 64;
+#elif defined(STRESS_ARCH_M68K)
+	stress_cpu_cache_line_size = 4;
+#elif defined(STRESS_ARCH_MIPS)
+	/* older MIPS32 4Kc have 16 byte L1 cache line size */
+	stress_cpu_cache_line_size = 32;
+#elif defined(STRESS_ARCH_OR1K)
+	stress_cpu_cache_line_size = 16;
+#elif defined(STRESS_ARCH_PPC64)
+	/* power7 and up has a 128 byte L1 cache line size */
+	stress_cpu_cache_line_size = 128;
+#elif defined(STRESS_ARCH_PPC)
+	stress_cpu_cache_line_size = 32;
+#elif defined(STRESS_ARCH_RISCV)
+	stress_cpu_cache_line_size = 64;
+#elif defined(STRESS_ARCH_S390)
+	stress_cpu_cache_line_size = 256;
+#elif defined(STRESS_ARCH_SH4)
+	stress_cpu_cache_line_size = 32;
+#elif defined(STRESS_ARCH_SPARC)
+	stress_cpu_cache_line_size = 32;
+#elif defined(STRESS_ARCH_X86)
+	stress_cpu_cache_line_size = 64;
+#else
+	stress_cpu_cache_line_size = 64;
+#endif
+	return stress_cpu_cache_line_size;
+}
+
 /*
  * stress_cpu_cache_get_cpu()
  *
@@ -274,6 +340,9 @@ static int stress_cpu_cache_get_alpha(
 			cpu->caches[idx].size = cache_size * 1024;
 			cpu->caches[idx].ways = cache_ways;
 			cpu->caches[idx].line_size = cache_line_size;
+
+			if ((cache_line_size > 0) && (cache_level == 1))
+				stress_cpu_cache_line_size_set((uint32_t)cache_line_size);
 			idx++;
 		}
 		(void)fclose(fp);
@@ -371,6 +440,8 @@ static int stress_cpu_cache_get_riscv(
 			break;
 		case STRESS_CACHE_LINE_SIZE:
 			cpu->caches[idx].line_size = (uint32_t)value;
+			if ((value > 0) && (cache_info[i].level == 1))
+				stress_cpu_cache_line_size_set((uint32_t)value);
 			valid = true;
 			break;
 		default:
@@ -440,6 +511,8 @@ static int stress_cpu_cache_get_apple(stress_cpu_cache_cpu_t *cpu)
 			valid = true;
 			break;
 		case STRESS_CACHE_LINE_SIZE:
+			if ((value > 0) && (cpu->caches[idx].level == 1)
+				stress_cpu_cache_line_size_set((uint32_t)value);
 			cpu->caches[idx].line_size = (uint32_t)value;
 			valid = true;
 			break;
@@ -520,6 +593,8 @@ static int stress_cpu_cache_get_sparc64(
 			break;
 		case STRESS_CACHE_LINE_SIZE:
 			cpu->caches[idx].line_size = (uint32_t)value;
+			if ((value > 0) && (cpu->caches[idx].level == 1))
+				stress_cpu_cache_line_size_set((uint32_t)value);
 			valid = true;
 			break;
 		case STRESS_CACHE_WAYS:
@@ -640,6 +715,8 @@ static int stress_cpu_cache_get_x86(stress_cpu_cache_cpu_t *cpu)
 
 			cpu->caches[i].level = (eax >> 5) & 0x7;
 			cpu->caches[i].line_size = ((ebx >> 0) & 0xfff) + 1;
+			if ((cpu->caches[i].line_size > 0) && (cpu->caches[i].level == 1))
+				stress_cpu_cache_line_size_set((uint32_t)cpu->caches[i].line_size);
 			cpu->caches[i].ways = ((ebx >> 22) & 0x3ff) + 1;
 			cpu->caches[i].size = ((uint64_t)(((ebx >> 12) & 0x3ff) + 1) *
 					cpu->caches[i].line_size *
@@ -695,7 +772,7 @@ static int stress_cpu_cache_get_sh4(stress_cpu_cache_cpu_t *cpu)
 				cpu->caches[cpu->cache_count].type =
 					(buffer[0] == 'i') ? CACHE_TYPE_INSTRUCTION : CACHE_TYPE_DATA;
 				cpu->caches[cpu->cache_count].size = size * STRESS_KB;
-				cpu->caches[cpu->cache_count].line_size = 64;	/* Assumption! */
+				cpu->caches[cpu->cache_count].line_size = stress_cpu_cache_line_size_get();
 				cpu->caches[cpu->cache_count].ways = cpu->caches[cpu->cache_count].size / 64;
 				cpu->caches[cpu->cache_count].level = 1;
 				cpu->cache_count++;
@@ -777,7 +854,7 @@ static int stress_cpu_cache_get_m68k(stress_cpu_cache_cpu_t *cpu)
 		cpu->caches[i].type = cache_type[i];
 		cpu->caches[i].level = 1;
 		cpu->caches[i].size = cache_size[i];
-		cpu->caches[i].line_size = 64;	/* Assumption! */
+		cpu->caches[i].line_size = stress_cpu_cache_line_size_get();
 		cpu->caches[i].ways = cache_size[i] / 64;
 	}
 	cpu->cache_count = count;
@@ -803,14 +880,14 @@ static int stress_cpu_cache_get_or1k(stress_cpu_cache_cpu_t *cpu)
 	cpu->caches[0].type = CACHE_TYPE_INSTRUCTION;
 	cpu->caches[0].level = 1;
 	cpu->caches[0].size = 8192;
-	cpu->caches[0].line_size = 32;
+	cpu->caches[0].line_size = stress_cpu_cache_line_size_get();
 	cpu->caches[0].ways = 1;
 
 	/* Harvard L1 D$ */
 	cpu->caches[1].type = CACHE_TYPE_DATA;
 	cpu->caches[1].level = 1;
 	cpu->caches[1].size = 8192;
-	cpu->caches[1].line_size = 32;
+	cpu->caches[1].line_size = stress_cpu_cache_line_size_get();
 	cpu->caches[1].ways = 1;
 
 	cpu->cache_count = count;
@@ -967,6 +1044,8 @@ static int stress_add_cpu_cache_detail(stress_cpu_cache_t *cache, const char *in
 	if (sscanf(tmp, "%" SCNu32, &val32) != 1)
 		goto out;
 	cache->line_size = val32;
+	if ((val32 > 0) && (cache->level == 1))
+		stress_cpu_cache_line_size_set(val32);
 
 	(void)stress_fs_make_filename(path, sizeof(path), index_path, "ways_of_associativity");
 	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) < 0) {
@@ -1127,6 +1206,8 @@ static int stress_cpu_cache_get_auxval(stress_cpu_cache_cpu_t *cpu)
 			break;
 		case STRESS_CACHE_LINE_SIZE:
 			cpu->caches[idx].line_size = (uint32_t)value;
+			if (cpu->caches[idx].level == 1)
+				stress_cpu_cache_line_size_set((uint32_t)value);
 			break;
 		case STRESS_CACHE_WAYS:
 			cpu->caches[idx].ways = (uint32_t)value;
@@ -1458,13 +1539,13 @@ void stress_cpu_cache_llc_size_get(size_t *llc_size, size_t *cache_line_size)
 		goto free_cpu_caches;
 
 	*llc_size = cache->size;
-	*cache_line_size = cache->line_size ? cache->line_size : 64;
+	*cache_line_size = cache->line_size ? cache->line_size : stress_cpu_cache_line_size_get();
 
 free_cpu_caches:
 	stress_cpu_cache_free(cpu_caches);
 #else
 	*llc_size = 0;
-	*cache_line_size = 0;
+	*cache_line_size = stress_cpu_cache_line_size_get();
 #endif
 }
 
@@ -1496,7 +1577,7 @@ void stress_cpu_cache_level_size_get(
 		goto free_cpu_caches;
 
 	*cache_size = cache->size;
-	*cache_line_size = cache->line_size ? cache->line_size : 64;
+	*cache_line_size = cache->line_size ? cache->line_size : stress_cpu_cache_line_size_get();
 
 free_cpu_caches:
 	stress_cpu_cache_free(cpu_caches);
@@ -1504,7 +1585,7 @@ free_cpu_caches:
 	(void)cache_level;
 
 	*cache_size = 0;
-	*cache_line_size = 0;
+	*cache_line_size = stress_cpu_cache_line_size_get();
 #endif
 }
 
@@ -1519,13 +1600,14 @@ void OPTIMIZE3 stress_cpu_cache_data_flush(void *addr, const size_t len)
     defined(HAVE_BUILTIN___CLEAR_CACHE)
 	register uint8_t *ptr = (uint8_t *)addr;
 	register uint8_t *ptr_end = ptr + len;
+	register const uint32_t cache_line_size = stress_cpu_cache_line_size_get();
 #endif
 
 #if defined(HAVE_ASM_X86_CLFLUSHOPT)
 	if (stress_cpu_x86_has_clflushopt()) {
 		while (ptr < ptr_end) {
 			stress_asm_x86_clflushopt((void *)ptr);
-			ptr += 64;
+			ptr += cache_line_size;
 		}
 		return;
 	}
@@ -1534,7 +1616,7 @@ void OPTIMIZE3 stress_cpu_cache_data_flush(void *addr, const size_t len)
 	if (stress_cpu_x86_has_clfsh()) {
 		while (ptr < ptr_end) {
 			stress_asm_x86_clflush((void *)ptr);
-			ptr += 64;
+			ptr += cache_line_size;
 		}
 		return;
 	}

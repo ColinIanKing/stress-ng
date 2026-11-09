@@ -72,6 +72,7 @@ extern void stress_cpu_cache_level_size_get(const uint16_t cache_level,
 	size_t *cache_size, size_t *cache_line_size,
 	const stress_cpu_cache_type_t cache_type);
 extern void stress_cpu_cache_data_flush(void *addr, const size_t len);
+extern uint32_t stress_cpu_cache_line_size_get(void);
 
 /*
  *  cacheflush(2) cache options
