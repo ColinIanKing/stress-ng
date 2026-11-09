@@ -16,6 +16,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+/*
+ *  both sys/ioctl.h and asm/termbits.h need including
+ *  to see if we have a clash with struct termios definitions
+ *  that cause compile time breakage.
+ */
+#include <sys/ioctl.h>
 #include <asm/termbits.h>
 
 int main(void)
