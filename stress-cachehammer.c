@@ -581,7 +581,7 @@ static void OPTIMIZE3 hammer_cbo_zero(
 #if defined(HAVE_BUILTIN___CLEAR_CACHE)
 /*
  *  cache-based bzero
- *	generic gcc clear cache, clear a 64 byte cache line
+ *	generic gcc clear cache, clear a cache line
  */
 static void OPTIMIZE3 hammer_clearcache(
 	stress_args_t *args,
@@ -590,13 +590,15 @@ static void OPTIMIZE3 hammer_clearcache(
 	const bool is_bad_addr,
 	const bool verify)
 {
+	const uint32_t cl_size = stress_cpu_cache_line_size_get();
+
 	(void)args;
 	(void)is_bad_addr;
 	(void)verify;
 
-	__builtin___clear_cache((void *)addr1, (void *)((char *)addr1 + 64));
+	__builtin___clear_cache((void *)addr1, (void *)((char *)addr1 + cl_size));
 	stress_asm_mb();
-	__builtin___clear_cache((void *)addr2, (void *)((char *)addr2 + 64));
+	__builtin___clear_cache((void *)addr2, (void *)((char *)addr2 + cl_size));
 	stress_asm_mb();
 }
 #endif
@@ -1695,6 +1697,7 @@ static void OPTIMIZE3 stress_cachehammer_exercise(stress_args_t *args)
 	const uint8_t which = (rnd16 == 0x0008) ? 4 : rnd16 & 3;
 	const size_t loops = 8 + ((rnd16 >> 1) & 0x3f);
 	const double t_start = stress_time_now();
+	const uint32_t cl_size = stress_cpu_cache_line_size_get();
 
 	switch (which) {
 	case 0:
@@ -1714,7 +1717,7 @@ static void OPTIMIZE3 stress_cachehammer_exercise(stress_args_t *args)
 		stress_cachehammer_numa(args, 50, &ctxt.numa_count[0], ctxt.file_page,
 					ctxt.cachehammer_numa, ctxt.numa_mask, ctxt.numa_nodes);
 #endif
-		hammer(args, ctxt.file_page, ctxt.file_page + 64, false, false);
+		hammer(args, ctxt.file_page, ctxt.file_page + cl_size, false, false);
 		break;
 	case 1:
 	default:
@@ -1728,7 +1731,7 @@ static void OPTIMIZE3 stress_cachehammer_exercise(stress_args_t *args)
 					ctxt.cachehammer_numa, ctxt.numa_mask, ctxt.numa_nodes);
 #endif
 		for (i = 0; i < loops; i++) {
-			addr2 += 64;
+			addr2 += cl_size;
 			if (UNLIKELY(addr2 >= buffer + buffer_size))
 				addr2 = buffer;
 			hammer(args, addr1, addr2, false, false);
@@ -1745,7 +1748,7 @@ static void OPTIMIZE3 stress_cachehammer_exercise(stress_args_t *args)
 					ctxt.cachehammer_numa, ctxt.numa_mask, ctxt.numa_nodes);
 #endif
 		for (i = 0; i < loops; i++) {
-			addr2 += 64;
+			addr2 += cl_size;
 			if (UNLIKELY(addr2 >= ctxt.local_buffer + ctxt.local_buffer_size))
 				addr2 = ctxt.local_buffer;
 			hammer(args, addr1, addr2, false, true);
@@ -1762,7 +1765,7 @@ static void OPTIMIZE3 stress_cachehammer_exercise(stress_args_t *args)
 					ctxt.cachehammer_numa, ctxt.numa_mask, ctxt.numa_nodes);
 #endif
 		for (i = 0; i < loops; i++) {
-			addr2 += 64;
+			addr2 += cl_size;
 			if (UNLIKELY(addr2 >= ctxt.local_page + args->page_size))
 				addr2 = ctxt.local_page;
 			hammer(args, addr1, addr2, false, true);
@@ -1772,7 +1775,7 @@ static void OPTIMIZE3 stress_cachehammer_exercise(stress_args_t *args)
 	case 4:
 		offset = stress_mwc16();
 		addr1 = ctxt.bad_page + (offset & ctxt.page_mask);
-		offset += 64;
+		offset += cl_size;
 		addr2 = ctxt.bad_page + (offset & ctxt.page_mask);
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
