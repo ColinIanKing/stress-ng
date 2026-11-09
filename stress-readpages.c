@@ -477,6 +477,11 @@ static int stress_readpages(stress_args_t *args)
 	do {
 		const size_t pages = stress_readpages_maps(readpages_func, &maps);
 
+		if (pages == 0) {
+			pr_inf("%s: terminating early due to no mappings being readable\n", args->name);
+			break;
+		}
+
 		total_pages += (double)pages;
 		if (pages > max_pages)
 			max_pages = pages;
