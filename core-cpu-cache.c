@@ -1603,6 +1603,9 @@ void OPTIMIZE3 stress_cpu_cache_data_flush(void *addr, const size_t len)
     defined(HAVE_BUILTIN___CLEAR_CACHE)
 	register uint8_t *ptr = (uint8_t *)addr;
 	register uint8_t *ptr_end = ptr + len;
+#endif
+#if defined(HAVE_ASM_X86_CLFLUSHOPT) ||	\
+    defined(HAVE_ASM_X86_CLFLUSH)
 	register const uint32_t cache_line_size = stress_cpu_cache_line_size_get();
 #endif
 
