@@ -21,6 +21,7 @@
 #include "core-cpu-cache.h"
 #include "core-madvise.h"
 #include "core-mmap.h"
+#include "core-sort.h"
 
 static const stress_help_t help[] = {
 	{ NULL, "readpages",          "start N workers reading their readable pages" },
@@ -350,6 +351,8 @@ static size_t OPTIMIZE3 stress_readpages_maps(
 	return n_pages;
 }
 
+STRESS_SHUFFLE(stress_readpages_map_shuffle, stress_readpages_map_t)
+
 /*
  *  stress_readpages()
  *	stress by forking and exiting
@@ -419,6 +422,7 @@ static int stress_readpages(stress_args_t *args)
 		total_pages += (double)pages;
 		if (pages > max_pages)
 			max_pages = pages;
+		stress_readpages_map_shuffle(maps, n_maps);
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 	duration = stress_time_now() - t;
