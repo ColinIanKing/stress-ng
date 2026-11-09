@@ -41,9 +41,24 @@ typedef struct stress_readpages_map {
 	uintptr_t begin;	/* start of mapping */
 	uintptr_t end;		/* end of mapping */
 	size_t	  pages;	/* size of mapping in pages */
+#if defined(HAVE_SIGLONGJMP)
+	volatile bool segv;	/* mapping READ tripped a SIGSEGV */
+#endif
 } stress_readpages_map_t;
 
+typedef struct stress_streadpages_maps {
+	stress_readpages_map_t	*maps;	/* array of maps */
+	size_t			n_maps;	/* number of maps */
+} stress_readpages_maps_t;
+
 typedef void (*readpages_func_t)(const stress_readpages_map_t *map);
+
+static volatile stress_readpages_map_t *stress_readpages_current_map;
+
+#if defined(HAVE_SIGLONGJMP)
+static volatile bool do_jmp = true;
+static sigjmp_buf jmp_env;
+#endif
 
 #define PREFETCH_OFFSET		(128)
 #define PREFETCH_RD		(0)
@@ -288,24 +303,21 @@ static int stress_readpages_ro_page(
  *  stress_readpages_maps_get()
  *  	get process space read-only mappings
  */
-static size_t stress_readpages_maps_get(
+static int stress_readpages_maps_get(
 	const size_t page_size,
-	stress_readpages_map_t **maps)
+	volatile stress_readpages_maps_t *maps)
 {
-	stress_readpages_map_t *new_maps;
 	FILE *fp;
 	char buffer[1024];
 	size_t n_maps;
 	size_t i;
 
-	if (!maps)
-		return 0;
-
-	*maps = NULL;
+	maps->maps = NULL;
+	maps->n_maps = 0;
 
 	fp = fopen("/proc/self/maps", "r");
 	if (!fp)
-		return 0;
+		return -1;
 
 	for (n_maps = 0; fgets(buffer, sizeof(buffer), fp);) {
 		stress_readpages_map_t map;
@@ -315,22 +327,22 @@ static size_t stress_readpages_maps_get(
 	}
 	if (n_maps == 0) {
 		(void)fclose(fp);
-		return 0;
+		return -1;
 	}
-	new_maps = calloc(n_maps, sizeof(*new_maps));
-	if (!new_maps) {
+	maps->maps = calloc(n_maps, sizeof(*maps->maps));
+	if (!maps->maps) {
 		(void)fclose(fp);
-		return 0;
+		return -1;
 	}
 	rewind(fp);
 	for (i = 0; ((i < n_maps) && fgets(buffer, sizeof(buffer), fp));) {
-		if (stress_readpages_ro_page(buffer, page_size, &new_maps[i]) == 0)
+		if (stress_readpages_ro_page(buffer, page_size, &maps->maps[i]) == 0)
 			i++;
 	}
 	(void)fclose(fp);
-	*maps = new_maps;
+	maps->n_maps = i;
 
-	return n_maps;
+	return 0;
 }
 
 /*
@@ -338,20 +350,43 @@ static size_t stress_readpages_maps_get(
  */
 static size_t OPTIMIZE3 stress_readpages_maps(
 	readpages_func_t readpages_func,
-	const stress_readpages_map_t *maps,
-	const size_t n_maps)
+	const volatile stress_readpages_maps_t *maps)
 {
 	size_t n_pages = 0;
 	register size_t i;
 
-	for (i = 0; i < n_maps; i++) {
-		readpages_func(&maps[i]);
-		n_pages += maps[i].pages;
+	for (i = 0; i < maps->n_maps; i++) {
+		stress_readpages_map_t *map = &maps->maps[i];
+
+#if defined(HAVE_SIGLONGJMP)
+		if (map->segv)
+			continue;
+#endif
+		stress_readpages_current_map = map;
+		readpages_func(map);
+		stress_readpages_current_map = NULL;
+
+		n_pages += map->pages;
 	}
 	return n_pages;
 }
 
 STRESS_SHUFFLE(stress_readpages_map_shuffle, stress_readpages_map_t)
+
+#if defined(HAVE_SIGLONGJMP)
+/*
+ *  stress_readpage_segv_handler()
+ *  	handler for read-only mappings that caused a SIGSEGV
+ */
+static void stress_readpage_segv_handler(int signum)
+{
+	if (stress_readpages_current_map)
+		stress_readpages_current_map->segv = true;
+
+	stress_readpages_current_map = NULL;
+	stress_signal_siglongjmp_flag(signum, jmp_env, 1, &do_jmp);
+}
+#endif
 
 /*
  *  stress_readpages()
@@ -359,27 +394,35 @@ STRESS_SHUFFLE(stress_readpages_map_shuffle, stress_readpages_map_t)
  */
 static int stress_readpages(stress_args_t *args)
 {
+#if defined(HAVE_SIGLONGJMP)
+        struct sigaction old_action;
+	size_t segv_mappings;
+	int ret;
+#endif
 	const size_t page_size = args->page_size;
-	double total_pages = 0.0;
 	double duration;
-	double t;
+	stress_readpages_maps_t maps;
+	CLOBBERED double total_pages = 0.0;
+	CLOBBERED double t;
 	double rate;
 	char msg[64];
 	const size_t data_size = 4 * STRESS_MB;
 	bool readpages_prefetch = false;
 	readpages_func_t readpages_func;
-	stress_readpages_map_t *maps = NULL;
 	void *data;
-	size_t n_maps;
-	size_t max_pages = 0;
+	CLOBBERED size_t max_pages = 0;
 	const pid_t pid = getpid();
-	int rc = EXIT_SUCCESS;
+	CLOBBERED int rc = EXIT_SUCCESS;
 	int advice[3];
-	int idx;
-	int i;
+	size_t idx;
+	size_t i;
 
-	n_maps = stress_readpages_maps_get(page_size, &maps);
-	if (n_maps == 0) {
+	maps.maps = NULL;
+	maps.n_maps = 0;
+
+	stress_readpages_current_map = NULL;
+	stress_readpages_maps_get(page_size, &maps);
+	if (maps.n_maps == 0) {
 		pr_inf_skip("%s: failed to read process mappings, skipping stressor\n",
 			args->name);
 		return EXIT_NO_RESOURCE;
@@ -416,16 +459,36 @@ static int stress_readpages(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 	t = stress_time_now();
+#if defined(HAVE_SIGLONGJMP)
+	/* ret = 1 means we've hit a SIGSEGV, fall back into do loop */
+        ret = sigsetjmp(jmp_env, 1);
+	if (ret) {
+		if (!stress_continue(args))
+			goto tidy;
+	} else {
+		if (stress_signal_handler(args->name, SIGSEGV, stress_readpage_segv_handler, &old_action) < 0) {
+			rc = EXIT_NO_RESOURCE;
+			goto tidy;
+		}
+        }
+	do_jmp = true;
+#endif
+
 	do {
-		const size_t pages = stress_readpages_maps(readpages_func, maps, n_maps);
+		const size_t pages = stress_readpages_maps(readpages_func, &maps);
 
 		total_pages += (double)pages;
 		if (pages > max_pages)
 			max_pages = pages;
-		stress_readpages_map_shuffle(maps, n_maps);
+		stress_readpages_map_shuffle(maps.maps, maps.n_maps);
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 	duration = stress_time_now() - t;
+
+#if defined(HAVE_SIGLONGJMP)
+	do_jmp = false;
+	(void)stress_signal_restore(args->name, SIGSEGV, &old_action);
+#endif
 
 	rate = (duration > 0.0) ? total_pages / duration : 0.0;
 	(void)snprintf(msg, sizeof(msg), "%zuK pages read per second", page_size >> 10);
@@ -434,12 +497,23 @@ static int stress_readpages(stress_args_t *args)
 	stress_metrics_set(args, "MB read per second", rate / (double)STRESS_MB, STRESS_METRIC_GEOMETRIC_MEAN);
 	stress_metrics_set(args, "unique pages were read", (double)max_pages, STRESS_METRIC_GEOMETRIC_MEAN);
 
+#if defined(HAVE_SIGLONGJMP)
+	for (segv_mappings = 0, i = 0; i < maps.n_maps; i++) {
+		segv_mappings += (int)maps.maps[i].segv;
+	}
+	rate = (maps.n_maps > 0) ? (100.0 * (double)segv_mappings) / (double)maps.n_maps : 0.0;
+	stress_metrics_set(args, "% of mappings generated SIGSEGV", rate, STRESS_METRIC_HARMONIC_MEAN);
+#endif
+
+#if defined(HAVE_SIGLONGJMP)
+tidy:
+#endif
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
 	if (data != MAP_FAILED)
 		(void)munmap(data, data_size);
 
-	free(maps);
+	free(maps.maps);
 
 	return rc;
 }
