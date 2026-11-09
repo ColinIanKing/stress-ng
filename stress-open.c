@@ -982,6 +982,7 @@ static const stress_open_func_t open_funcs[] = {
     defined(HAVE_LINUX_OPENAT2_H) &&	\
     defined(RESOLVE_NO_SYMLINKS) &&	\
     defined(__NR_openat2) &&		\
+    defined(HAVE_SYSCALL) &&		\
     defined(O_CREAT)
 	open_with_openat2_cwd,
 #endif
