@@ -20,5 +20,8 @@
 int main(void)
 {
 	int x = 0;
+
 	typeof(x) v = x;
+
+	return v;
 }
