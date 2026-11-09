@@ -602,18 +602,26 @@ int stress_perf_close(stress_perf_t *sp)
 	stress_perf_data_t data;
 	ssize_t ret;
 	double scale;
+	double t_info;
+	bool tidy_info = false;
 
 	if (!sp)
 		return -1;
 	if (!sp->perf_opened)
 		goto out_ok;
 
+	t_info = stress_time_now() + 1.0;
 	for (i = 0; (i < STRESS_PERF_MAX) && perf_info[i].label; i++) {
 		const int fd = sp->perf_stat[i].fd;
 
 		if (fd < 0 ) {
 			sp->perf_stat[i].counter = STRESS_PERF_INVALID;
 			continue;
+		}
+
+		if (!tidy_info && (stress_time_now() > t_info)) {
+			tidy_info = true;
+			pr_tidy("perf: data collection in progress\n");
 		}
 
 		(void)shim_memset(&data, 0, sizeof(data));
