@@ -128,12 +128,13 @@ static uint64_t stress_memrate_loops(
 
 static void OPTIMIZE3 stress_memrate_flush(const stress_memrate_context_t *context)
 {
-	uint8_t *start ALIGNED(4096) = (uint8_t *)context->start;
-	const uint8_t *end ALIGNED(4096) = (uint8_t *)context->end;
+	register uint8_t *start ALIGNED(4096) = (uint8_t *)context->start;
+	register const uint8_t *end ALIGNED(4096) = (uint8_t *)context->end;
+	register const uint32_t cl_size = stress_cpu_cache_line_size_get();
 
 	while (start < end) {
 		shim_clflush(start);
-		start += 64;
+		start += cl_size;
 	}
 }
 
