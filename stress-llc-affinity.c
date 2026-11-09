@@ -226,8 +226,9 @@ static void TARGET_CLONES OPTIMIZE3 stress_llc_write_cache_line_n(
 	double t2;
 	static uint64_t val = 0;
 	register uint64_t *ptr;
-	const size_t n = cache_line_size / sizeof(uint64_t);
+	size_t n = cache_line_size / sizeof(uint64_t);
 
+	n = (n < 1) ? 1 : n;
 	t1 = stress_time_now();
 	for (ptr = buf; ptr < buf_end; ptr += n, val++) {
 		register uint64_t *cptr;
@@ -253,8 +254,9 @@ static void TARGET_CLONES OPTIMIZE3 stress_llc_write_cache_line_n_ppc64_dcbst(
 	double t2;
 	static uint64_t val = 0;
 	register uint64_t *ptr;
-	const size_t n = cache_line_size / sizeof(uint64_t);
+	size_t n = cache_line_size / sizeof(uint64_t);
 
+	n = (n < 1) ? 1 : n;
 	t1 = stress_time_now();
 	for (ptr = buf; ptr < buf_end; ptr += n, val++) {
 		register uint64_t *cptr;
@@ -282,8 +284,9 @@ static void TARGET_CLONES OPTIMIZE3 stress_llc_write_cache_line_n_ppc_dcbst(
 	double t2;
 	static uint64_t val = 0;
 	register uint64_t *ptr;
-	const size_t n = cache_line_size / sizeof(uint64_t);
+	size_t n = cache_line_size / sizeof(uint64_t);
 
+	n = (n < 1) ? 1 : n;
 	t1 = stress_time_now();
 	for (ptr = buf; ptr < buf_end; ptr += n, val++) {
 		register uint64_t *cptr;
@@ -310,8 +313,9 @@ static void TARGET_CLONES OPTIMIZE3 stress_llc_write_cache_line_n_x86_clfsh(
 	double t2;
 	static uint64_t val = 0;
 	register uint64_t *ptr;
-	const size_t n = cache_line_size / sizeof(uint64_t);
+	size_t n = cache_line_size / sizeof(uint64_t);
 
+	n = (n < 1) ? 1 : n;
 	t1 = stress_time_now();
 	for (ptr = buf; ptr < buf_end; ptr += n, val++) {
 		register uint64_t *cptr;
@@ -338,8 +342,9 @@ static void TARGET_CLONES OPTIMIZE3 stress_llc_write_cache_line_n_x86_clfshopt(
 	double t2;
 	static uint64_t val = 0;
 	register uint64_t *ptr;
-	const size_t n = cache_line_size / sizeof(uint64_t);
+	size_t n = cache_line_size / sizeof(uint64_t);
 
+	n = (n < 1) ? 1 : n;
 	t1 = stress_time_now();
 	for (ptr = buf; ptr < buf_end; ptr += n, val++) {
 		register uint64_t *cptr;
@@ -393,8 +398,9 @@ static void TARGET_CLONES OPTIMIZE3 stress_llc_read_cache_line_n(
 	double t1;
 	double t2;
 	register uint64_t *ptr;
-	const size_t n = cache_line_size / sizeof(uint64_t);
+	size_t n = cache_line_size / sizeof(uint64_t);
 
+	n = (n < 1) ? 1 : n;
 	t1 = stress_time_now();
 	for (ptr = buf; ptr < buf_end; ptr += n) {
 		register uint64_t *cptr;
