@@ -196,13 +196,13 @@ int OPTIMIZE3 shim_cacheflush(char *addr, int nbytes, int cache)
 #endif
 #if defined(HAVE_ASM_RISCV_CBO_CACHE_MANAGEMENT)
 	if (cache == SHIM_DCACHE)  {
-		unsigned int cl_size;
+		uint32_t cl_size;
 		unsigned int i;
 
 		if (!stress_asm_riscv_has_cbom())
 			return -1;
 
-		cl_size = stress_asm_riscv_cl_size();
+		cl_size = stress_cpu_cache_line_size_get();
 		if (!cl_size)
 			return -1;
 
@@ -216,8 +216,9 @@ int OPTIMIZE3 shim_cacheflush(char *addr, int nbytes, int cache)
 #if defined(HAVE_ASM_X86_CLFLUSH)
 	if ((cache == SHIM_DCACHE) && (stress_cpu_x86_has_clfsh())) {
 		register int i;
+		register const uint32_t clsize = stress_cpu_cache_line_size_get();
 
-		for (i = 0; i < nbytes; i += 64)
+		for (i = 0; i < nbytes; i += clsize)
 			stress_asm_x86_clflush(addr + i);
 		return 0;
 	}
