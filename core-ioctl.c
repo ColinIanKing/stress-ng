@@ -138,6 +138,11 @@ int stress_ioctl_termios_get_str(
 			args->name, cmd_get_str);
 		return -1;
 	}
+#else
+	(void)args;
+	(void)fd;
+	(void)cmd_get;
+	(void)cmd_get_str;
 #endif
 	return 0;
 }
@@ -184,6 +189,13 @@ int stress_ioctl_termios_getset_str(
 			args->name, cmd_set_str, errno, strerror(errno));
 		return -1;
 	}
+#else
+	(void)args;
+	(void)fd;
+	(void)cmd_get;
+	(void)cmd_get_str;
+	(void)cmd_set;
+	(void)cmd_set_str;
 #endif
 	return 0;
 }
@@ -207,6 +219,8 @@ int stress_termios_hangup(int fd)
 		ios.c_cflag |= B0 & CBAUD;
 		return ioctl(fd, TCSETS, &ios);
 	}
+#else
+	(void)fd;
 #endif
 	return -1;
 }
