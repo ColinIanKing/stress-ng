@@ -212,7 +212,8 @@ static void *stress_pthread_func(void *parg)
 	const pid_t tid = 0;
 #endif
 #if defined(HAVE_GET_ROBUST_LIST) &&	\
-    defined(HAVE_LINUX_FUTEX_H)
+    defined(HAVE_LINUX_FUTEX_H) &&	\
+    defined(HAVE_SYSCALL)
 	struct robust_list_head *head;
 	size_t len;
 #endif
@@ -224,7 +225,8 @@ static void *stress_pthread_func(void *parg)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 #if defined(HAVE_GET_ROBUST_LIST) &&	\
-    defined(HAVE_LINUX_FUTEX_H)
+    defined(HAVE_LINUX_FUTEX_H) &&	\
+    defined(HAVE_SYSCALL)
 	/*
 	 *  Check that get_robust_list() works OK
 	 */
