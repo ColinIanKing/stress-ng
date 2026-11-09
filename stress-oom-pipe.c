@@ -178,9 +178,9 @@ static int stress_oom_pipe_child(stress_args_t *args, void *ctxt)
 	/* And close the pipes */
 clean:
 	for (i = 0; i < max_pipes; i++) {
-		if (fds[i][0] != -1)
+		if (fds[i][0] >= 0)
 			(void)close(fds[i][0]);
-		if (fds[i][1] != -1)
+		if (fds[i][1] >= 0)
 			(void)close(fds[i][1]);
 	}
 	return EXIT_SUCCESS;
