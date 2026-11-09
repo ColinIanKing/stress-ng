@@ -282,27 +282,6 @@ static int stress_pty(stress_args_t *args)
 				rc = EXIT_FAILURE;
 #endif
 
-#if defined(HAVE_TERMIO_H) &&	\
-    defined(TCGETA) &&		\
-    defined(TCSETA)
-			if (stress_ioctl_termios_getset(args, ptys[i].follower, TCGETA, TCSETA) < 0)
-				rc = EXIT_FAILURE;
-#endif
-
-#if defined(HAVE_TERMIO_H) &&	\
-    defined(TCGETA) &&		\
-    defined(TCSETAW)
-			if (stress_ioctl_termios_getset(args, ptys[i].follower, TCGETA, TCSETAW) < 0)
-				rc = EXIT_FAILURE;
-#endif
-
-#if defined(HAVE_TERMIO_H) &&	\
-    defined(TCGETA) &&		\
-    defined(TCSETAF)
-			if (stress_ioctl_termios_getset(args, ptys[i].follower, TCGETA, TCSETAF) < 0)
-				rc = EXIT_FAILURE;
-#endif
-
 #if defined(HAVE_ASM_TERMBITS_H) &&			\
     defined(HAVE_ASM_TERMBITS_STRUCT_TERMIOS) &&	\
     defined(TIOCGLCKTRMIOS)
