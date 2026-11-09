@@ -389,6 +389,7 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 {
 	const size_t page_size = args->page_size;
 	const size_t page_mask = ~(page_size - 1);
+	const uint32_t cl_size = stress_cpu_cache_line_size_get();
 #if defined(HAVE_LIB_RT) &&	\
     defined(HAVE_SHM_OPEN) &&	\
     defined(HAVE_SHM_UNLINK)
@@ -611,7 +612,7 @@ mapped_ok:
 			stress_mmaptorture_vm_name(ptr, mmap_size, page_size);
 
 			if (stress_mwc1()) {
-				for (i = 0; i < mmap_size; i += 64)
+				for (i = 0; i < mmap_size; i += cl_size)
 					shim_builtin_prefetch((void *)(ptr + i));
 			}
 #if defined(HAVE_LINUX_MEMPOLICY_H)
