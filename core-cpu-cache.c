@@ -19,6 +19,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-asm-riscv.h"
 #include "core-asm-x86.h"
 #include "core-arch.h"
 #include "core-builtin.h"
@@ -92,7 +93,9 @@ uint32_t stress_cpu_cache_line_size_get(void)
 #elif defined(STRESS_ARCH_PPC)
 	stress_cpu_cache_line_size = 32;
 #elif defined(STRESS_ARCH_RISCV)
-	stress_cpu_cache_line_size = 64;
+	stress_cpu_cache_line_size = (uint32_t)stress_asm_riscv_cl_size();
+	if (stress_cpu_cache_line_size == 0)
+		stress_cpu_cache_line_size = 64;
 #elif defined(STRESS_ARCH_S390)
 	stress_cpu_cache_line_size = 256;
 #elif defined(STRESS_ARCH_SH4)
