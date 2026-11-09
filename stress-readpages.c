@@ -74,7 +74,7 @@ static sigjmp_buf jmp_env;
  */
 static void OPTIMIZE3 stress_readpages_mapping_prefetch(const stress_readpages_map_t *map)
 {
-	volatile __uint128_t *ptr;
+	register volatile const __uint128_t *ptr;
 
 	for (ptr = (__uint128_t *)map->begin; ptr < (__uint128_t *)map->end;) {
 		shim_builtin_prefetch(PTR_OFFSET(ptr), PREFETCH_RD, PREFETCH_LOCALIITY);
@@ -113,7 +113,7 @@ static void OPTIMIZE3 stress_readpages_mapping_prefetch(const stress_readpages_m
  */
 static void OPTIMIZE3 stress_readpages_mapping(const stress_readpages_map_t *map)
 {
-	volatile __uint128_t *ptr;
+	register volatile const __uint128_t *ptr;
 
 	for (ptr = (__uint128_t *)map->begin; ptr < (__uint128_t *)map->end;) {
 		(void)*(ptr + 0);
@@ -149,7 +149,7 @@ static void OPTIMIZE3 stress_readpages_mapping(const stress_readpages_map_t *map
  */
 static void OPTIMIZE3 stress_readpages_mapping_prefetch(const stress_readpages_map_t *map)
 {
-	volatile uint64_t *ptr;
+	register volatile const uint64_t *ptr;
 
 	for (ptr = (uint64_t *)map->begin; ptr < (uint64_t *)map->end;) {
 		shim_builtin_prefetch(PTR_OFFSET(ptr), PREFETCH_RD, PREFETCH_LOCALIITY);
@@ -204,7 +204,7 @@ static void OPTIMIZE3 stress_readpages_mapping_prefetch(const stress_readpages_m
  */
 static void OPTIMIZE3 stress_readpages_mapping(const stress_readpages_map_t *map)
 {
-	volatile uint64_t *ptr;
+	register volatile const uint64_t *ptr;
 
 	for (ptr = (uint64_t *)map->begin; ptr < (uint64_t *)map->end;) {
 		(void)*(ptr + 0);
