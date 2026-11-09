@@ -63,7 +63,7 @@ do {					\
 } while (0)				\
 
 #define SPINMEM_FL(ptr)			\
-	stress_cpu_cache_data_flush((void *)ptr, 64)
+	stress_cpu_cache_data_flush((void *)ptr, cl_size)
 
 #define SPINMEM_RD(src)		(src)
 #define SPINMEM_WR(dst, src)	(dst) = (src)
@@ -80,7 +80,10 @@ static void MLOCKED_TEXT stress_spinmem_handler(int signum)
 #endif
 
 #define SPINMEM_READER(name, type, mb, flush, rd, wr)		\
-static void OPTIMIZE3 name(uint8_t *data, const bool spinmem_yield)	\
+static void OPTIMIZE3 name(					\
+	uint8_t *data,						\
+	const bool spinmem_yield,				\
+	const uint32_t cl_size)					\
 {								\
 	volatile type *uptr = (type *)				\
 		shim_assume_aligned(data, 16);			\
@@ -109,7 +112,10 @@ static void OPTIMIZE3 name(uint8_t *data, const bool spinmem_yield)	\
 
 
 #define SPINMEM_WRITER(name, type, mb, flush, rd, wr)		\
-static void OPTIMIZE3 name(uint8_t *data, const bool spinmem_yield)	\
+static void OPTIMIZE3 name(					\
+	uint8_t *data,						\
+	const bool spinmem_yield,				\
+	const uint32_t cl_size)					\
 {								\
 	volatile type *uptr = (type *)				\
 		shim_assume_aligned(data, 16);			\
@@ -161,7 +167,7 @@ SPINMEM_WRITER(stress_spinmem_writer128, __uint128_t, SPINMEM_MB, SPINMEM_FL, SP
 #endif
 
 /* Atomic SPINMEM variants */
-#define SPINMEM_A_FL(x)
+#define SPINMEM_A_FL(x)		(void)cl_size
 #define SPINMEM_A_MB()
 #define SPINMEM_A_RD(src)	__atomic_load_n(&src, __ATOMIC_SEQ_CST)
 #define SPINMEM_A_WR(dst, src)	__atomic_store_n(&dst, src, __ATOMIC_SEQ_CST)
@@ -182,7 +188,7 @@ SPINMEM_WRITER(stress_spinmem_atomic_writer64, uint64_t, SPINMEM_A_MB, SPINMEM_A
 
 #endif
 
-typedef void (*spinmem_func_t)(uint8_t *data, const bool spinmem_yield);
+typedef void (*spinmem_func_t)(uint8_t *data, const bool spinmem_yield, const uint32_t cl_size);
 
 typedef struct {
 	const char *name;
@@ -265,6 +271,7 @@ static int stress_spinmem(stress_args_t *args)
 	uint8_t *mapping;
 	double rate;
 	size_t spinmem_method = 2; /* 32bit default */
+	const size_t cl_size = stress_cpu_cache_line_size_get();
 	spinmem_func_t spinmem_reader;
 	spinmem_func_t spinmem_writer;
 	bool spinmem_affinity = false;
@@ -358,7 +365,7 @@ static int stress_spinmem(stress_args_t *args)
 				register int i;
 
 				for (i = 0; i < 1000; i++) {
-					spinmem_reader(mapping, spinmem_yield);
+					spinmem_reader(mapping, spinmem_yield, cl_size);
 					stress_spinmem_change_affinity(n_cpus, cpus);
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
@@ -371,7 +378,7 @@ static int stress_spinmem(stress_args_t *args)
 		}
 #endif
 		do {
-			spinmem_reader(mapping, spinmem_yield);
+			spinmem_reader(mapping, spinmem_yield, cl_size);
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 			stress_spinmem_numa(args, 2000, mapping, page_size,
 				spinmem_numa, numa_mask, numa_nodes);
@@ -387,7 +394,7 @@ static int stress_spinmem(stress_args_t *args)
 				for (i = 0; i < 100; i++) {
 					double t = stress_time_now();
 
-					spinmem_writer(mapping, spinmem_yield);
+					spinmem_writer(mapping, spinmem_yield, cl_size);
 					duration += stress_time_now() - t;
 					count += SPINMEM_LOOPS;
 					stress_bogo_inc(args);
@@ -404,7 +411,7 @@ static int stress_spinmem(stress_args_t *args)
 		do {
 			double t = stress_time_now();
 
-			spinmem_writer(mapping, spinmem_yield);
+			spinmem_writer(mapping, spinmem_yield, cl_size);
 			duration += stress_time_now() - t;
 			count += SPINMEM_LOOPS;
 			stress_bogo_inc(args);
