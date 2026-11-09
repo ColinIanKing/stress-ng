@@ -18,16 +18,6 @@
 #include "stress-ng.h"
 #include "core-ioctl.h"
 
-#if defined(HAVE_ASM_TERMBITS_H) &&		\
-    defined(HAVE_ASM_TERMBITS_STRUCT_TERMIOS)
-/*
- *  rename termbits termios to ioctl_termios
- */
-#define termios ioctl_termios
-#include <asm/termbits.h>
-#undef termios
-#endif
-
 #include <sys/ioctl.h>
 
 #if defined(HAVE_TERMIOS_H)
@@ -79,22 +69,7 @@ static inline ALWAYS_INLINE void stress_pty_hangup(const int fd)
 		/* no hanghup */
 		break;
 	case 1:
-#if defined(HAVE_ASM_TERMBITS_H) &&			\
-    defined(HAVE_ASM_TERMBITS_STRUCT_TERMIOS) &&	\
-    defined(TCGETS) &&			\
-    defined(TCSETS) &&			\
-    defined(CBAUD) &&			\
-    defined(B0)
-		{
-			struct ioctl_termios termios;
-
-			if (ioctl(fd, TCGETS, &termios) == 0) {
-				termios.c_cflag &= ~CBAUD;
-				termios.c_cflag |= B0 & CBAUD;
-				(void)ioctl(fd, TCSETS, &termios);
-			}
-		}
-#endif
+		stress_termios_hangup(fd);
 		break;
 	case 2:
 		(void)tcsendbreak(fd, 0);
@@ -287,145 +262,52 @@ static int stress_pty(stress_args_t *args)
     defined(HAVE_ASM_TERMBITS_STRUCT_TERMIOS) &&	\
     defined(TCGETS) &&					\
     defined(TCSETS)
-			{
-				struct ioctl_termios ios;
-
-				if (UNLIKELY((ioctl(ptys[i].follower, TCGETS, &ios) < 0) &&
-					     (errno != EINTR))) {
-					pr_fail("%s: ioctl TCGETS on follower pty failed, errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
-					rc = EXIT_FAILURE;
-				} else {
-					if (UNLIKELY((ioctl(ptys[i].follower, TCSETS, &ios) < 0) &&
-						     (errno != EINTR))) {
-						pr_fail("%s: ioctl TCSETS on follower pty failed, errno=%d (%s)\n",
-							args->name, errno, strerror(errno));
-						rc = EXIT_FAILURE;
-					}
-				}
-			}
+			if (stress_ioctl_termios_getset(args, ptys[i].follower, TCGETS, TCSETS) < 0)
+				rc = EXIT_FAILURE;
 #endif
 
 #if defined(HAVE_ASM_TERMBITS_H) &&			\
     defined(HAVE_ASM_TERMBITS_STRUCT_TERMIOS) &&	\
     defined(TCGETS) &&					\
     defined(TCSETSW)
-			{
-				struct ioctl_termios ios;
-
-				if (UNLIKELY((ioctl(ptys[i].follower, TCGETS, &ios) < 0) &&
-					     (errno != EINTR))) {
-					pr_fail("%s: ioctl TCGETS on follower pty failed, errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
-					rc = EXIT_FAILURE;
-				} else {
-					if (UNLIKELY((ioctl(ptys[i].follower, TCSETSW, &ios) < 0) &&
-						     (errno != EINTR))) {
-						pr_fail("%s: ioctl TCSETSW on follower pty failed, errno=%d (%s)\n",
-							args->name, errno, strerror(errno));
-						rc = EXIT_FAILURE;
-					}
-				}
-			}
+			if (stress_ioctl_termios_getset(args, ptys[i].follower, TCGETS, TCSETSW) < 0)
+				rc = EXIT_FAILURE;
 #endif
 
 #if defined(HAVE_ASM_TERMBITS_H) &&			\
     defined(HAVE_ASM_TERMBITS_STRUCT_TERMIOS) &&	\
     defined(TCGETS) &&					\
     defined(TCSETSF)
-			{
-				struct ioctl_termios ios;
-
-				if (UNLIKELY((ioctl(ptys[i].follower, TCGETS, &ios) < 0) &&
-					     (errno != EINTR))) {
-					pr_fail("%s: ioctl TCGETS on follower pty failed, errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
-					rc = EXIT_FAILURE;
-				} else {
-					if (UNLIKELY((ioctl(ptys[i].follower, TCSETSF, &ios) < 0) &&
-						     (errno != EINTR))) {
-						pr_fail("%s: ioctl TCSETSF on follower pty failed, errno=%d (%s)\n",
-							args->name, errno, strerror(errno));
-						rc = EXIT_FAILURE;
-					}
-				}
-			}
+			if (stress_ioctl_termios_getset(args, ptys[i].follower, TCGETS, TCSETSF) < 0)
+				rc = EXIT_FAILURE;
 #endif
 
 #if defined(HAVE_TERMIO_H) &&	\
     defined(TCGETA) &&		\
     defined(TCSETA)
-			{
-				struct termio io;
-
-				if (UNLIKELY((ioctl(ptys[i].follower, TCGETA, &io) < 0) &&
-					     (errno != EINTR))) {
-					pr_fail("%s: ioctl TCGETA on follower pty failed, errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
-					rc = EXIT_FAILURE;
-				} else {
-					if (UNLIKELY((ioctl(ptys[i].follower, TCSETA, &io) < 0) &&
-						     (errno != EINTR))) {
-						pr_fail("%s: ioctl TCSETA on follower pty failed, errno=%d (%s)\n",
-							args->name, errno, strerror(errno));
-						rc = EXIT_FAILURE;
-					}
-				}
-			}
+			if (stress_ioctl_termios_getset(args, ptys[i].follower, TCGETA, TCSETA) < 0)
+				rc = EXIT_FAILURE;
 #endif
 
 #if defined(HAVE_TERMIO_H) &&	\
     defined(TCGETA) &&		\
     defined(TCSETAW)
-			{
-				struct termio io;
-
-				if (UNLIKELY((ioctl(ptys[i].follower, TCGETA, &io) < 0) &&
-					     (errno != EINTR))) {
-					pr_fail("%s: ioctl TCGETA on follower pty failed, errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
-					rc = EXIT_FAILURE;
-				} else {
-					if (UNLIKELY((ioctl(ptys[i].follower, TCSETAW, &io) < 0) &&
-						     (errno != EINTR))) {
-						pr_fail("%s: ioctl TCSETAW on follower pty failed, errno=%d (%s)\n",
-							args->name, errno, strerror(errno));
-						rc = EXIT_FAILURE;
-					}
-				}
-			}
+			if (stress_ioctl_termios_getset(args, ptys[i].follower, TCGETA, TCSETAW) < 0)
+				rc = EXIT_FAILURE;
 #endif
 
 #if defined(HAVE_TERMIO_H) &&	\
     defined(TCGETA) &&		\
     defined(TCSETAF)
-			{
-				struct termio io;
-
-				if (UNLIKELY((ioctl(ptys[i].follower, TCGETA, &io) < 0) &&
-					     (errno != EINTR))) {
-					pr_fail("%s: ioctl TCGETA on follower pty failed, errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
-					rc = EXIT_FAILURE;
-				} else {
-					if (UNLIKELY((ioctl(ptys[i].follower, TCSETAF, &io) < 0) &&
-						     (errno != EINTR))) {
-						pr_fail("%s: ioctl TCSETAF on follower pty failed, errno=%d (%s)\n",
-							args->name, errno, strerror(errno));
-						rc = EXIT_FAILURE;
-					}
-				}
-			}
+			if (stress_ioctl_termios_getset(args, ptys[i].follower, TCGETA, TCSETAF) < 0)
+				rc = EXIT_FAILURE;
 #endif
 
 #if defined(HAVE_ASM_TERMBITS_H) &&			\
     defined(HAVE_ASM_TERMBITS_STRUCT_TERMIOS) &&	\
     defined(TIOCGLCKTRMIOS)
 			{
-				struct ioctl_termios ios;
-
-				if (UNLIKELY((ioctl(ptys[i].follower, TIOCGLCKTRMIOS, &ios) < 0) &&
-					     (errno != EINTR))) {
+				if (stress_ioctl_termios_get(args, ptys[i].follower, TIOCGLCKTRMIOS) < 0) {
 					pr_fail("%s: ioctl TIOCGLCKTRMIOS on follower pty failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					rc = EXIT_FAILURE;
