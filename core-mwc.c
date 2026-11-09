@@ -228,7 +228,7 @@ inline OPTIMIZE3 uint32_t stress_mwc32(void)
 	mwc.z = 36969 * (mwc.z & 65535) + (mwc.z >> 16);
 	mwc.w = 18000 * (mwc.w & 65535) + (mwc.w >> 16);
 
-	return (((uint32_t)mwc.z & 0xffff) << 16) + mwc.w;
+	return ((mwc.z & 0xffff) << 16) + mwc.w;
 }
 
 /*
