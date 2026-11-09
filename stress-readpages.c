@@ -425,7 +425,8 @@ static int stress_readpages(stress_args_t *args)
 	if (maps.n_maps == 0) {
 		pr_inf_skip("%s: failed to read process mappings, skipping stressor\n",
 			args->name);
-		return EXIT_NO_RESOURCE;
+		rc = EXIT_NO_RESOURCE;
+		goto tidy_maps;
 	}
 
 	(void)stress_setting_get("readpages-prefetch", &readpages_prefetch);
@@ -518,6 +519,7 @@ tidy:
 	if (data != MAP_FAILED)
 		(void)munmap(data, data_size);
 
+tidy_maps:
 	free(maps.maps);
 
 	return rc;
