@@ -106,65 +106,23 @@ int stress_ioctl_get_check(const int fd, const unsigned long op, const size_t le
 	return -1;
 }
 
-int stress_ioctl_termios_get_str(
+int stress_ioctl_termios_getset(
 	stress_args_t *args,
 	int fd,
-	const int cmd_get,
-	const char *cmd_get_str)
-{
-#if defined(HAVE_ASM_TERMBITS_H) &&             \
-    defined(HAVE_ASM_TERMBITS_STRUCT_TERMIOS)
-	struct termios_wrapper {
-		struct termios ios;
-		uint8_t pad[4];
-	} tios;
-	int ret;
-
-	shim_memset(&tios.ios, 0x00, sizeof(tios.ios));
-	shim_memset(&tios.pad, 0xff, sizeof(tios.pad));
-	ret = ioctl(fd, cmd_get, &tios.ios);
-	if (ret < 0) {
-		if (errno == EINTR)
-			return 0;
-		pr_fail("%s: ioctl %s failed, errno=%d (%s)\n",
-			args->name, cmd_get_str, errno, strerror(errno));
-		return -1;
-	}
-	if ((tios.pad[0] != 0xff) ||
-	    (tios.pad[1] != 0xff) ||
-	    (tios.pad[2] != 0xff) ||
-	    (tios.pad[3] != 0xff)) {
-		pr_fail("%s: ioctl %s overran struct termios\n",
-			args->name, cmd_get_str);
-		return -1;
-	}
-#else
-	(void)args;
-	(void)fd;
-	(void)cmd_get;
-	(void)cmd_get_str;
-#endif
-	return 0;
-}
-
-int stress_ioctl_termios_getset_str(
-	stress_args_t *args,
-	int fd,
-	const int cmd_get,
+	const unsigned long cmd_get,
 	const char *cmd_get_str,
-	const int cmd_set,
+	const unsigned long cmd_set,
 	const char *cmd_set_str)
 {
 #if defined(HAVE_ASM_TERMBITS_H) &&             \
     defined(HAVE_ASM_TERMBITS_STRUCT_TERMIOS)
 	struct termios_wrapper {
 		struct termios ios;
-		uint8_t pad[4];
+		uint8_t pad[16];
 	} tios;
 	int ret;
 
 	shim_memset(&tios.ios, 0x00, sizeof(tios.ios));
-	shim_memset(&tios.pad, 0xff, sizeof(tios.pad));
 	ret = ioctl(fd, cmd_get, &tios.ios);
 	if (ret < 0) {
 		if (errno == EINTR)
@@ -173,14 +131,8 @@ int stress_ioctl_termios_getset_str(
 			args->name, cmd_get_str, errno, strerror(errno));
 		return -1;
 	}
-	if ((tios.pad[0] != 0xff) ||
-	    (tios.pad[1] != 0xff) ||
-	    (tios.pad[2] != 0xff) ||
-	    (tios.pad[3] != 0xff)) {
-		pr_fail("%s: ioctl %s overran struct termios\n",
-			args->name, cmd_get_str);
-		return -1;
-	}
+	if ((cmd_set == 0) && (cmd_set_str == NULL))
+		return 0;
 	ret = ioctl(fd, cmd_set, &tios.ios);
 	if (ret < 0) {
 		if (errno == EINTR)

@@ -24,20 +24,10 @@
 
 extern WARN_UNUSED int stress_ioctl_get_check(const int fd,
 	const unsigned long op, const size_t len);
-extern WARN_UNUSED int stress_ioctl_termios_get_str(stress_args_t *args, int fd,
-	const int cmd_get, const char *cmd_get_str);
-extern WARN_UNUSED int stress_ioctl_termios_getset_str(stress_args_t *args, int fd,
-	const int cmd_get, const char *cmd_get_str,
-	const int cmd_set, const char *cmd_set_str);
+extern WARN_UNUSED int stress_ioctl_termios_getset(stress_args_t *args, int fd,
+	const unsigned long cmd_get, const char *cmd_get_str,
+	const unsigned long cmd_set, const char *cmd_set_str);
 extern int stress_termios_hangup(int fd);
 
-#define stress_ioctl_termios_get(args, fd, cmd_get)		\
-	stress_ioctl_termios_get_str(args, fd, cmd_get,		\
-			STRESS_XSTRINGIFY(cmd_get))
-
-#define stress_ioctl_termios_getset(args, fd, cmd_get, cmd_set)	\
-	stress_ioctl_termios_getset_str(args, fd,		\
-			cmd_get, STRESS_XSTRINGIFY(cmd_get),	\
-			cmd_set, STRESS_XSTRINGIFY(cmd_set))
 
 #endif
