@@ -261,7 +261,8 @@ static int stress_pty(stress_args_t *args)
 #if defined(HAVE_ASM_TERMBITS_H) &&			\
     defined(HAVE_ASM_TERMBITS_STRUCT_TERMIOS) &&	\
     defined(TCGETS) &&					\
-    defined(TCSETS)
+    defined(TCSETS) &&					\
+    !defined(STRESS_ARCH_PPC64)
 			if (stress_ioctl_termios_getset(args, ptys[i].follower, TCGETS, TCSETS) < 0)
 				rc = EXIT_FAILURE;
 #endif
@@ -269,7 +270,8 @@ static int stress_pty(stress_args_t *args)
 #if defined(HAVE_ASM_TERMBITS_H) &&			\
     defined(HAVE_ASM_TERMBITS_STRUCT_TERMIOS) &&	\
     defined(TCGETS) &&					\
-    defined(TCSETSW)
+    defined(TCSETSW) &&					\
+    !defined(STRESS_ARCH_PPC64)
 			if (stress_ioctl_termios_getset(args, ptys[i].follower, TCGETS, TCSETSW) < 0)
 				rc = EXIT_FAILURE;
 #endif
@@ -277,14 +279,16 @@ static int stress_pty(stress_args_t *args)
 #if defined(HAVE_ASM_TERMBITS_H) &&			\
     defined(HAVE_ASM_TERMBITS_STRUCT_TERMIOS) &&	\
     defined(TCGETS) &&					\
-    defined(TCSETSF)
+    defined(TCSETSF) &&					\
+    !defined(STRESS_ARCH_PPC64)
 			if (stress_ioctl_termios_getset(args, ptys[i].follower, TCGETS, TCSETSF) < 0)
 				rc = EXIT_FAILURE;
 #endif
 
 #if defined(HAVE_ASM_TERMBITS_H) &&			\
     defined(HAVE_ASM_TERMBITS_STRUCT_TERMIOS) &&	\
-    defined(TIOCGLCKTRMIOS)
+    defined(TIOCGLCKTRMIOS) &&				\
+    !defined(STRESS_ARCH_PPC64)
 			{
 				if (stress_ioctl_termios_get(args, ptys[i].follower, TIOCGLCKTRMIOS) < 0) {
 					pr_fail("%s: ioctl TIOCGLCKTRMIOS on follower pty failed, errno=%d (%s)\n",
