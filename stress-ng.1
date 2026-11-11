@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "5 November 2026"
+.TH STRESS-NG 1 "11 November 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -8625,6 +8625,10 @@ buffers, memory bus reads and the data cache. Linux only.
 .TP
 .B \-\-readpages\-ops N
 stop after N reads of the entire process address space.
+.TP
+.B \-\-readpages\-order [ forward | random | reverse ]
+select the order of pages being read in each mapping range. This may have an impact
+on the translation lookaside buffer prediction logic.
 .TP
 .B \-\-readpages\-prefetch
 where available, enable prefetching of data to help improve the speed of page

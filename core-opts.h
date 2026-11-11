@@ -1370,6 +1370,7 @@ typedef enum {
 
 	OPT_readpages,
 	OPT_readpages_ops,
+	OPT_readpages_order,
 	OPT_readpages_prefetch,
 
 	OPT_reboot,

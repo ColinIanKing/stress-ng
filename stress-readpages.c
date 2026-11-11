@@ -27,11 +27,28 @@ static const stress_help_t help[] = {
 	{ NULL, "readpages",          "start N workers reading their readable pages" },
 	{ NULL,	"readpages-ops N",    "stop after N bogo read operations" },
 	{ NULL, "readpages-prefetch", "prefetch data (maybe a no-op on some systems" },
+	{ NULL, "readpages-order M",  "select page read order [ forward | random | reverse ]" },
 	{ NULL,	NULL,                 NULL }
 };
 
+#define READPAGES_ORDER_FORWARD		(0)
+#define READPAGES_ORDER_RANDOM		(1)
+#define READPAGES_ORDER_REVERSE		(2)
+
+static const char * const readpages_ordering[] = {
+	"forward",
+	"random",
+	"reverse",
+};
+
+static const char *stress_readpages_order(const size_t i)
+{
+        return (i < SIZEOF_ARRAY(readpages_ordering)) ? readpages_ordering[i] : NULL;
+}
+
 static const stress_opt_t opts[] = {
 	{ OPT_readpages_prefetch, "readpages-prefetch", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_readpages_order,    "readpages-order",    TYPE_ID_SIZE_T_METHOD, 0, 0, stress_readpages_order },
 	END_OPT,
 };
 
@@ -40,7 +57,8 @@ static const stress_opt_t opts[] = {
 typedef struct stress_readpages_map {
 	uintptr_t begin;	/* start of mapping */
 	uintptr_t end;		/* end of mapping */
-	size_t	  pages;	/* size of mapping in pages */
+	uintptr_t *pages;	/* array of page addresses */
+	size_t	  n_pages;	/* size of mapping in pages */
 #if defined(HAVE_SIGLONGJMP)
 	volatile bool segv;	/* mapping READ tripped a SIGSEGV */
 #endif
@@ -51,7 +69,7 @@ typedef struct stress_streadpages_maps {
 	size_t			n_maps;	/* number of maps */
 } stress_readpages_maps_t;
 
-typedef void (*readpages_func_t)(const stress_readpages_map_t *map);
+typedef void (*readpages_func_t)(const size_t page_size, const stress_readpages_map_t *map);
 
 static volatile stress_readpages_map_t *stress_readpages_current_map;
 
@@ -67,43 +85,49 @@ static sigjmp_buf jmp_env;
 #define PTR_OFFSET(ptr)		(void *)(((uintptr_t)ptr) + PREFETCH_OFFSET)
 
 #if defined(HAVE_INT128_T)
-
 /*
  *  stress_readpages_mapping_prefetch()
  *	read mapped pages between begin and end with prefetching
  */
-static void OPTIMIZE3 stress_readpages_mapping_prefetch(const stress_readpages_map_t *map)
+static void OPTIMIZE3 stress_readpages_mapping_prefetch(
+	const size_t page_size,
+	const stress_readpages_map_t *map)
 {
-	register volatile const __uint128_t *ptr;
+	register size_t i;
 
-	for (ptr = (__uint128_t *)map->begin; ptr < (__uint128_t *)map->end;) {
-		shim_builtin_prefetch(PTR_OFFSET(ptr), PREFETCH_RD, PREFETCH_LOCALIITY);
-		(void)*(ptr + 0);
-		(void)*(ptr + 1);
-		(void)*(ptr + 2);
-		(void)*(ptr + 3);
-		ptr += 4;
+	for (i = 0; i < map->n_pages; i++) {
+		register volatile const __uint128_t *ptr = (__uint128_t *)map->pages[i];
+		register volatile const __uint128_t *ptr_end = (__uint128_t *)(map->pages[i] + page_size);
 
-		shim_builtin_prefetch(PTR_OFFSET(ptr), PREFETCH_RD, PREFETCH_LOCALIITY);
-		(void)*(ptr + 0);
-		(void)*(ptr + 1);
-		(void)*(ptr + 2);
-		(void)*(ptr + 3);
-		ptr += 4;
+		while (ptr < ptr_end) {
+			shim_builtin_prefetch(PTR_OFFSET(ptr), PREFETCH_RD, PREFETCH_LOCALIITY);
+			(void)*(ptr + 0);
+			(void)*(ptr + 1);
+			(void)*(ptr + 2);
+			(void)*(ptr + 3);
+			ptr += 4;
 
-		shim_builtin_prefetch(PTR_OFFSET(ptr), PREFETCH_RD, PREFETCH_LOCALIITY);
-		(void)*(ptr + 0);
-		(void)*(ptr + 1);
-		(void)*(ptr + 2);
-		(void)*(ptr + 3);
-		ptr += 4;
+			shim_builtin_prefetch(PTR_OFFSET(ptr), PREFETCH_RD, PREFETCH_LOCALIITY);
+			(void)*(ptr + 0);
+			(void)*(ptr + 1);
+			(void)*(ptr + 2);
+			(void)*(ptr + 3);
+			ptr += 4;
 
-		shim_builtin_prefetch(PTR_OFFSET(ptr), PREFETCH_RD, PREFETCH_LOCALIITY);
-		(void)*(ptr + 0);
-		(void)*(ptr + 1);
-		(void)*(ptr + 2);
-		(void)*(ptr + 3);
-		ptr += 4;
+			shim_builtin_prefetch(PTR_OFFSET(ptr), PREFETCH_RD, PREFETCH_LOCALIITY);
+			(void)*(ptr + 0);
+			(void)*(ptr + 1);
+			(void)*(ptr + 2);
+			(void)*(ptr + 3);
+			ptr += 4;
+
+			shim_builtin_prefetch(PTR_OFFSET(ptr), PREFETCH_RD, PREFETCH_LOCALIITY);
+			(void)*(ptr + 0);
+			(void)*(ptr + 1);
+			(void)*(ptr + 2);
+			(void)*(ptr + 3);
+			ptr += 4;
+		}
 	}
 }
 
@@ -111,34 +135,41 @@ static void OPTIMIZE3 stress_readpages_mapping_prefetch(const stress_readpages_m
  *  stress_readpages_mapping()
  *	read mapped pages between begin and end
  */
-static void OPTIMIZE3 stress_readpages_mapping(const stress_readpages_map_t *map)
+static void OPTIMIZE3 stress_readpages_mapping(
+	const size_t page_size,
+	const stress_readpages_map_t *map)
 {
-	register volatile const __uint128_t *ptr;
+	register size_t i;
 
-	for (ptr = (__uint128_t *)map->begin; ptr < (__uint128_t *)map->end;) {
-		(void)*(ptr + 0);
-		(void)*(ptr + 1);
-		(void)*(ptr + 2);
-		(void)*(ptr + 3);
-		ptr += 4;
+	for (i = 0; i < map->n_pages; i++) {
+		register volatile const __uint128_t *ptr = (__uint128_t *)map->pages[i];
+		register volatile const __uint128_t *ptr_end = (__uint128_t *)(map->pages[i] + page_size);
 
-		(void)*(ptr + 0);
-		(void)*(ptr + 1);
-		(void)*(ptr + 2);
-		(void)*(ptr + 3);
-		ptr += 4;
+		while (ptr < ptr_end) {
+			(void)*(ptr + 0);
+			(void)*(ptr + 1);
+			(void)*(ptr + 2);
+			(void)*(ptr + 3);
+			ptr += 4;
 
-		(void)*(ptr + 0);
-		(void)*(ptr + 1);
-		(void)*(ptr + 2);
-		(void)*(ptr + 3);
-		ptr += 4;
+			(void)*(ptr + 0);
+			(void)*(ptr + 1);
+			(void)*(ptr + 2);
+			(void)*(ptr + 3);
+			ptr += 4;
 
-		(void)*(ptr + 0);
-		(void)*(ptr + 1);
-		(void)*(ptr + 2);
-		(void)*(ptr + 3);
-		ptr += 4;
+			(void)*(ptr + 0);
+			(void)*(ptr + 1);
+			(void)*(ptr + 2);
+			(void)*(ptr + 3);
+			ptr += 4;
+
+			(void)*(ptr + 0);
+			(void)*(ptr + 1);
+			(void)*(ptr + 2);
+			(void)*(ptr + 3);
+			ptr += 4;
+		}
 	}
 }
 #else
@@ -147,54 +178,61 @@ static void OPTIMIZE3 stress_readpages_mapping(const stress_readpages_map_t *map
  *  stress_readpages_mapping_prefetch()
  *	read mapped pages between begin and end with prefetching
  */
-static void OPTIMIZE3 stress_readpages_mapping_prefetch(const stress_readpages_map_t *map)
+static void OPTIMIZE3 stress_readpages_mapping_prefetch(
+	const size_t page_size,
+	const stress_readpages_map_t *map)
 {
-	register volatile const uint64_t *ptr;
+	register size_t i;
 
-	for (ptr = (uint64_t *)map->begin; ptr < (uint64_t *)map->end;) {
-		shim_builtin_prefetch(PTR_OFFSET(ptr), PREFETCH_RD, PREFETCH_LOCALIITY);
-		(void)*(ptr + 0);
-		(void)*(ptr + 1);
-		(void)*(ptr + 2);
-		(void)*(ptr + 3);
-		(void)*(ptr + 4);
-		(void)*(ptr + 5);
-		(void)*(ptr + 6);
-		(void)*(ptr + 7);
-		ptr += 8;
+	for (i = 0; i < map->n_pages; i++) {
+		register volatile const uint64_t *ptr = (uint64_t *)map->pages[i];
+		register volatile const uint64_t *ptr_end = (uint64_t *)(map->pages[i] + page_size);
 
-		shim_builtin_prefetch(PTR_OFFSET(ptr), PREFETCH_RD, PREFETCH_LOCALIITY);
-		(void)*(ptr + 0);
-		(void)*(ptr + 1);
-		(void)*(ptr + 2);
-		(void)*(ptr + 3);
-		(void)*(ptr + 4);
-		(void)*(ptr + 5);
-		(void)*(ptr + 6);
-		(void)*(ptr + 7);
-		ptr += 8;
+		while (ptr < ptr_end) {
+			shim_builtin_prefetch(PTR_OFFSET(ptr), PREFETCH_RD, PREFETCH_LOCALIITY);
+			(void)*(ptr + 0);
+			(void)*(ptr + 1);
+			(void)*(ptr + 2);
+			(void)*(ptr + 3);
+			(void)*(ptr + 4);
+			(void)*(ptr + 5);
+			(void)*(ptr + 6);
+			(void)*(ptr + 7);
+			ptr += 8;
 
-		shim_builtin_prefetch(PTR_OFFSET(ptr), PREFETCH_RD, PREFETCH_LOCALIITY);
-		(void)*(ptr + 0);
-		(void)*(ptr + 1);
-		(void)*(ptr + 2);
-		(void)*(ptr + 3);
-		(void)*(ptr + 4);
-		(void)*(ptr + 5);
-		(void)*(ptr + 6);
-		(void)*(ptr + 7);
-		ptr += 8;
+			shim_builtin_prefetch(PTR_OFFSET(ptr), PREFETCH_RD, PREFETCH_LOCALIITY);
+			(void)*(ptr + 0);
+			(void)*(ptr + 1);
+			(void)*(ptr + 2);
+			(void)*(ptr + 3);
+			(void)*(ptr + 4);
+			(void)*(ptr + 5);
+			(void)*(ptr + 6);
+			(void)*(ptr + 7);
+			ptr += 8;
 
-		shim_builtin_prefetch(PTR_OFFSET(ptr), PREFETCH_RD, PREFETCH_LOCALIITY);
-		(void)*(ptr + 0);
-		(void)*(ptr + 1);
-		(void)*(ptr + 2);
-		(void)*(ptr + 3);
-		(void)*(ptr + 4);
-		(void)*(ptr + 5);
-		(void)*(ptr + 6);
-		(void)*(ptr + 7);
-		ptr += 8;
+			shim_builtin_prefetch(PTR_OFFSET(ptr), PREFETCH_RD, PREFETCH_LOCALIITY);
+			(void)*(ptr + 0);
+			(void)*(ptr + 1);
+			(void)*(ptr + 2);
+			(void)*(ptr + 3);
+			(void)*(ptr + 4);
+			(void)*(ptr + 5);
+			(void)*(ptr + 6);
+			(void)*(ptr + 7);
+			ptr += 8;
+
+			shim_builtin_prefetch(PTR_OFFSET(ptr), PREFETCH_RD, PREFETCH_LOCALIITY);
+			(void)*(ptr + 0);
+			(void)*(ptr + 1);
+			(void)*(ptr + 2);
+			(void)*(ptr + 3);
+			(void)*(ptr + 4);
+			(void)*(ptr + 5);
+			(void)*(ptr + 6);
+			(void)*(ptr + 7);
+			ptr += 8;
+		}
 	}
 }
 
@@ -202,50 +240,57 @@ static void OPTIMIZE3 stress_readpages_mapping_prefetch(const stress_readpages_m
  *  stress_readpages_mapping()
  *	read mapped pages between begin and end
  */
-static void OPTIMIZE3 stress_readpages_mapping(const stress_readpages_map_t *map)
+static void OPTIMIZE3 stress_readpages_mapping(
+	const size_t page_size,
+	const stress_readpages_map_t *map)
 {
-	register volatile const uint64_t *ptr;
+	register size_t i;
 
-	for (ptr = (uint64_t *)map->begin; ptr < (uint64_t *)map->end;) {
-		(void)*(ptr + 0);
-		(void)*(ptr + 1);
-		(void)*(ptr + 2);
-		(void)*(ptr + 3);
-		(void)*(ptr + 4);
-		(void)*(ptr + 5);
-		(void)*(ptr + 6);
-		(void)*(ptr + 7);
-		ptr += 8;
+	for (i = 0; i < map->n_pages; i++) {
+		register volatile const uint64_t *ptr = (uint64_t *)map->pages[i];
+		register volatile const uint64_t *ptr_end = (uint64_t *)(map->pages[i] + page_size);
 
-		(void)*(ptr + 0);
-		(void)*(ptr + 1);
-		(void)*(ptr + 2);
-		(void)*(ptr + 3);
-		(void)*(ptr + 4);
-		(void)*(ptr + 5);
-		(void)*(ptr + 6);
-		(void)*(ptr + 7);
-		ptr += 8;
+		while (ptr < ptr_end) {
+			(void)*(ptr + 0);
+			(void)*(ptr + 1);
+			(void)*(ptr + 2);
+			(void)*(ptr + 3);
+			(void)*(ptr + 4);
+			(void)*(ptr + 5);
+			(void)*(ptr + 6);
+			(void)*(ptr + 7);
+			ptr += 8;
 
-		(void)*(ptr + 0);
-		(void)*(ptr + 1);
-		(void)*(ptr + 2);
-		(void)*(ptr + 3);
-		(void)*(ptr + 4);
-		(void)*(ptr + 5);
-		(void)*(ptr + 6);
-		(void)*(ptr + 7);
-		ptr += 8;
+			(void)*(ptr + 0);
+			(void)*(ptr + 1);
+			(void)*(ptr + 2);
+			(void)*(ptr + 3);
+			(void)*(ptr + 4);
+			(void)*(ptr + 5);
+			(void)*(ptr + 6);
+			(void)*(ptr + 7);
+			ptr += 8;
 
-		(void)*(ptr + 0);
-		(void)*(ptr + 1);
-		(void)*(ptr + 2);
-		(void)*(ptr + 3);
-		(void)*(ptr + 4);
-		(void)*(ptr + 5);
-		(void)*(ptr + 6);
-		(void)*(ptr + 7);
-		ptr += 8;
+			(void)*(ptr + 0);
+			(void)*(ptr + 1);
+			(void)*(ptr + 2);
+			(void)*(ptr + 3);
+			(void)*(ptr + 4);
+			(void)*(ptr + 5);
+			(void)*(ptr + 6);
+			(void)*(ptr + 7);
+			ptr += 8;
+
+			(void)*(ptr + 0);
+			(void)*(ptr + 1);
+			(void)*(ptr + 2);
+			(void)*(ptr + 3);
+			(void)*(ptr + 4);
+			(void)*(ptr + 5);
+			(void)*(ptr + 6);
+			(void)*(ptr + 7);
+			ptr += 8;
+		}
 	}
 }
 #endif
@@ -265,7 +310,7 @@ static int stress_readpages_ro_page(
 	const uintmax_t max_addr = UINTMAX_MAX - (UINTMAX_MAX >> 1);
 	uint64_t begin;
 	uint64_t end;
-	int64_t  pages;
+	int64_t  n_pages;
 	const size_t max_pages = 0x80000000UL / page_size;
 
 	tmppath[0] = '\0';
@@ -287,16 +332,55 @@ static int stress_readpages_ro_page(
 	if ((begin >= end) || (begin == 0) || (end == 0) || (end >= max_addr))
 		return -1;
 
-	pages = (int64_t)(end / page_size) - (int64_t)(begin / page_size);
-	map->pages = (size_t)pages;
+	n_pages = (int64_t)(end / page_size) - (int64_t)(begin / page_size);
+	map->n_pages = (size_t)n_pages;
 
 	/* Skip invalid or huge ranges */
-	if ((map->pages == 0) || (map->pages > max_pages))
+	if ((map->n_pages == 0) || (map->n_pages > max_pages))
 		return -1;
 	map->begin = (uintptr_t)begin;
 	map->end = (uintptr_t)end;
 
 	return 0;
+}
+
+STRESS_SHUFFLE(stress_readpages_page_shuffle, uintptr_t)
+
+/*
+ *  stress_readpages_order_set()
+ *	set page ordering based on readpages_order: forward, random
+ *	or reverse.
+ */
+static void stress_readpages_order_set(
+	const size_t page_size,
+	stress_readpages_map_t *map,
+	const size_t readpages_order)
+{
+	register uintptr_t ptr;
+	register size_t i;
+
+	switch (readpages_order) {
+	default:
+	case READPAGES_ORDER_FORWARD:
+		for (i = 0, ptr = map->begin; i < map->n_pages; i++) {
+			map->pages[i] = ptr;
+			ptr += page_size;
+		}
+		break;
+	case READPAGES_ORDER_RANDOM:
+		for (i = 0, ptr = map->begin; i < map->n_pages; i++) {
+			map->pages[i] = ptr;
+			ptr += page_size;
+		}
+		stress_readpages_page_shuffle(map->pages, map->n_pages);
+		break;
+	case READPAGES_ORDER_REVERSE:
+		for (i = 0, ptr = map->end; i < map->n_pages; i++) {
+			ptr -= page_size;
+			map->pages[i] = ptr;
+		}
+		break;
+	}
 }
 
 /*
@@ -305,7 +389,8 @@ static int stress_readpages_ro_page(
  */
 static int stress_readpages_maps_get(
 	const size_t page_size,
-	volatile stress_readpages_maps_t *maps)
+	volatile stress_readpages_maps_t *maps,
+	const size_t readpages_order)
 {
 	FILE *fp;
 	char buffer[1024];
@@ -340,6 +425,18 @@ static int stress_readpages_maps_get(
 			i++;
 	}
 	(void)fclose(fp);
+	for (i = 0; i < n_maps; i++) {
+		maps->maps[i].pages = (uintptr_t *)calloc(maps->maps[i].n_pages, sizeof(uintptr_t));
+		if (!maps->maps[i].pages) {
+			size_t j;
+
+			for (j = 0; j < i; j++)
+				free(maps->maps[j].pages);
+			free(maps->maps);
+			return -1;
+		}
+		stress_readpages_order_set(page_size, &maps->maps[i], readpages_order);
+	}
 	maps->n_maps = i;
 
 	return 0;
@@ -349,6 +446,7 @@ static int stress_readpages_maps_get(
  *  stress_readpages_maps()
  */
 static size_t OPTIMIZE3 stress_readpages_maps(
+	const size_t page_size,
 	readpages_func_t readpages_func,
 	const volatile stress_readpages_maps_t *maps)
 {
@@ -363,10 +461,10 @@ static size_t OPTIMIZE3 stress_readpages_maps(
 			continue;
 #endif
 		stress_readpages_current_map = map;
-		readpages_func(map);
+		readpages_func(page_size, map);
 		stress_readpages_current_map = NULL;
 
-		n_pages += map->pages;
+		n_pages += map->n_pages;
 	}
 	return n_pages;
 }
@@ -416,12 +514,15 @@ static int stress_readpages(stress_args_t *args)
 	int advice[3];
 	size_t idx;
 	size_t i;
+	size_t readpages_order = READPAGES_ORDER_FORWARD;
 
 	maps.maps = NULL;
 	maps.n_maps = 0;
 
+	(void)stress_setting_get("readpages-order", &readpages_order);
+
 	stress_readpages_current_map = NULL;
-	stress_readpages_maps_get(page_size, &maps);
+	stress_readpages_maps_get(page_size, &maps, readpages_order);
 	if (maps.n_maps == 0) {
 		pr_inf_skip("%s: failed to read process mappings, skipping stressor\n",
 			args->name);
@@ -476,7 +577,7 @@ static int stress_readpages(stress_args_t *args)
 #endif
 
 	do {
-		const size_t pages = stress_readpages_maps(readpages_func, &maps);
+		const size_t pages = stress_readpages_maps(page_size, readpages_func, &maps);
 
 		if (pages == 0) {
 			pr_inf("%s: terminating early due to no mappings being readable\n", args->name);

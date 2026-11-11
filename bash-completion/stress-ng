@@ -165,6 +165,7 @@ _stress_ng()
 	'--race-sched-method' | \
 	'--radixsort-method' | \
 	'--rawdev-method' | \
+	'--readpages-order' | \
 	'--rotate-method' | \
 	'--sleepstorm-yield' | \
 	'--sparsematrix-method' | \
@@ -401,6 +402,7 @@ _stress_ng()
 	'--randprocname' | \
 	'--rapl' | \
 	'--rdrand-seed' | \
+	'--readpages-prefetch' | \
 	'--regs-bitflip' | \
 	'--remap-mlock' | \
 	'--resources-mlock' | \
