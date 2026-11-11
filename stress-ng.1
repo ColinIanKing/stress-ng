@@ -8444,7 +8444,8 @@ are available. The default ram file system size is 2 MB.
 .TP
 .B \-\-ramfs\-fill
 fill ramfs with zero'd data using fallocate(2) if it is available or
-multiple calls to write(2) if not.
+multiple calls to write(2) if not. If the \-\-aggressive option is
+used then non-zero data is used to fill the file system.
 .TP
 .B \-\-ramfs\-ops N
 stop after N ramfs mount operations.
