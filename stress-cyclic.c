@@ -675,6 +675,12 @@ static int stress_cyclic(stress_args_t *args)
 	(void)stress_setting_get("cyclic-samples", &cyclic_samples);
 	(void)stress_setting_get("cyclic-sleep", &cyclic_sleep);
 
+#if defined(HAVE_MLOCK) &&	\
+    defined(MCL_CURRENT) &&	\
+    defined(MCL_CURRENT)
+	(void)mlockall(MCL_CURRENT | MCL_FUTURE);
+#endif
+
 	if (NUM_CYCLIC_POLICIES == 0) {
 		if (!args->instance) {
 			pr_inf_skip("%s: no scheduling policies "
