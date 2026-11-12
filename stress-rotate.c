@@ -49,7 +49,7 @@ static double stress_rotate_all(stress_args_t *args, const bool rotate_random, c
  *	as the non-verify step
  */
 #define STRESS_ROTATE_HELPER(fname, type, size, rotate_macro)	\
-static inline double 						\
+static inline double OPTIMIZE3					\
 stress_ ## fname ## size ## helper(stress_args_t *args, type *checksum)\
 {								\
 	double t1, t2;						\
@@ -150,7 +150,7 @@ STRESS_ROTATE(ror, __uint128_t, 128, shim_ror)
  *	as the non-verify step
  */
 #define STRESS_RANDOM_ROTATE_HELPER(fname, type, size, rotate_macro)	\
-static inline double 						\
+static inline double OPTIMIZE3 					\
 stress_random_ ## fname ## size ## helper(stress_args_t *args, type *checksum)\
 {								\
 	double t1, t2;						\
