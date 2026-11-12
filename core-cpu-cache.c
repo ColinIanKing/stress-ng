@@ -514,7 +514,7 @@ static int stress_cpu_cache_get_apple(stress_cpu_cache_cpu_t *cpu)
 			valid = true;
 			break;
 		case STRESS_CACHE_LINE_SIZE:
-			if ((value > 0) && (cpu->caches[idx].level == 1)
+			if ((value > 0) && (cpu->caches[idx].level == 1))
 				stress_cpu_cache_line_size_set((uint32_t)value);
 			cpu->caches[idx].line_size = (uint32_t)value;
 			valid = true;
