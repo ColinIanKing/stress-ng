@@ -596,7 +596,7 @@ int stress_perf_disable(stress_perf_t *sp)
  *  stress_perf_close()
  *	read counters and close
  */
-int stress_perf_close(stress_perf_t *sp)
+int stress_perf_close(stress_perf_t *sp, const uint32_t instance)
 {
 	size_t i = 0;
 	stress_perf_data_t data;
@@ -621,7 +621,8 @@ int stress_perf_close(stress_perf_t *sp)
 
 		if (!tidy_info && (stress_time_now() > t_info)) {
 			tidy_info = true;
-			pr_tidy("perf: data collection in progress\n");
+			if (instance == 0)
+				pr_tidy("perf: data collection in progress\n");
 		}
 
 		(void)shim_memset(&data, 0, sizeof(data));

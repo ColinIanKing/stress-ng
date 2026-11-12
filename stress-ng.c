@@ -1819,7 +1819,7 @@ static int MLOCKED_TEXT stress_child_run(
     defined(HAVE_LINUX_PERF_EVENT_H)
 	if (g_opt_flags & OPT_FLAGS_PERF_STATS) {
 		(void)stress_perf_disable(&stats->sp);
-		(void)stress_perf_close(&stats->sp);
+		(void)stress_perf_close(&stats->sp, instance);
 	}
 #endif
 #if defined(STRESS_THERMAL_ZONES)
