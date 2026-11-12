@@ -45,6 +45,7 @@ typedef struct {
 	double sbrk_shr_duration;
 	double sbrk_shr_count;
 	size_t brk_bytes;
+	size_t max_brk_bytes;
 	bool brk_mlock;
 	bool brk_notouch;
 } brk_context_t;
@@ -153,8 +154,12 @@ static int OPTIMIZE3 stress_brk_child(stress_args_t *args, void *context)
 	do {
 		double t;
 		int saved_errno = 0;
+		const size_t brk_abs_bytes = stress_brk_abs(ptr, start_ptr);
 
-		if (reset_brk || (stress_brk_abs(ptr, start_ptr) >= brk_context->brk_bytes)) {
+		if (brk_abs_bytes > brk_context->max_brk_bytes)
+			brk_context->max_brk_bytes = brk_abs_bytes;
+
+		if (reset_brk || (brk_abs_bytes >= brk_context->brk_bytes)) {
 			intptr_t diff;
 
 			VOID_RET(int, shim_brk(start_ptr));
@@ -314,6 +319,7 @@ static int stress_brk(stress_args_t *args)
 	}
 
 	brk_context->brk_bytes = DEFAULT_BRK_BYTES;
+	brk_context->max_brk_bytes = 0;
 	brk_context->sbrk_exp_duration = 0.0;
 	brk_context->sbrk_exp_count = 0.0;
 	brk_context->sbrk_shr_duration = 0.0;
@@ -351,6 +357,7 @@ static int stress_brk(stress_args_t *args)
 	rate = (brk_context->sbrk_shr_count > 0.0) ? brk_context->sbrk_shr_duration / brk_context->sbrk_shr_count : 0.0;
 	stress_metrics_set(args, "nanosecs per sbrk page shrink",
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
+	stress_metrics_set(args, "MB maximum brk size", (double)(brk_context->max_brk_bytes >> 20), STRESS_METRIC_MAXIMUM);
 
 	(void)stress_munmap_anon_shared((void *)brk_context, sizeof(*brk_context));
 
