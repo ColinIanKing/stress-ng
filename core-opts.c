@@ -1342,6 +1342,7 @@ const struct option stress_long_options[] = {
 	{ "rotate",		1,	NULL,	OPT_rotate },
 	{ "rotate-method",	1,	NULL,	OPT_rotate_method },
 	{ "rotate-ops",		1,	NULL,	OPT_rotate_ops },
+	{ "rotate-random",	0,	NULL,   OPT_rotate_random },
 
 	{ "rseq",		1,	NULL,	OPT_rseq },
 	{ "rseq-ops",		1,	NULL,	OPT_rseq_ops },

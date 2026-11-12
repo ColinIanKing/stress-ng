@@ -407,6 +407,7 @@ _stress_ng()
 	'--remap-mlock' | \
 	'--resources-mlock' | \
 	'--ring-pipe-splice' | \
+	'--rotate-random' | \
 	'--sched-reclaim' | \
 	'--schedmix-cpumix' | \
 	'--schedpolicy-cpumix' | \

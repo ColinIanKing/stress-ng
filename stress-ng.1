@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "11 November 2026"
+.TH STRESS-NG 1 "12 November 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -8856,9 +8856,9 @@ stop after N read-only file system bogo-operations.
 .RS 5
 .TQ
 .B \-\-rotate N
-start N workers that exercise 1 bit rotates left and right of unsigned integer
-variables. The default will rotate four 8, 16, 32, 64 (and if supported 128) bit
-values 10000 times in a loop per bogo-op.
+start N workers that exercise (by default 1 bit) rotates left and right of
+unsigned integer variables. The default will rotate four 8, 16, 32, 64
+(and if supported 128) bit values 10000 times in a loop per bogo-op.
 .TP
 .B \-\-rotate\-method method
 specify the method of rotation to use. The `all' method uses all the methods
@@ -8902,6 +8902,11 @@ ror128	T{
 128 bit unsigned rotate right by 1 bit
 T}
 .TE
+.TP 
+.B \-\-rotate\-random
+rotate by a random number of bits per bogo-loop instead of the default of
+a 1 bit rotate. This may exercise the barrel shifter harder and there is an
+overhead of computing the random shift value.
 .TP
 .B \-\-rotate\-ops N
 stop after N bogo rotate operations.

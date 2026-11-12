@@ -1426,6 +1426,7 @@ typedef enum {
 	OPT_rotate,
 	OPT_rotate_method,
 	OPT_rotate_ops,
+	OPT_rotate_random,
 
 	OPT_rseq,
 	OPT_rseq_ops,
