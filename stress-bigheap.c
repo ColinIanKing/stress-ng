@@ -127,6 +127,7 @@ static int stress_bigheap_child(stress_args_t *args, void *context)
 	const uintptr_t * CLOBBERED last_ptr = NULL;
 	uintptr_t * CLOBBERED last_ptr_end = NULL;
 	CLOBBERED size_t size = 0;
+	CLOBBERED size_t max_size = 0;
 	CLOBBERED size_t stride;
 	CLOBBERED double duration = 0.0;
 	CLOBBERED double count = 0.0;
@@ -236,6 +237,8 @@ static int stress_bigheap_child(stress_args_t *args, void *context)
 			size = 0;
 		}
 		size += (size_t)bigheap_growth;
+		if (size > max_size)
+			max_size = size;
 
 		t = stress_time_now();
 		if (old_ptr) {
@@ -323,6 +326,7 @@ finish:
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 	rate = (duration > 0.0) ? count / duration : 0.0;
 	stress_metrics_set(args, "realloc calls per sec", rate, STRESS_METRIC_HARMONIC_MEAN);
+	stress_metrics_set(args, "MB maximum allocation size", (double)(max_size >> 20), STRESS_METRIC_MAXIMUM);
 
 	free(ptr);
 
