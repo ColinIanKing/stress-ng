@@ -59,9 +59,9 @@ static const stress_help_t help[] = {
     defined(HAVE_KEYCTL) &&	\
     defined(HAVE_SYSCALL)
 
-#define MAX_KEYS 		(256)
+#define MAX_KEYS 		(200)
+#define MAX_KEY_SIZE		(20000)
 #define KEYCTL_TIMEOUT		(2)
-#define KEY_HUGE_DESC_SIZE	(65536)
 
 /*
  *  shim_keyctl()
@@ -104,6 +104,25 @@ static key_serial_t shim_request_key(
 #endif
 
 /*
+ *  stress_key_size_read()
+ *	read size from a /proc related key file, 0 = invalid
+ */
+static size_t stress_key_size_read(const char *filename)
+{
+	size_t ret;
+	size_t size;
+	char buf[64];
+
+	ret = stress_fs_file_read(filename, buf, sizeof(buf));
+	if (ret < 1)
+		return 0;
+	errno = 0;
+	if ((sscanf(buf, "%zu", &size) == 1) && (errno == 0))
+		return size;
+	return 0;
+}
+
+/*
  *  stress_key
  *	stress key operations
  */
@@ -115,20 +134,31 @@ static int stress_key(stress_args_t *args)
 	bool timeout_supported = true;
 	bool no_error = true;
 	char *huge_description;
-	const size_t key_huge_desc_size = STRESS_MAXIMUM(args->page_size, KEY_HUGE_DESC_SIZE) + 1024;
 	uint64_t keys_added = 0;
 	double t_start;
 	double duration;
 	double rate;
+	size_t max_keys;
+	size_t max_key_size;
+	size_t huge_desc_size;
 
-	huge_description = (char *)malloc(key_huge_desc_size);
+	max_key_size = stress_key_size_read("/proc/sys/kernel/keys/maxbytes");
+	max_key_size = (max_key_size > 0) ? max_key_size : MAX_KEY_SIZE;
+	max_key_size = (max_key_size > MAX_KEY_SIZE) ? MAX_KEY_SIZE : max_key_size;
+
+	max_keys = stress_key_size_read("/proc/sys/kernel/keys/maxkeys");
+	max_keys = (max_keys > 0) ? max_keys : MAX_KEYS;
+	max_keys = (max_keys > MAX_KEYS) ? MAX_KEYS : max_keys;
+
+	huge_desc_size = MAX_KEY_SIZE + 1024;
+	huge_description = (char *)malloc(huge_desc_size);
 	if (!huge_description) {
 		pr_inf_skip("%s: allocate %zu byte description string failed%s, skipping stressor\n",
-			args->name, key_huge_desc_size,
+			args->name, huge_desc_size,
 			stress_memory_free_get());
 		return EXIT_NO_RESOURCE;
 	}
-	stress_rndstr(huge_description, key_huge_desc_size);
+	stress_rndstr(huge_description, huge_desc_size);
 
 	stress_proc_state_set(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
@@ -142,7 +172,7 @@ static int stress_key(stress_args_t *args)
 		char ALIGN64 payload[64];
 
 		/* Add as many keys as we are allowed */
-		for (n = 0; n < MAX_KEYS; n++) {
+		for (n = 0; n < max_keys; n++) {
 			size_t payload_len;
 
 			(void)snprintf(payload, sizeof(payload),
