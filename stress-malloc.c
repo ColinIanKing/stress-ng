@@ -516,7 +516,7 @@ static int stress_malloc(stress_args_t *args)
 	{
 		size_t malloc_threshold = DEFAULT_MALLOC_THRESHOLD;
 
-		if (stress_setting_get("malloc-threshold", &malloc_threshold))
+		if (stress_setting_get("malloc-thresh", &malloc_threshold))
 			(void)mallopt(M_MMAP_THRESHOLD, (int)malloc_threshold);
 	}
 #endif
