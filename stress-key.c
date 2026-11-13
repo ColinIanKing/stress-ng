@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-capabilities.h"
 
 #include <stdarg.h>
 
@@ -60,6 +61,7 @@ static const stress_help_t help[] = {
     defined(HAVE_SYSCALL)
 
 #define MAX_KEYS 		(200)
+#define MAX_KEYS_ROOT 		(1000000)
 #define MAX_KEY_SIZE		(20000)
 #define KEYCTL_TIMEOUT		(2)
 
@@ -128,13 +130,13 @@ static size_t stress_key_size_read(const char *filename)
  */
 static int stress_key(stress_args_t *args)
 {
-	key_serial_t ALIGN64 keys[MAX_KEYS];
+	key_serial_t *keys;
 	pid_t ppid = getppid();
 	int rc = EXIT_SUCCESS;
 	bool timeout_supported = true;
 	bool no_error = true;
 	char *huge_description;
-	uint64_t keys_added = 0;
+	double keys_added = 0.0;
 	double t_start;
 	double duration;
 	double rate;
@@ -146,16 +148,32 @@ static int stress_key(stress_args_t *args)
 	max_key_size = (max_key_size > 0) ? max_key_size : MAX_KEY_SIZE;
 	max_key_size = (max_key_size > MAX_KEY_SIZE) ? MAX_KEY_SIZE : max_key_size;
 
-	max_keys = stress_key_size_read("/proc/sys/kernel/keys/maxkeys");
-	max_keys = (max_keys > 0) ? max_keys : MAX_KEYS;
-	max_keys = (max_keys > MAX_KEYS) ? MAX_KEYS : max_keys;
+	if (stress_capabilities_check(SHIM_CAP_IS_ROOT)) {
+		max_keys = stress_key_size_read("/proc/sys/kernel/keys/root_maxkeys");
+		max_keys = (max_keys > 0) ? max_keys : MAX_KEYS_ROOT;
+		max_keys = (max_keys > MAX_KEYS_ROOT) ? MAX_KEYS_ROOT : max_keys;
+	} else {
+
+		max_keys = stress_key_size_read("/proc/sys/kernel/keys/maxkeys");
+		max_keys = (max_keys > 0) ? max_keys : MAX_KEYS;
+		max_keys = (max_keys > MAX_KEYS) ? MAX_KEYS : max_keys;
+	}
+
+	keys = (key_serial_t *)calloc(max_keys, sizeof(*keys));
+	if (!keys) {
+		pr_inf_skip("%s: allocate %zu keys failed%s, skipping stressor\n",
+			args->name, max_keys, stress_memory_free_get());
+		return EXIT_NO_RESOURCE;
+	}
+
+	pr_inf("max keys: %zu\n", max_keys);
 
 	huge_desc_size = MAX_KEY_SIZE + 1024;
 	huge_description = (char *)malloc(huge_desc_size);
 	if (!huge_description) {
 		pr_inf_skip("%s: allocate %zu byte description string failed%s, skipping stressor\n",
-			args->name, huge_desc_size,
-			stress_memory_free_get());
+			args->name, huge_desc_size, stress_memory_free_get());
+		free(keys);
 		return EXIT_NO_RESOURCE;
 	}
 	stress_rndstr(huge_description, huge_desc_size);
@@ -249,7 +267,7 @@ static int stress_key(stress_args_t *args)
 					args->name, errno, strerror(errno));
 				goto tidy;
 			} else {
-				keys_added++;
+				keys_added += 1.0;
 			}
 #if defined(KEYCTL_SET_TIMEOUT)
 			if (timeout_supported) {
@@ -433,14 +451,16 @@ tidy:
 #endif
 	} while (no_error && stress_continue(args));
 
+
 	duration = stress_time_now() - t_start;
-	rate = (duration > 0.0) ? (double)keys_added / duration : 0.0;
+	rate = (duration > 0.0) ? keys_added / duration : 0.0;
 	stress_metrics_set(args, "keys added/modified/searched/removed per sec",
 		rate, STRESS_METRIC_HARMONIC_MEAN);
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
 	free(huge_description);
+	free(keys);
 
 	return rc;
 }
