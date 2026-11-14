@@ -4909,7 +4909,7 @@ int main(int argc, char **argv, char **envp)
 		stress_rapl_domains_get(&g_shared->rapl_domains);
 #endif
 
-	stress_clear_warn_once();
+	stress_kernel_debug_clear_warn_once();
 	stress_drop_caches();
 	stress_stressors_init();
 

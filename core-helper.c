@@ -1513,11 +1513,11 @@ pid_t stress_retry_fork(stress_args_t *args, const int retries)
 }
 
 /*
- *  stress_clear_warn_once()
+ *  stress_kernel_debug_clear_warn_once()
  *	clear the linux warn once warnings flag, kernel warn once
  *	messages can be re-issued
  */
-void stress_clear_warn_once(void)
+void stress_kernel_debug_clear_warn_once(void)
 {
 #if defined(__linux__)
 	if (stress_capabilities_check(SHIM_CAP_IS_ROOT))

@@ -83,7 +83,7 @@ extern WARN_UNUSED pid_t stress_unused_racy_pid_get(const bool fork_test);
 extern WARN_UNUSED size_t stress_hostname_length_get(void);
 extern WARN_UNUSED int stress_tty_width_get(void);
 extern WARN_UNUSED pid_t stress_retry_fork(stress_args_t *args, const int retries);
-extern void stress_clear_warn_once(void);
+extern void stress_kernel_debug_clear_warn_once(void);
 extern WARN_UNUSED size_t stress_flag_permutation(const int flags, int **permutations);
 extern CONST WARN_UNUSED int stress_exit_status(const int err);
 extern WARN_UNUSED char *stress_proc_self_exe_get(char *path, const size_t path_len);
