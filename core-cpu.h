@@ -22,6 +22,8 @@
 #include "core-version.h"
 #include "core-arch.h"
 
+extern WARN_UNUSED bool stress_arm_has_dmb_sy(void);
+
 extern WARN_UNUSED bool stress_cpu_is_x86(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_avx_vnni(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_avx512_vl(void);

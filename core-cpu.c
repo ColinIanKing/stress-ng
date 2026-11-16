@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-asm-arm.h"
 #include "core-asm-x86.h"
 #include "core-builtin.h"
 #include "core-cpu.h"
@@ -304,6 +305,55 @@ do {									\
 #define CPUID_amd_pcxl2i_ECX	(1U << 28)	/* EAX=0800000001 -> ECX */
 #define CPUID_amd_monitorx_ECX	(1U << 29)	/* EAX=0800000001 -> ECX */
 #define CPUID_amd_addr_mask_ext_ECX (1U << 30)	/* EAX=0800000001 -> ECX */
+
+#if defined(HAVE_SIGLONGJMP) &&	\
+    defined(STRESS_ARCH_ARM) &&	\
+    defined(HAVE_ASM_ARM_DMB_SY)
+static sigjmp_buf jmp_env;
+
+static void MLOCKED_TEXT NORETURN stress_cpu_sigill_handler(int signum)
+{
+	stress_signal_siglongjmp(signum, jmp_env, 1);
+}
+
+/*
+ *  stress_arm_has_dmb_sy()
+ *	check if ARM dmb_sy instruction is available
+ */
+bool stress_arm_has_dmb_sy(void)
+{
+	static struct sigaction act;
+	static struct sigaction oldact;
+	int ret;
+
+	(void)shim_memset(&act, 0, sizeof(act));
+	(void)shim_memset(&oldact, 0, sizeof(oldact));
+
+	ret = sigsetjmp(jmp_env, 1);
+	if (ret == 1) {
+		/* SIGILL hit, assume dmb_sy opcode is illegal op */
+		(void)sigaction(SIGILL, &oldact, &act);
+		return false;
+	}
+
+	act.sa_handler = stress_dekker_sigill_handler;
+        (void)sigemptyset(&act.sa_mask);
+        act.sa_flags = SA_NOCLDSTOP;
+	if (sigaction(SIGILL, &act, &oldact) < 0) {
+		/* cannot do detection, assume false */
+		return false;
+	}
+
+	stress_asm_arm_dmb_sy();
+	(void)sigaction(SIGILL, &oldact, NULL);
+	return true;
+}
+#else
+bool stress_arm_has_dmb_sy(void)
+{
+	return false;
+}
+#endif
 
 /*
  *  stress_cpu_is_x86_test()
