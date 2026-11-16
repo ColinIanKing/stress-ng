@@ -1536,6 +1536,114 @@ static void OPTIMIZE3 hammer_prefetchwt1(
 }
 #endif
 
+/*
+ *  hammer_write_fill()
+ *	write 32 bytes and check them back, no cache
+ *	operations, hopefully this exercises L1 cache
+ */
+static void OPTIMIZE3 hammer_write_fill(
+	stress_args_t *args,
+	void *addr1,
+	void *addr2,
+	const bool is_bad_addr,
+	const bool verify)
+{
+	volatile uint64_t *vptr;
+	register uint64_t rnd = stress_mwc64();
+	register uint64_t pattern;
+	register const uint64_t flip = 0xffffffffffffffffULL;
+
+	if (UNLIKELY(is_bad_addr))
+		return;
+
+	vptr = (volatile uint64_t *)addr1;
+	pattern = rnd;
+	*(vptr++) = pattern;
+	*(vptr++) = pattern^ flip;
+
+	pattern = shim_ror64n(pattern, 11);
+	*(vptr++) = pattern;
+	*(vptr++) = pattern ^ flip;
+
+	vptr = (volatile uint64_t *)addr2;
+	pattern = shim_rol64n(rnd, 11);
+	*(vptr++) = pattern;
+	*(vptr++) = pattern ^ flip;
+
+	pattern = shim_rol64n(pattern, 11);
+	*(vptr++) = pattern;
+	*(vptr++) = pattern ^ flip;
+
+	if (UNLIKELY(verify)) {
+		uint64_t val;
+
+		if (addr1 != addr2) {
+			vptr = (volatile uint64_t *)addr1;
+
+			val = *(vptr++);
+			pattern = rnd;
+			if (UNLIKELY(val != pattern)) {
+				pr_fail("%s: write-fill: read back of stored value at address "
+					"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
+					args->name, (volatile void *)vptr, pattern, val);
+			}
+
+			val = *(vptr++);
+			if (UNLIKELY(val != (pattern ^ flip))) {
+				pr_fail("%s: write-fill: read back of stored value at address "
+					"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
+					args->name, (volatile void *)vptr, pattern, val);
+			}
+
+			val = *(vptr++);
+			pattern = shim_ror64n(pattern, 11);
+			if (UNLIKELY(val != pattern)) {
+				pr_fail("%s: write-fill: read back of stored value at address "
+					"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
+					args->name, (volatile void *)vptr, pattern, val);
+			}
+
+			val = *(vptr);
+			if (UNLIKELY(val != (pattern ^ flip))) {
+				pr_fail("%s: write-fill: read back of stored value at address "
+					"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
+					args->name, (volatile void *)vptr, pattern, val);
+			}
+		}
+
+		vptr = (volatile uint64_t *)addr2;
+		val = *(vptr++);
+		pattern = shim_rol64n(rnd, 11);
+		if (UNLIKELY(val != pattern)) {
+			pr_fail("%s: write-fill: read back of stored value at address "
+				"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
+				args->name, (volatile void *)vptr, pattern, val);
+		}
+
+		val = *(vptr++);
+		if (UNLIKELY(val != (pattern ^ flip))) {
+			pr_fail("%s: write-fill: read back of stored value at address "
+				"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
+				args->name, (volatile void *)vptr, pattern, val);
+		}
+
+		val = *(vptr++);
+		pattern = shim_rol64n(pattern, 11);
+		if (UNLIKELY(val != pattern)) {
+			pr_fail("%s: write-fill: read back of stored value at address "
+				"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
+				args->name, (volatile void *)vptr, pattern, val);
+		}
+
+		val = *(vptr++);
+		if (UNLIKELY(val != (pattern ^ flip))) {
+			pr_fail("%s: write-fill: read back of stored value at address "
+				"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
+				args->name, (volatile void *)vptr, pattern, val);
+		}
+	}
+}
+
 static const stress_cachehammer_func_t stress_cachehammer_funcs[] = {
 #if defined(HAVE_RISCV_CBO_ZERO)
 	{ "cbo_zero",	true,	hammer_cbo_zero_valid,		hammer_cbo_zero },
@@ -1617,6 +1725,7 @@ static const stress_cachehammer_func_t stress_cachehammer_funcs[] = {
 	{ "write64",	false,	hammer_valid,			hammer_write64 },
 	{ "write-read",	true,	hammer_valid,			hammer_writeread },
 	{ "write-read64", true, hammer_valid,			hammer_writeread64 },
+	{ "write-fill", true, 	hammer_valid,			hammer_write_fill },
 };
 
 static stress_metrics_t cachehammer_metrics[N_FUNCS];
