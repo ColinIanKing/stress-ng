@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-arch.h"
 #include "core-asm-arm.h"
 #include "core-affinity.h"
 #include "core-builtin.h"
@@ -30,8 +31,7 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-#if defined(HAVE_SHIM_MFENCE) &&	\
-    defined(HAVE_SIGLONGJMP)
+#if defined(HAVE_SHIM_MFENCE)
 
 typedef struct {
 	volatile bool	wants_to_enter[2];
@@ -52,12 +52,6 @@ typedef struct dekker {
 } dekker_t;
 
 static dekker_t *dekker;
-static sigjmp_buf jmp_env;
-
-static inline void ALWAYS_INLINE dekker_mfence(void)
-{
-	shim_mfence();
-}
 
 static inline void ALWAYS_INLINE dekker_mbarrier(void)
 {
@@ -66,43 +60,16 @@ static inline void ALWAYS_INLINE dekker_mbarrier(void)
 #endif
 }
 
-static void MLOCKED_TEXT NORETURN stress_dekker_sigill_handler(int signum)
-{
-	stress_signal_siglongjmp(signum, jmp_env, 1);
-}
-
 static int stress_dekker_supported(const char *name)
 {
-	static struct sigaction act;
-	static struct sigaction oldact;
-	int ret;
-
-	(void)shim_memset(&act, 0, sizeof(act));
-	(void)shim_memset(&oldact, 0, sizeof(oldact));
-
-	ret = sigsetjmp(jmp_env, 1);
-	if (ret == 1) {
-		pr_inf_skip("%s: memory barrier not functional, skipping stressor\n", name);
-		(void)sigaction(SIGILL, &oldact, &act);
+#if defined(STRESS_ARCH_ARM)
+	if (!stress_arm_has_dmb_sy()) {
+		pr_inf_skip("%s: memory barrier dmb_sy opcode not detected/supported, skipping stressor\n", name);
 		return -1;
 	}
-
-	act.sa_handler = stress_dekker_sigill_handler;
-        (void)sigemptyset(&act.sa_mask);
-        act.sa_flags = SA_NOCLDSTOP;
-	if (sigaction(SIGILL, &act, &oldact) < 0) {
-		pr_inf_skip("%s: sigaction for SIGILL failed, skipping stressor\n",
-			name);
-		return -1;
-	}
-
-	dekker_mbarrier();
-
-	if (sigaction(SIGILL, &oldact, NULL) < 0) {
-		pr_inf_skip("%s: sigaction for SIGILL failed, skipping stressor\n",
-			name);
-		return -1;
-	}
+#else
+	(void)name;
+#endif
 	return 0;
 }
 
@@ -114,17 +81,17 @@ static int stress_dekker_p0(stress_args_t *args)
 
 	t = stress_time_now();
 	dekker->m.wants_to_enter[0] = true;
-	dekker_mfence();
+	shim_mfence();
 	dekker_mbarrier();
 	while (LIKELY(dekker->m.wants_to_enter[1])) {
 		if (dekker->m.turn != 0) {
 			dekker->m.wants_to_enter[0] = false;
-			dekker_mfence();
+			shim_mfence();
 			dekker_mbarrier();
 			while (dekker->m.turn != 0) {
 			}
 			dekker->m.wants_to_enter[0] = true;
-			dekker_mfence();
+			shim_mfence();
 			dekker_mbarrier();
 		}
 	}
@@ -133,12 +100,12 @@ static int stress_dekker_p0(stress_args_t *args)
 	check0 = dekker->m.check;
 	dekker->m.check++;
 	check1 = dekker->m.check;
-	dekker_mfence();
+	shim_mfence();
 	dekker_mbarrier();
 
 	dekker->m.turn = 1;
 	dekker->m.wants_to_enter[0] = false;
-	dekker_mfence();
+	shim_mfence();
 	dekker_mbarrier();
 	dekker->p0.duration += stress_time_now() - t;
 	dekker->p0.count += 1.0;
@@ -160,17 +127,17 @@ static int stress_dekker_p1(stress_args_t *args)
 	t = stress_time_now();
 
 	dekker->m.wants_to_enter[1] = true;
-	dekker_mfence();
+	shim_mfence();
 	dekker_mbarrier();
 	while (LIKELY(dekker->m.wants_to_enter[0])) {
 		if (dekker->m.turn != 1) {
 			dekker->m.wants_to_enter[1] = false;
-			dekker_mfence();
+			shim_mfence();
 			dekker_mbarrier();
 			while (dekker->m.turn != 1) {
 			}
 			dekker->m.wants_to_enter[1] = true;
-			dekker_mfence();
+			shim_mfence();
 			dekker_mbarrier();
 		}
 	}
@@ -179,13 +146,13 @@ static int stress_dekker_p1(stress_args_t *args)
 	check0 = dekker->m.check;
 	dekker->m.check--;
 	check1 = dekker->m.check;
-	dekker_mfence();
+	shim_mfence();
 	dekker_mbarrier();
 	stress_bogo_inc(args);
 
 	dekker->m.turn = 0;
 	dekker->m.wants_to_enter[1] = false;
-	dekker_mfence();
+	shim_mfence();
 	dekker_mbarrier();
 	dekker->p1.duration += stress_time_now() - t;
 	dekker->p1.count += 1.0;
