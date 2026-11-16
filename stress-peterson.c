@@ -53,12 +53,6 @@ typedef struct peterson {
 } peterson_t;
 
 static peterson_t *peterson;
-static sigjmp_buf jmp_env;
-
-static inline void ALWAYS_INLINE peterson_mfence(void)
-{
-	shim_mfence();
-}
 
 static inline void ALWAYS_INLINE peterson_mbarrier(void)
 {
@@ -67,43 +61,16 @@ static inline void ALWAYS_INLINE peterson_mbarrier(void)
 #endif
 }
 
-static void MLOCKED_TEXT NORETURN stress_peterson_sigill_handler(int signum)
-{
-	stress_signal_siglongjmp(signum, jmp_env, 1);
-}
-
 static int stress_peterson_supported(const char *name)
 {
-	static struct sigaction act;
-	static struct sigaction oldact;
-	int ret;
-
-	(void)shim_memset(&act, 0, sizeof(act));
-	(void)shim_memset(&oldact, 0, sizeof(oldact));
-
-	ret = sigsetjmp(jmp_env, 1);
-	if (ret == 1) {
-		pr_inf_skip("%s: memory barrier not functional, skipping stressor\n", name);
-		(void)sigaction(SIGILL, &oldact, &act);
+#if defined(STRESS_ARCH_ARM)
+	if (!stress_arm_has_dmb_sy()) {
+		pr_inf_skip("%s: memory barrier dmb_sy opcode not detected/supported, skipping stressor\n", name);
 		return -1;
 	}
-
-	act.sa_handler = stress_peterson_sigill_handler;
-        (void)sigemptyset(&act.sa_mask);
-        act.sa_flags = SA_NOCLDSTOP;
-	if (sigaction(SIGILL, &act, &oldact) < 0) {
-		pr_inf_skip("%s: sigaction for SIGILL failed, skipping stressor\n",
-			name);
-		return -1;
-	}
-
-	peterson_mbarrier();
-
-	if (sigaction(SIGILL, &oldact, NULL) < 0) {
-		pr_inf_skip("%s: sigaction for SIGILL failed, skipping stressor\n",
-			name);
-		return -1;
-	}
+#else
+	(void)name;
+#endif
 	return 0;
 }
 
@@ -116,7 +83,7 @@ static int stress_peterson_p0(stress_args_t *args)
 	t = stress_time_now();
 	peterson->m.flag[0] = true;
 	peterson->m.turn = 1;
-	peterson_mfence();
+	shim_mfence();
 	peterson_mbarrier();
 	while (peterson->m.flag[1] && (peterson->m.turn == 1)) {
 #if defined(STRESS_ARCH_RISCV)
@@ -128,7 +95,7 @@ static int stress_peterson_p0(stress_args_t *args)
     defined(STRESS_ARCH_PPC64) ||	\
     defined(STRESS_ARCH_PPC) ||		\
     defined(STRESS_ARCH_RISCV)
-	peterson_mfence();
+	shim_mfence();
 	peterson_mbarrier();
 #endif
 	/* Critical section */
@@ -139,12 +106,12 @@ static int stress_peterson_p0(stress_args_t *args)
     defined(STRESS_ARCH_PPC64) ||	\
     defined(STRESS_ARCH_PPC) ||		\
     defined(STRESS_ARCH_RISCV)
-	peterson_mfence();
+	shim_mfence();
 	peterson_mbarrier();
 #endif
 
 	peterson->m.flag[0] = false;
-	peterson_mfence();
+	shim_mfence();
 	peterson_mbarrier();
 	peterson->p0.duration += stress_time_now() - t;
 	peterson->p0.count += 1.0;
@@ -166,7 +133,7 @@ static int stress_peterson_p1(stress_args_t *args)
 	t = stress_time_now();
 	peterson->m.flag[1] = true;
 	peterson->m.turn = 0;
-	peterson_mfence();
+	shim_mfence();
 	peterson_mbarrier();
 	while (peterson->m.flag[0] && (peterson->m.turn == 0)) {
 #if defined(STRESS_ARCH_RISCV)
@@ -178,7 +145,7 @@ static int stress_peterson_p1(stress_args_t *args)
     defined(STRESS_ARCH_PPC64) ||	\
     defined(STRESS_ARCH_PPC) ||		\
     defined(STRESS_ARCH_RISCV)
-	peterson_mfence();
+	shim_mfence();
 	peterson_mbarrier();
 #endif
 	/* Critical section */
@@ -189,13 +156,13 @@ static int stress_peterson_p1(stress_args_t *args)
     defined(STRESS_ARCH_PPC64) ||	\
     defined(STRESS_ARCH_PPC) ||		\
     defined(STRESS_ARCH_RISCV)
-	peterson_mfence();
+	shim_mfence();
 	peterson_mbarrier();
 #endif
 	stress_bogo_inc(args);
 
 	peterson->m.flag[1] = false;
-	peterson_mfence();
+	shim_mfence();
 	peterson_mbarrier();
 	peterson->p1.duration += stress_time_now() - t;
 	peterson->p1.count += 1.0;
