@@ -149,9 +149,17 @@ static const char *stress_ipsec_mb_feature(const size_t i)
  *  stress_ipsec_mb_features()
  *	get list of CPU feature bits
  */
-static uint64_t stress_ipsec_mb_features(stress_args_t *args, const IMB_MGR *p_mgr)
+static uint64_t stress_ipsec_mb_features(stress_args_t *args, IMB_MGR *p_mgr)
 {
-	const uint64_t features = p_mgr->features;
+	uint64_t features;
+
+#if defined(HAVE_IMB_GET_FEATURES)
+	/* ignore errors, treat as if no features (will bail out later) */
+	features = 0;
+	(void)imb_get_features(p_mgr, &features);
+#else
+	features = p_mgr->features;
+#endif
 
 	if (stress_instance_zero(args)) {
 		char str[256] = "";
