@@ -26,7 +26,7 @@
 static const stress_help_t help[] = {
 	{ NULL, "readpages",          "start N workers reading their readable pages" },
 	{ NULL,	"readpages-ops N",    "stop after N bogo read operations" },
-	{ NULL, "readpages-prefetch", "prefetch data (maybe a no-op on some systems" },
+	{ NULL, "readpages-prefetch", "prefetch data (maybe a no-op on some systems)" },
 	{ NULL, "readpages-order M",  "select page read order [ forward | random | reverse ]" },
 	{ NULL,	NULL,                 NULL }
 };
