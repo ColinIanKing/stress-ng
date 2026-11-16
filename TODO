@@ -30,5 +30,5 @@ Features:
   streaming io
   streaming memory
   chaos generation
-  float32, float64, float80 etc, decimal, etc
   
+Add PIDFD_GET_EXE, PIDFD_GET_CWD, and PIDFD_GET_ROOT
