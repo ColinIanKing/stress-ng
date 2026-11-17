@@ -210,7 +210,7 @@ static void stress_file_ioctl_ext(stress_args_t *args, const int fd)
 		int ret;
 		struct shim_fsuuid fsuuid;
 
-		(void)memset(&fsuuid, 0, sizeof(fsuuid));
+		(void)shim_memset(&fsuuid, 0, sizeof(fsuuid));
 		ret = ioctl(fd, EXT4_IOC_GETFSUUID, &fsuuid);
 		if ((ret == 0) && (fsuuid.fsu_len <= sizeof(fsuuid.fsu_uuid))) {
 			VOID_RET(int, ioctl(fd, EXT4_IOC_GETFSUUID, &fsuuid));
@@ -532,20 +532,17 @@ static int stress_file_ioctl(stress_args_t *args)
 			 sizeof(struct file_dedupe_range_info))
 
 			char buf[DEDUPE_BUF_SIZE] ALIGNED(64);
-
 			struct file_dedupe_range *d = (struct file_dedupe_range *)shim_assume_aligned(buf, 1);
 
+			(void)shim_memset(d, 0, sizeof(*d));
 			d->src_offset = 0;
 			d->src_length = file_sz;
 			d->dest_count = 1;
-			d->reserved1 = 0;
-			d->reserved2 = 0;
 			d->info[0].dest_fd = dfd;
 			d->info[0].dest_offset = 0;
 			/* Zero the return values */
 			d->info[0].bytes_deduped = 0;
 			d->info[0].status = 0;
-			d->info[0].reserved = 0;
 			VOID_RET(int, ioctl(fd, FIDEDUPERANGE, d));
 
 			/*
