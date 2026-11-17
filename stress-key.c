@@ -166,8 +166,6 @@ static int stress_key(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	pr_inf("max keys: %zu\n", max_keys);
-
 	huge_desc_size = MAX_KEY_SIZE + 1024;
 	huge_description = (char *)malloc(huge_desc_size);
 	if (!huge_description) {
