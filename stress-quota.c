@@ -423,7 +423,8 @@ static int stress_quota(stress_args_t *args)
 			"devices with quota enabled\n", args->name);
 	} else {
 		do {
-			int failed = 0, skipped = 0;
+			int failed = 0;
+			int skipped = 0;
 
 			for (i = 0; LIKELY(stress_continue_flag() && (i < n_devs)); i++) {
 				int ret;
