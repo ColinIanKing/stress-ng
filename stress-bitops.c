@@ -623,20 +623,17 @@ static int OPTIMIZE3 stress_bitops_parity(const char *name, uint32_t *count)
 static int OPTIMIZE3 stress_bitops_min(const char *name, uint32_t *count)
 {
 	int32_t i;
-	int32_t x = stress_mwc32();
-	int32_t y = stress_mwc32();
+	register int32_t x = stress_mwc32();
+	register int32_t y = stress_mwc32();
 	const uint32_t dx = (~0U) >> 1;
 	const uint32_t dy = (~0U) >> 2;
-	uint32_t sum = 0;
+	register uint32_t sum = 0;
 
 	for (i = 0; i < 1000; i++) {
-		register int32_t min1;
-		register int32_t min2;
+		register const int32_t min1 = y ^ ((x ^ y) & -(x < y));
+		register const int32_t min2 = (x < y) ? x : y;
 
-		min1 = y ^ ((x ^ y) & -(x < y));
 		sum += min1;
-
-		min2 = (x < y) ? x : y;
 		sum += min2;
 
 		if (UNLIKELY(min1 != min2)) {
@@ -660,20 +657,17 @@ static int OPTIMIZE3 stress_bitops_min(const char *name, uint32_t *count)
 static int OPTIMIZE3 stress_bitops_max(const char *name, uint32_t *count)
 {
 	int32_t i;
-	int32_t x = stress_mwc32();
-	int32_t y = stress_mwc32();
+	register int32_t x = stress_mwc32();
+	register int32_t y = stress_mwc32();
 	const uint32_t dx = (~0U) >> 1;
 	const uint32_t dy = (~0U) >> 2;
-	uint32_t sum = 0;
+	register uint32_t sum = 0;
 
 	for (i = 0; i < 1000; i++) {
-		register int32_t max1;
-		register int32_t max2;
+		register const int32_t max1 = x ^ ((x ^ y) & -(x < y));
+		register const int32_t max2 = (x > y) ? x : y;
 
-		max1 = x ^ ((x ^ y) & -(x < y));
 		sum += max1;
-
-		max2 = (x > y) ? x : y;
 		sum += max2;
 
 		if (UNLIKELY(max1 != max2)) {
