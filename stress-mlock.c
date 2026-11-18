@@ -380,7 +380,8 @@ static int stress_mlock_child(stress_args_t *args, void *context)
 	do {
 		int ret;
 #if defined(__linux__)
-		uint64_t mlocked_pages = 0, prev_mlocked_pages;
+		uint64_t mlocked_pages = 0;
+		uint64_t prev_mlocked_pages;
 #endif
 		for (n = 0; n < max; n++) {
 			if (UNLIKELY(!stress_continue(args)))
