@@ -388,7 +388,8 @@ static void stress_ipsec_cmac(
 	uint8_t key[16] ALIGNED(16);
 	uint32_t expkey[4 * 15] ALIGNED(16);
 	uint32_t dust[4 * 15] ALIGNED(16);
-	uint32_t skey1[4], skey2[4];
+	uint32_t skey1[4];
+	uint32_t skey2[4];
 	uint8_t *output;
 	static const char name[] = "cmac";
 	uint8_t *dst;
