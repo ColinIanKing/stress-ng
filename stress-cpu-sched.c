@@ -186,7 +186,9 @@ static int stress_cpu_sched_nice(const int inc)
     defined(HAVE_GETPRIORITY) &&	\
     defined(HAVE_SETPRIORITY) && 	\
     defined(PRIO_PROCESS)
-	int prio, ret, saved_errno;
+	int prio;
+	int ret;
+	int saved_errno;
 	char buffer[32];
 
 	errno = 0;
@@ -622,7 +624,8 @@ static void stress_cpu_sched_exec(stress_args_t *args, char *exec_prog)
 #endif
 		return;
 	} else if (pid == 0) {
-		char *argv[4], *env[2];
+		char *argv[4];
+		char *env[2];
 		const int cpu_idx = stress_cpu_sched_rand_cpu_idx();
 		const pid_t mypid = getpid();
 
@@ -664,7 +667,8 @@ static void stress_cpu_sched_exec(stress_args_t *args, char *exec_prog)
 
 static int stress_cpu_sched_child(stress_args_t *args, void *context)
 {
-	int cpu_idx = 0, rc = EXIT_SUCCESS;
+	int cpu_idx = 0;
+	int rc = EXIT_SUCCESS;
 	const int instance = (int)args->instance;
 	size_t i;
 	size_t cpu_sched_procs = DEFAULT_CPU_SCHED_PROCS;
@@ -700,7 +704,8 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 			stress_cpu_sched_pids[i].pid = -1;
 		} else if (pid == 0) {
 			pid_t mypid = getpid();
-			unsigned int current_cpu, node;
+			unsigned int current_cpu;
+			unsigned int node;
 			int n = (int)mypid % 23;
 #if defined(HAVE_SET_MEMPOLICY)
 			int mode;
