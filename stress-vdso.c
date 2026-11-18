@@ -110,7 +110,8 @@ static int OPTIMIZE3 wrap_gettimeofday(void *vdso_func)
 static int OPTIMIZE3 wrap_time(void *vdso_func)
 {
 	time_t (*vdso_time)(time_t *tloc);
-	time_t t, ret;
+	time_t t;
+	time_t ret;
 
 	*(void **)(&vdso_time) = vdso_func;
 	ret = vdso_time(&t);
