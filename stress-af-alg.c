@@ -1137,7 +1137,8 @@ static int CONST stress_af_alg_cmp_crypto(const void *p1, const void *p2)
  */
 static void stress_af_alg_sort_crypto(void)
 {
-	stress_crypto_info_t **array, *ci;
+	stress_crypto_info_t **array;
+	stress_crypto_info_t *ci;
 
 	size_t i;
 	size_t n;
