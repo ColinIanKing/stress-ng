@@ -225,7 +225,8 @@ static long int OPTIMIZE3 wrap_getpid(void)
  */
 static long int wrap_getcpu(void)
 {
-	unsigned int cpu, node;
+	unsigned int cpu;
+	unsigned int node;
 
 	return x86_64_syscall3(__NR_getcpu, (long int)&cpu, (long int)&node, (long int)NULL);
 }
