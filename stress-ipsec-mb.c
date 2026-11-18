@@ -193,19 +193,6 @@ static int stress_ipsec_mb_supported(const char *name)
 }
 
 /*
- *  stress_rnd_fill()
- *	fill uint32_t aligned buf with n bytes of random data
- */
-static void stress_rnd_fill(uint8_t *buf, const size_t n)
-{
-	register uint8_t *ptr = buf;
-	register const uint8_t *end = buf + n;
-
-	while (ptr < end)
-		*(ptr++) = stress_mwc8();
-}
-
-/*
  *  stress_job_empty()
  *	empty job queue
  */
@@ -352,8 +339,8 @@ static void stress_ipsec_des(
 	if (!encoded)
 		return;
 
-	stress_rnd_fill(k, sizeof(k));
-	stress_rnd_fill(iv, sizeof(iv));
+	stress_uint8rnd4(k, sizeof(k));
+	stress_uint8rnd4(iv, sizeof(iv));
 	stress_job_empty(mb_mgr);
 	IMB_AES_KEYEXP_256(mb_mgr, k, enc_keys, dec_keys);
 
@@ -410,7 +397,7 @@ static void stress_ipsec_cmac(
 	if (!output)
 		return;
 
-	stress_rnd_fill(key, sizeof(key));
+	stress_uint8rnd4(key, sizeof(key));
 	IMB_AES_KEYEXP_128(mb_mgr, key, expkey, dust);
 	IMB_AES_CMAC_SUBKEY_GEN_128(mb_mgr, expkey, skey1, skey2);
 	stress_job_empty(mb_mgr);
@@ -466,8 +453,8 @@ static void stress_ipsec_ctr(
 	if (!encoded)
 		return;
 
-	stress_rnd_fill(key, sizeof(key));
-	stress_rnd_fill(iv, sizeof(iv));
+	stress_uint8rnd4(key, sizeof(key));
+	stress_uint8rnd4(iv, sizeof(iv));
 	IMB_AES_KEYEXP_256(mb_mgr, key, expkey, dust);
 	stress_job_empty(mb_mgr);
 
@@ -511,7 +498,6 @@ static void stress_ipsec_hmac_md5(
 {
 	int j;
 	int jobs_done = 0;
-	size_t i;
 	struct IMB_JOB *job;
 
 	uint8_t key[MMAC_MD5_BLOCK_SIZE] ALIGNED(16);
@@ -526,12 +512,10 @@ static void stress_ipsec_hmac_md5(
 	if (!output)
 		return;
 
-	stress_rnd_fill(key, sizeof(key));
-	for (i = 0; i < sizeof(key); i++)
-		buf[i] = key[i] ^ 0x36;
+	stress_uint8rnd4(key, sizeof(key));
+	stress_uint8rnd4(buf, sizeof(buf));
 	IMB_MD5_ONE_BLOCK(mb_mgr, buf, ipad_hash);
-	for (i = 0; i < sizeof(key); i++)
-		buf[i] = key[i] ^ 0x5c;
+	stress_uint8rnd4(buf, sizeof(buf));
 	IMB_MD5_ONE_BLOCK(mb_mgr, buf, opad_hash);
 
 	stress_job_empty(mb_mgr);
@@ -583,7 +567,6 @@ static void stress_ipsec_hmac_sha1(
 {
 	int j;
 	int jobs_done = 0;
-	size_t i;
 	struct IMB_JOB *job;
 
 	uint8_t key[HMAC_SHA1_BLOCK_SIZE] ALIGNED(16);
@@ -598,12 +581,10 @@ static void stress_ipsec_hmac_sha1(
 	if (!output)
 		return;
 
-	stress_rnd_fill(key, sizeof(key));
-	for (i = 0; i < sizeof(key); i++)
-		buf[i] = key[i] ^ 0x36;
+	stress_uint8rnd4(key, sizeof(key));
+	stress_uint8rnd4(buf, sizeof(buf));
 	IMB_MD5_ONE_BLOCK(mb_mgr, buf, ipad_hash);
-	for (i = 0; i < sizeof(key); i++)
-		buf[i] = key[i] ^ 0x5c;
+	stress_uint8rnd4(buf, sizeof(buf));
 	IMB_MD5_ONE_BLOCK(mb_mgr, buf, opad_hash);
 
 	stress_job_empty(mb_mgr);
@@ -652,7 +633,6 @@ static void stress_ipsec_hmac_sha512(
 {
 	int j;
 	int jobs_done = 0;
-	size_t i;
 	struct IMB_JOB *job;
 
 	uint8_t rndkey[IMB_SHA_512_BLOCK_SIZE] ALIGNED(16);
@@ -668,16 +648,14 @@ static void stress_ipsec_hmac_sha512(
 	if (!output)
 		return;
 
-	stress_rnd_fill(rndkey, sizeof(rndkey));
+	stress_uint8rnd4(rndkey, sizeof(rndkey));
 	(void)shim_memset(key, 0, sizeof(key));
 
 	IMB_SHA512(mb_mgr, rndkey, IMB_SHA_512_BLOCK_SIZE, key);
 
-	for (i = 0; i < sizeof(key); i++)
-		buf[i] = key[i] ^ 0x36;
+	stress_uint8rnd4(buf, sizeof(buf));
 	IMB_SHA512_ONE_BLOCK(mb_mgr, buf, ipad_hash);
-	for (i = 0; i < sizeof(key); i++)
-		buf[i] = key[i] ^ 0x5c;
+	stress_uint8rnd4(buf, sizeof(buf));
 	IMB_SHA512_ONE_BLOCK(mb_mgr, buf, opad_hash);
 
 	stress_job_empty(mb_mgr);
@@ -856,7 +834,7 @@ static int stress_ipsec_mb(stress_args_t *args)
 			pr_inf("%s: using just feature '%s'\n", args->name, feature_name);
 	}
 
-	stress_rnd_fill(data, sizeof(data));
+	stress_uint8rnd4(data, sizeof(data));
 
 	stress_proc_state_set(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
