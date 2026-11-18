@@ -528,7 +528,8 @@ static void stress_cgroup_new_group(stress_args_t *args, const char *realpathnam
  */
 static int stress_cgroup_child(stress_args_t *args)
 {
-	char pathname[PATH_MAX], realpathname[PATH_MAX];
+	char pathname[PATH_MAX];
+	char realpathname[PATH_MAX];
 	int rc = EXIT_SUCCESS;
 	uint64_t mount_retry = 0;
 	uint64_t umount_retry = 0;
