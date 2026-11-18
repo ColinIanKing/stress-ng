@@ -1248,7 +1248,8 @@ static inline char *stress_dev_basename(char *devpath)
 #if defined(__linux__)
 static inline bool is_scsi_dev(dev_info_t *dev_info)
 {
-	int i, n;
+	int i;
+	int n;
 	static const char scsi_device_path[] = "/sys/class/scsi_device/";
 	struct dirent **scsi_device_list;
 	bool is_scsi = false;
@@ -2315,7 +2316,8 @@ static void stress_dev_console_linux(
 		ret = ioctl(fd, KDGKBLED, &argp);
 #if defined(KDSKBLED)
 		if (ret == 0) {
-			unsigned long int bad_val = ~0UL, val;
+			unsigned long int bad_val = ~0UL;
+			unsigned long int val;
 
 			val = (unsigned long int)argp;
 			VOID_RET(int, ioctl(fd, KDSKBLED, val));
@@ -3084,7 +3086,8 @@ static void stress_dev_ptp_linux(
 	errno = 0;
 	ret = ioctl(fd, PTP_CLOCK_GETCAPS, &caps);
 	if (ret == 0) {
-		int i, pins = caps.n_pins;
+		int i;
+		const int pins = caps.n_pins;
 
 		for (i = 0; i < pins; i++) {
 			struct ptp_pin_desc desc;
@@ -3243,7 +3246,8 @@ STRESS_PRAGMA_POP
 
 #if defined(SNDRV_CTL_IOCTL_POWER_STATE)
 	{
-		int ret, state;
+		int ret;
+		int state;
 
 		ret = ioctl(fd, SNDRV_CTL_IOCTL_POWER_STATE, &state);
 #if defined(SNDRV_CTL_IOCTL_POWER)
@@ -4608,7 +4612,8 @@ static int dev_info_rnd_id_cmp(const void *p1, const void *p2)
  */
 static void stress_dev_infos_mixup(dev_info_t **dev_info_list, const size_t dev_info_list_len)
 {
-	dev_info_t **dev_info_sorted, *dev;
+	dev_info_t **dev_info_sorted;
+	dev_info_t *dev;
 	size_t i;
 
 	dev_info_sorted = (dev_info_t **)calloc(dev_info_list_len, sizeof(*dev_info_sorted));
@@ -4775,7 +4780,8 @@ static int stress_dev(stress_args_t *args)
 	char *dev_file = NULL;
 	const int stdout_fd = fileno(stdout);
 	const char *tty_name = (stdout_fd >= 0) ? ttyname(stdout_fd) : NULL;
-	dev_state_t dev_state_null, *mmap_dev_states;
+	dev_state_t dev_state_null;
+	dev_state_t *mmap_dev_states;
 	dev_info_t dev_null = { "/dev/null", "null", 0, &dev_state_null, NULL };
 	size_t mmap_dev_states_size;
 	const size_t page_size = args->page_size;
