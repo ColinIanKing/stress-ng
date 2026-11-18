@@ -378,7 +378,8 @@ static int OPTIMIZE3 stress_far_branch(stress_args_t *args)
 	double duration;
 	double rate;
 	struct sigaction sa;
-	int ret, fd;
+	int ret;
+	int fd;
 	stress_ret_func_t * CLOBBERED funcs = NULL;
 	void ** CLOBBERED pages = NULL;
 	CLOBBERED size_t total_funcs = 0;
@@ -428,7 +429,8 @@ static int OPTIMIZE3 stress_far_branch(stress_args_t *args)
 		pr_inf("%s: caught signal %d %s at %p\n",
 			args->name, sig_num, sig_name, sig_addr);
 		if (sig_num == SIGILL) {
-			char buffer[256], *ptr = buffer;
+			char buffer[256];
+			char *ptr = buffer;
 			uint8_t *data = (uint8_t *)sig_addr;
 			size_t buflen = sizeof(buffer);
 			int len;
