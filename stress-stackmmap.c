@@ -51,7 +51,8 @@ typedef struct stress_stack_check {
 	uint32_t waste[2];			/* Waste data on stack */
 } stress_stack_check_t;
 
-static ucontext_t c_main, c_test;
+static ucontext_t c_main;
+static ucontext_t c_test;
 static uint8_t *stack_mmap;		/* mmap'd stack */
 static uintptr_t page_mask;
 static size_t page_size;
