@@ -107,7 +107,8 @@ static void NORETURN MLOCKED_TEXT stress_segvhandler(int signum)
  */
 static NOINLINE OPTIMIZE0 void stress_sigsegv_x86_trap(void)
 {
-	int a = 1, b = 2;
+	int a = 1;
+	int b = 2;
 
 	 __asm__ __volatile__(
 	    ".byte 0xf2\n\t"
@@ -169,7 +170,9 @@ static NOINLINE OPTIMIZE0 void stress_sigsegv_x86_int88(void)
 #define HAVE_SIGSEGV_RDMSR
 static void stress_sigsegv_rdmsr(void)
 {
-	uint32_t ecx = 0x00000010, eax, edx;
+	uint32_t ecx = 0x00000010;
+	uint32_t eax;
+	uint32_t edx;
 
 	__asm__ __volatile__("rdmsr" : "=a" (eax), "=d" (edx) : "c" (ecx));
 	/*
@@ -268,13 +271,15 @@ static void stress_sigsegv_vdso(void)
  */
 static int stress_sigsegv(stress_args_t *args)
 {
-	uint8_t *ro_ptr, *none_ptr;
+	uint8_t *ro_ptr;
+	uint8_t *none_ptr;
 #if defined(HAVE_MADVISE) &&	\
     defined(MADV_GUARD_INSTALL)
 	uint8_t *guard_ptr;
 #endif
 	static uint32_t mask_shift;
-	static uintptr_t mask, last_mask;
+	static uintptr_t mask;
+	static uintptr_t last_mask;
 	CLOBBERED int rc = EXIT_FAILURE;
 #if defined(SA_SIGINFO)
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
@@ -350,7 +355,8 @@ static int stress_sigsegv(stress_args_t *args)
 	for (;;) {
 		int ret;
 		struct sigaction action;
-		uintptr_t mask_bit, masked_ptr;
+		uintptr_t mask_bit;
+		uintptr_t masked_ptr;
 
 		(void)shim_memset(&action, 0, sizeof action);
 #if defined(SA_SIGINFO)
