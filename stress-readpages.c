@@ -621,6 +621,8 @@ tidy:
 		(void)munmap(data, data_size);
 
 tidy_maps:
+	for (i = 0; i < maps.n_maps; i++)
+		free(maps.maps[i].pages);
 	free(maps.maps);
 
 	return rc;
