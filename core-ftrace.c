@@ -120,7 +120,8 @@ static char *stress_ftrace_debugfs_path_get(void)
  */
 void stress_ftrace_free(void)
 {
-	struct rb_node *tn, *next;
+	struct rb_node *tn;
+	struct rb_node *next;
 
 	if (!(g_opt_flags & OPT_FLAGS_FTRACE))
 		return;
