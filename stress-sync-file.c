@@ -161,7 +161,8 @@ static int stress_sync_file(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 	do {
-		shim_off64_t i, offset;
+		shim_off64_t i;
+		shim_off64_t offset;
 		const size_t mode_index = stress_mwc32modn(SIZEOF_ARRAY(sync_modes));
 		const unsigned int mode = sync_modes[mode_index];
 
