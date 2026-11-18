@@ -112,7 +112,9 @@ static const getrandom_flags_t getrandom_flags[] = {
  */
 static int stress_getrandom(stress_args_t *args)
 {
-	double duration = 0.0, bytes = 0.0, rate;
+	double duration = 0.0;
+	double bytes = 0.0;
+	double rate;
 
 	stress_proc_state_set(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
