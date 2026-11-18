@@ -197,7 +197,9 @@ static int stress_numa(stress_args_t *args)
 	size_t status_size;
 	size_t dest_nodes_size;
 	size_t pages_size;
-	double t, duration, metric;
+	double t;
+	double duration;
+	double metric;
 	uint64_t correct_nodes = 0;
 	uint64_t total_nodes = 0;
 	stress_numa_mask_t *numa_mask;
