@@ -58,7 +58,8 @@ typedef struct {
 static stress_apparmor_shared_info_t *stress_apparmor_shared_info;
 static volatile bool apparmor_run = true;
 static char *apparmor_path = NULL;
-static char *data_copy, *data_prev;
+static char *data_copy;
+static char *data_prev;
 
 /*
  *  stress_apparmor_supported()
