@@ -928,8 +928,12 @@ static inline int stress_matrix_exercise(
 	double mantissa;
 	int64_t exponent;
 
-	matrix_ptr_t a, b = NULL, r = NULL, s = NULL;
-	register size_t i, j;
+	matrix_ptr_t a;
+	matrix_ptr_t b = NULL;
+	matrix_ptr_t r = NULL;
+	matrix_ptr_t s = NULL;
+	register size_t i;
+	register size_t j;
 	const stress_matrix_type_t v = 65535 / (stress_matrix_type_t)((uint64_t)~0);
 	method_all_index = 1;
 
