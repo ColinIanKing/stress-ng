@@ -423,7 +423,8 @@ static int stress_numacopy(stress_args_t *args)
 	const size_t page_size = args->page_size;
 	size_t numa_bytes;
 	size_t numa_pages_size;
-	int rc = EXIT_FAILURE, mode;
+	int rc = EXIT_FAILURE;
+	int mode;
 	uint8_t **numa_pages;
 	uint8_t *local_page;
 	long int i;
@@ -606,7 +607,8 @@ static int stress_numacopy(stress_args_t *args)
 			pr_inf("%s: page copy rate out of range, cannot report "
 				"node copying rates\n", args->name);
 		} else if (duration > 0.0) {
-			long int node_from, node_to;
+			long int node_from;
+			long int node_to;
 			char str[7 + (num_numa_nodes * 6)];
 			char buf[7];
 
