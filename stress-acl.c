@@ -411,7 +411,8 @@ static int stress_acl(stress_args_t *args)
 	const size_t acls_size = max_acls * sizeof(*acls);
 	const size_t acls_tested_size = max_acls * sizeof(*acls_tested);
 	stress_metrics_t metrics[2];
-	char filename[PATH_MAX], pathname[PATH_MAX];
+	char filename[PATH_MAX];
+	char pathname[PATH_MAX];
 	static const char * const description[] = {
 		"nanoseconds to set an ACL",
 		"nanoseconds to get an ACL",
