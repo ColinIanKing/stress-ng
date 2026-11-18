@@ -110,7 +110,8 @@ static uint64_t OPTIMIZE0 stress_softlockup_loop_count(void)
 	uint64_t i;
 
 	do {
-		double t, d;
+		double t;
+		double d;
 
 		t = stress_time_now();
 		for (i = 0; i < n; i++) {
