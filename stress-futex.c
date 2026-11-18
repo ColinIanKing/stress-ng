@@ -98,7 +98,8 @@ static int stress_futex(stress_args_t *args)
 	uint64_t *timeout = &g_shared->futex.timeout[args->instance];
 	uint32_t *futex = &g_shared->futex.futex[args->instance];
 	pid_t pid;
-	int parent_cpu, rc = EXIT_SUCCESS;
+	int parent_cpu;
+	int rc = EXIT_SUCCESS;
 
 	stress_proc_state_set(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
