@@ -218,7 +218,8 @@ static void NORETURN MLOCKED_TEXT stress_sigbus_splitlock_handler(int signum)
 static int stress_lockbus(stress_args_t *args)
 {
 	uint32_t *local_buffer;
-	double t, rate;
+	double t;
+	double rate;
 	CLOBBERED double duration = 0.0;
 	CLOBBERED double count = 0.0;
 	CLOBBERED int rc = EXIT_SUCCESS;
