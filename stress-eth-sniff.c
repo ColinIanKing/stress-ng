@@ -111,7 +111,8 @@ static int stress_eth_sniff(stress_args_t *args)
 	double ipv4_proto[PROTO_MAX];
 	double ipv6_proto[PROTO_MAX];
 	size_t i;
-	double t, duration;
+	double t;
+	double duration;
 
 	for (i = 0; i < PROTO_MAX; i++) {
 		ipv4_proto[i] = 0.0;
