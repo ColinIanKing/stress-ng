@@ -326,7 +326,8 @@ static int stress_umount(stress_args_t *args)
 	stress_pid_t *s_pids;
 	stress_pid_t *s_pids_head = NULL;
 	int ret = EXIT_NO_RESOURCE;
-	char pathname[PATH_MAX], realpathname[PATH_MAX];
+	char pathname[PATH_MAX];
+	char realpathname[PATH_MAX];
 
 	s_pids = stress_sync_s_pids_mmap(STRESS_UMOUNT_PROCS);
 	if (s_pids == MAP_FAILED) {
