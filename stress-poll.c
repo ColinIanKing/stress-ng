@@ -103,7 +103,8 @@ STRESS_SHUFFLE(stress_poll_shuffle, int)
 static int OPTIMIZE3 stress_poll(stress_args_t *args)
 {
 	pid_t pid;
-	int rc = EXIT_SUCCESS, parent_cpu;
+	int rc = EXIT_SUCCESS;
+	int parent_cpu;
 	register size_t i;
 	size_t max_fds = MAX_PIPES;
 	size_t max_rnd_fds;
@@ -332,7 +333,8 @@ abort:
 			 *  limit. This should fail with EINVAL on Linux.
 			 */
 			{
-				struct rlimit old_rlim, new_rlim;
+				struct rlimit old_rlim;
+				struct rlimit new_rlim;
 
 				if (LIKELY(getrlimit(RLIMIT_NOFILE, &old_rlim) == 0)) {
 					new_rlim.rlim_cur = max_fds - 1;
