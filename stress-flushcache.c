@@ -376,7 +376,8 @@ static int stress_flushcache(stress_args_t *args)
 
 	context.d_bytes *= numa_nodes;
 	if (stress_instance_zero(args)) {
-		char d_str[32], i_str[32];
+		char d_str[32];
+		char i_str[32];
 
 		if (numa_nodes > 1) {
 			pr_inf("%s: scaling data cache size by number of numa nodes %ld to %zuK\n",
