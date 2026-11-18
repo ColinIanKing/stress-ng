@@ -263,7 +263,9 @@ static int stress_tlb_shootdown(stress_args_t *args)
 	stress_pid_t *s_pids_head = NULL;
 	uint32_t *cpus;
 	uint8_t *mem;
-	double rate, t_begin, duration;
+	double rate;
+	double t_begin;
+	double duration;
 	uint64_t tlb_begin;
 	uint64_t tlb_end;
 	uint64_t ipi_begin;
