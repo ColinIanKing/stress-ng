@@ -451,7 +451,9 @@ int stress_set_mbind(void)
 	}
 
 	for (ptr = str; (token = shim_strtok_r(ptr, ",", &saveptr)) != NULL; ptr = NULL) {
-		unsigned long int i, lo, hi;
+		unsigned long int i;
+		unsigned long int lo;
+		unsigned long int hi;
 		const char *tmpptr = shim_strstr(token, "-");
 
 		hi = lo = stress_parse_node(token);
