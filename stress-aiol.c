@@ -267,7 +267,8 @@ static ssize_t stress_aiol_wait(
 	size_t i = 0;
 
 	do {
-		struct timespec timeout, *timeout_ptr;
+		struct timespec timeout;
+		struct timespec *timeout_ptr;
 		int ret;
 
 		if (UNLIKELY(clock_gettime(CLOCK_REALTIME, &timeout) < 0)) {
