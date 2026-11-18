@@ -175,7 +175,8 @@ static void OPTIMIZE3 stress_pthread_tid_address(stress_args_t *args)
 		}
 
 		if (set_tid_addr) {
-			pid_t tid1, tid2;
+			pid_t tid1;
+			pid_t tid2;
 
 			/* Nullify */
 			VOID_RET(pid_t, (pid_t)syscall(__NR_set_tid_address, NULL));
