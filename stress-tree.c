@@ -241,7 +241,8 @@ static void OPTIMIZE3 stress_tree_rb(
 	int *rc)
 {
 	register uint32_t i;
-	register rb_t *node, *next;
+	register rb_t *node;
+	register rb_t *next;
 	register rb_t *nodes = (rb_t *)data;
 	double t;
 	const uint32_t seed = stress_mwc32();
@@ -320,7 +321,8 @@ static void OPTIMIZE3 stress_tree_splay(
 	int *rc)
 {
 	register uint32_t i;
-	register splay_t *node, *next;
+	register splay_t *node;
+	register splay_t *next;
 	register splay_t *nodes = (splay_t *)data;
 	double t;
 	const uint32_t seed = stress_mwc32();
