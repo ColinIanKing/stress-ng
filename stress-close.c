@@ -357,7 +357,8 @@ static int stress_close(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 	do {
-		size_t domain, type;
+		size_t domain;
+		size_t type;
 		int pipefds[2];
 		struct stat statbuf;
 		double t1;
