@@ -738,7 +738,8 @@ static void stress_iomix_inode_ioctl(
 	bool *ok)
 {
 #if defined(FS_IOC_GETFLAGS)
-	int ret, attr;
+	int ret;
+	int attr;
 
 	if (UNLIKELY(!stress_continue(args)))
 		return;
