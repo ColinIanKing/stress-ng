@@ -63,7 +63,8 @@ static const stress_help_t help[] = {
  */
 static int stress_seal(stress_args_t *args)
 {
-	int fd, ret;
+	int fd;
+	int ret;
 	int rc = EXIT_FAILURE;
 	const size_t page_size = args->page_size;
 	char filename[PATH_MAX];
