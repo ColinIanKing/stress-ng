@@ -1066,7 +1066,8 @@ static void TARGET_CLONES stress_rand_data_lehmer(
 {
 	static __uint128_t state;
 	static bool seeded = false;
-	register uint64_t *ptr, *end;
+	register uint64_t *ptr;
+	register uint64_t *end;
 
 	(void)args;
 
@@ -1213,9 +1214,12 @@ static void stress_rand_data_objcode(
 	uint64_t *RESTRICT data_end)
 {
 	static bool use_rand_data = false;
-	struct sigaction sigsegv_orig, sigbus_orig;
-	char *text, *dataptr;
-	char *text_start, *text_end;
+	struct sigaction sigsegv_orig;
+	struct sigaction sigbus_orig;
+	char *text;
+	char *dataptr;
+	char *text_start;
+	char *text_end;
 
 	if (use_rand_data) {
 		stress_rand_data_binary(args, data, data_end);
@@ -1590,10 +1594,14 @@ static int stress_zlib_deflate(
 	uint64_t stream_bytes_out = 0;
 	int ret;
 	z_stream stream_def;
-	uint64_t bytes_in = 0, bytes_out = 0;
+	uint64_t bytes_in = 0;
+	uint64_t bytes_out = 0;
 	int flush;
 	stress_zlib_args_t zlib_args;
-	double t1, duration, rate, ratio;
+	double t1;
+	double duration;
+	double rate;
+	double ratio;
 	const stress_zlib_method_t *method;
 	char err_buf[1024];
 
@@ -1767,7 +1775,9 @@ zlib_checksum_error:
  */
 static int stress_zlib(stress_args_t *args)
 {
-	int ret = EXIT_SUCCESS, fds[2], parent_cpu;
+	int ret = EXIT_SUCCESS;
+	int fds[2];
+	int parent_cpu;
 	pid_t pid;
 	bool error = false;
 	bool interrupted = false;
