@@ -122,8 +122,13 @@ static int stress_handle_child(stress_args_t *args, void *context)
 	int rc = EXIT_SUCCESS;
 
 	do {
-		struct file_handle *fhp, *tmp;
-		int mount_id, mount_fd, fd, i, ret;
+		struct file_handle *fhp;
+		struct file_handle *tmp;
+		int mount_id;
+		int mount_fd;
+		int fd;
+		int i;
+		int ret;
 		char *ptr;
 
 		fhp = (struct file_handle *)malloc(sizeof(*fhp));
