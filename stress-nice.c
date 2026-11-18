@@ -152,7 +152,8 @@ static int stress_nice(stress_args_t *args)
 				for (i = -19; LIKELY((i < 20) && stress_continue(args)); i++) {
 					int ret;
 #if defined(HAVE_GETPRIORITY)
-					int old_prio, new_prio;
+					int old_prio;
+					int new_prio;
 
 					errno = 0;
 					old_prio = getpriority(PRIO_PROCESS, 0);
