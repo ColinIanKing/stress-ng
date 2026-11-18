@@ -103,7 +103,8 @@ static int stress_prime_start(char *prime_start, mpz_t start)
 		/*
 		 *  Try as float and convert to integer
 		 */
-		mpfr_t start_mpfr, zero;
+		mpfr_t start_mpfr;
+		mpfr_t zero;
 		char *str = NULL;
 		int ret;
 
