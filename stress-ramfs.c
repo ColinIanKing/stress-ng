@@ -188,7 +188,8 @@ static int stress_ramfs_fs_ops(
 			rc = EXIT_FAILURE;
 		}
 		if (ramfs_fill) {
-			off_t offset = 0, scale;
+			off_t offset = 0;
+			off_t scale;
 
 			for (scale = 80; scale <= 100; scale++) {
 				const off_t end = scale * (ramfs_size / 100);
@@ -266,7 +267,8 @@ static int stress_ramfs_fs_ops(
  */
 static int stress_ramfs_child(stress_args_t *args)
 {
-	char pathname[PATH_MAX], realpathname[PATH_MAX];
+	char pathname[PATH_MAX];
+	char realpathname[PATH_MAX];
 	uint64_t ramfs_size = 2 * STRESS_MB;
 	bool ramfs_fill = false;
 	int i = 0;
