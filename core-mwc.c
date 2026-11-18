@@ -319,7 +319,8 @@ static inline ALWAYS_INLINE OPTIMIZE3 HOT uint8_t stress_mwc8mask(const uint8_t 
  */
 uint8_t OPTIMIZE3 HOT stress_mwc8modn(const uint8_t max)
 {
-	register uint8_t mask, val;
+	register uint8_t mask;
+	register uint8_t val;
 
 	if (UNLIKELY(max < 2))
 		return 0;
