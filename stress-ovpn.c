@@ -683,7 +683,8 @@ err_socket:
 
 static int ovpn_new_iface(ovpn_ctx_t *ovpn)
 {
-	struct rtattr *linkinfo, *data;
+	struct rtattr *linkinfo;
+	struct rtattr *data;
 	ovpn_link_req_t req = { 0 };
 	int ret = -1;
 
@@ -1167,7 +1168,8 @@ err_ret:
 
 static int ovpn_new_key(ovpn_ctx_t *ovpn)
 {
-	struct nlattr *keyconf, *key_dir;
+	struct nlattr *keyconf;
+	struct nlattr *key_dir;
 	nl_ctx_t *ctx;
 	int ret = -1;
 
@@ -1544,7 +1546,8 @@ static void ovpn_rand_addr_port(
 
 static int build_connect(ovpn_ctx_t *ovpn)
 {
-	char addr[INET_ADDRSTRLEN], port[6];
+	char addr[INET_ADDRSTRLEN];
+	char port[6];
 
 	ovpn_ctx_reset(ovpn);
 	ovpn->cmd = CMD_CONNECT;
@@ -1564,7 +1567,8 @@ static int build_connect(ovpn_ctx_t *ovpn)
 
 static int build_new_peer(ovpn_ctx_t *ovpn)
 {
-	char addr[INET_ADDRSTRLEN], port[6];
+	char addr[INET_ADDRSTRLEN];
+	char port[6];
 
 	ovpn_ctx_reset(ovpn);
 	ovpn->cmd = CMD_NEW_PEER;
@@ -2028,7 +2032,9 @@ static int ovpn_tun_veth_create(ovpn_ctx_t *o, const char *name, const char *pee
 		struct ifinfomsg i;
 		char buf[512];
 	} req;
-	struct rtattr *linkinfo, *infodata, *peerinfo;
+	struct rtattr *linkinfo;
+	struct rtattr *infodata;
+	struct rtattr *peerinfo;
 
 	(void)shim_memset(&req, 0, sizeof(req));
 	req.n.nlmsg_len = NLMSG_LENGTH(sizeof(req.i));
@@ -2487,7 +2493,8 @@ static void ovpn_tunnel_churn(
 			break;
 		case 3: {	/* add a phantom peer (bounded id range) */
 			const bool v6 = (o->sa_family == AF_INET6);
-			ovpn_tun_addr_t rem, vpn;
+			ovpn_tun_addr_t rem;
+			ovpn_tun_addr_t vpn;
 
 			ovpn_tun_phantom_rem_ip(&rem, v6);
 			ovpn_tun_phantom_vpn_ip(&vpn, v6);
@@ -2902,7 +2909,8 @@ static int ovpn_tunnel_endpoint(
 	 * peer's encrypt/decrypt coherent.
 	 */
 	if (is_server) {
-		uint32_t n, i;
+		uint32_t n;
+		uint32_t i;
 
 		ret = ovpn_tunnel_add_peer(o, 1, OVPN_TUN_UL_CLI(is_v6),
 					   OVPN_TUN_PORT,
@@ -2923,7 +2931,8 @@ static int ovpn_tunnel_endpoint(
 		o->expect_failure = true;	/* random ids, failures expected */
 		for (i = 0; i < n; i++) {
 			const bool v6 = (o->sa_family == AF_INET6);
-			ovpn_tun_addr_t rem, vpn;
+			ovpn_tun_addr_t rem;
+			ovpn_tun_addr_t vpn;
 
 			ovpn_tun_phantom_rem_ip(&rem, v6);
 			ovpn_tun_phantom_vpn_ip(&vpn, v6);
@@ -3037,7 +3046,8 @@ static void NORETURN ovpn_tunnel_child(
 		uint64_t *const bytec =
 			&ovpn_bytes[OVPN_CTR_BYTES(is_server, is_tcp, is_v6)];
 		pid_t churner = -1;
-		int i, rxfd = -1;
+		int i;
+		int rxfd = -1;
 
 		/* server: receive decrypted datagrams on the inner data port */
 		if (is_server) {
@@ -3270,12 +3280,18 @@ static int ovpn_tunnel_cycle(
 	const bool is_v6,
 	const bool destructive)
 {
-	char vs[IFNAMSIZ], vc[IFNAMSIZ];
-	int srdy[2] = { -1, -1 }, sgo[2] = { -1, -1 };
-	int crdy[2] = { -1, -1 }, cgo[2] = { -1, -1 };
-	char cs = OVPN_TUN_NO_NETNS, cc = OVPN_TUN_NO_NETNS;
-	pid_t ps = -1, pc = -1;
-	uint64_t ops_before, ops_after;
+	char vs[IFNAMSIZ];
+	char vc[IFNAMSIZ];
+	int srdy[2] = { -1, -1 };
+	int sgo[2] = { -1, -1 };
+	int crdy[2] = { -1, -1 };
+	int cgo[2] = { -1, -1 };
+	char cs = OVPN_TUN_NO_NETNS;
+	char cc = OVPN_TUN_NO_NETNS;
+	pid_t ps = -1;
+	pid_t pc = -1;
+	uint64_t ops_before;
+	uint64_t ops_after;
 	int rc = EXIT_SUCCESS;
 	int parent_cpu;
 	int ret;
@@ -3431,7 +3447,8 @@ static int stress_ovpn_tunnel(stress_args_t *args)
 {
 	ovpn_ctx_t root;
 	const size_t ctr_sz = sizeof(uint64_t) * OVPN_CTR_MAX;
-	double mbs[OVPN_CTR_BYTES_MAX], duration;
+	double mbs[OVPN_CTR_BYTES_MAX];
+	double duration;
 	uint64_t reason = OVPN_FAIL_NONE;
 	int rc = EXIT_SUCCESS;
 	int fails = 0;
