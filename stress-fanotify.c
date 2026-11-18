@@ -605,7 +605,8 @@ static int stress_fanotify(stress_args_t *args)
     defined(FAN_REPORT_DFID_NAME)
 		int fan_fd2;
 #endif
-		double t, duration;
+		double t;
+		double duration;
 
 		fanotify_event_init_invalid();
 
