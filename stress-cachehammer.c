@@ -219,7 +219,8 @@ static void OPTIMIZE3 hammer_read64(
 	const bool is_bad_addr,
 	const bool verify)
 {
-	volatile uint64_t *vptr1, *vptr2;
+	volatile uint64_t *vptr1;
+	volatile uint64_t *vptr2;
 
 	(void)args;
 	(void)verify;
