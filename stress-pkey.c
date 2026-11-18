@@ -58,7 +58,8 @@ static int stress_pkey(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 	do {
-		int pkey, ret;
+		int pkey;
+		int ret;
 		const size_t page_num = (size_t)stress_mwc8modn(PAGES_TO_EXERCISE);
 		const size_t page_offset = page_num * page_size;
 		uint8_t *page = pages + page_offset;
