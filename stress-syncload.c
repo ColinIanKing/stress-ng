@@ -224,7 +224,9 @@ static void stress_syncload_vecmath_init(stress_vint8w1024_t *a, const size_t le
 
 static void TARGET_CLONES stress_syncload_vecmath(void)
 {
-	static stress_vint8w1024_t a, b, c;
+	static stress_vint8w1024_t a;
+	static stress_vint8w1024_t b;
+	static stress_vint8w1024_t c;
 	static bool init = false;
 
 	if (!init) {
