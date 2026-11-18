@@ -178,7 +178,8 @@ static int mixup_sort(const struct dirent **d1, const struct dirent **d2)
  */
 static void stress_proc_self_mem(stress_args_t *args, const int fd)
 {
-	uint8_t *page, *buf;
+	uint8_t *page;
+	uint8_t *buf;
 	const uint8_t rnd = stress_mwc8();
 	const size_t page_size = stress_memory_page_size_get();
 	off_t offset;
