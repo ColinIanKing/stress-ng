@@ -287,7 +287,8 @@ static int stress_filehole_defrag(
 	}
 	/*  do manual copy without holes */
 	for (;;) {
-		ssize_t nrd, nwr;
+		ssize_t nrd;
+		ssize_t nwr;
 
 		nrd = read(*fd_in, buf, page_size);
 		if (UNLIKELY(nrd == 0))
@@ -460,7 +461,9 @@ static int stress_filehole_io(
  */
 static int stress_filehole(stress_args_t *args)
 {
-	int fd = -1, ret, rc = EXIT_SUCCESS;
+	int fd = -1;
+	int ret;
+	int rc = EXIT_SUCCESS;
 	char filename[PATH_MAX];
 	size_t extents;
 	uint64_t *buf;
