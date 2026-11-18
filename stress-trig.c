@@ -165,7 +165,8 @@ PRAGMA_UNROLL_N(8)
 #if defined(HAVE_SINCOS)
 static bool OPTIMIZE3 TARGET_CLONES stress_trig_sincos(stress_args_t *args)
 {
-	double sumsin = 0.0, sumcos = 0.0;
+	double sumsin = 0.0;
+	double sumcos = 0.0;
 	double theta = 0.0;
 	const double dtheta = (double)((PI * 2.0L) / (long double)STRESS_TRIG_LOOPS);
 	const double precision = 1E-7;
@@ -173,7 +174,8 @@ static bool OPTIMIZE3 TARGET_CLONES stress_trig_sincos(stress_args_t *args)
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_TRIG_LOOPS; i++) {
-		double c, s;
+		double c;
+		double s;
 
 		shim_sincos(theta, &s, &c);
 		sumsin += s;
@@ -189,7 +191,8 @@ PRAGMA_UNROLL_N(8)
 #if defined(HAVE_SINCOSF)
 static bool OPTIMIZE3 TARGET_CLONES stress_trig_sincosf(stress_args_t *args)
 {
-	double sumsin = 0.0, sumcos = 0.0;
+	double sumsin = 0.0;
+	double sumcos = 0.0;
 	double theta = 0.0;
 	const double dtheta = (double)((PI * 2.0L) / (long double)STRESS_TRIG_LOOPS);
 	const double precision = 1E-4;
@@ -197,7 +200,8 @@ static bool OPTIMIZE3 TARGET_CLONES stress_trig_sincosf(stress_args_t *args)
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_TRIG_LOOPS; i++) {
-		float c, s;
+		float c;
+		float s;
 
 		shim_sincosf((float)theta, &s, &c);
 		sumsin += (double)s;
@@ -213,7 +217,8 @@ PRAGMA_UNROLL_N(8)
 #if defined(HAVE_SINCOSL)
 static bool OPTIMIZE3 TARGET_CLONES stress_trig_sincosl(stress_args_t *args)
 {
-	long double sumsin = 0.0L, sumcos = 0.0L;
+	long double sumsin = 0.0L;
+	long double sumcos = 0.0L;
 	long double theta = 0.0L;
 	const long double dtheta = (PI * 2.0L) / (long double)STRESS_TRIG_LOOPS;
 	long double precision;
@@ -231,7 +236,8 @@ static bool OPTIMIZE3 TARGET_CLONES stress_trig_sincosl(stress_args_t *args)
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_TRIG_LOOPS; i++) {
-		long double s, c;
+		long double s;
+		long double c;
 
 		shim_sincosl(theta, &s, &c);
 		sumsin += s;
