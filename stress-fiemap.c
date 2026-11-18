@@ -245,7 +245,8 @@ static inline pid_t stress_fiemap_spawn(
  */
 static int stress_fiemap(stress_args_t *args)
 {
-	stress_pid_t *s_pids, *s_pids_head = NULL;
+	stress_pid_t *s_pids;
+	stress_pid_t *s_pids_head = NULL;
 	int ret;
 	int fd;
 	int rc = EXIT_FAILURE;
