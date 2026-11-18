@@ -530,7 +530,8 @@ static int epoll_client(
 	stress_rndbuf((void *)buf, sizeof(buf));
 
 	do {
-		int fd, saved_errno;
+		int fd;
+		int saved_errno;
 #if defined(STRESS_EPOLL_RETRY_COUNT)
 		int retries = 0;
 #endif
