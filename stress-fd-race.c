@@ -467,7 +467,8 @@ static void *stress_fd_race_current(void *ptr)
     defined(HAVE_SELECT)
 			case 10:
 				if (fd < FD_SETSIZE) {
-					fd_set rdfds, wrfds;
+					fd_set rdfds;
+					fd_set wrfds;
 					struct timeval timeout;
 
 					timeout.tv_sec = 0;
