@@ -201,7 +201,8 @@ uint32_t OPTIMIZE3 HOT stress_hash_murmur3_32(
 /*
  * crc32c table generated using:
  *
- * uint32_t i, crc;
+ * uint32_t i;
+ * uint32_t crc;
  *
  * for (i = 0; i < 256; i++) {
  *	crc = i;
