@@ -74,7 +74,8 @@ static const stress_opt_t opts[] = {
 #define FDS_START	(1024)
 #define FDS_TO_DUP	(8)
 
-static volatile int fd, dupfd;
+static volatile int fd;
+static volatile int dupfd;
 static volatile uint64_t max_delay_us = 1;
 static sigset_t set;
 
