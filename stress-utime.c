@@ -456,7 +456,8 @@ STRESS_PRAGMA_POP
 
 				if (shim_stat(filename, &statbuf) == 0) {
 					if (statbuf.st_atime < tv.tv_sec) {
-						char t1[64], t2[64];
+						char t1[64];
+						char t2[64];
 
 						pr_fail("%s: utime failed, access time %s is less than expected time %s\n",
 							args->name,
@@ -466,7 +467,8 @@ STRESS_PRAGMA_POP
 						break;
 					}
 					if (statbuf.st_mtime < tv.tv_sec) {
-						char t1[64], t2[64];
+						char t1[64];
+						char t2[64];
 
 						pr_fail("%s: utime failed, modified time %s is less than expected time %s\n",
 							args->name,
