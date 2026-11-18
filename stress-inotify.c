@@ -258,7 +258,8 @@ retry:
 		goto cleanup;
 
 	while (check_flags) {
-		ssize_t len, i = 0;
+		ssize_t len;
+		ssize_t i = 0;
 		struct timeval tv;
 		fd_set rfds;
 		int err;
