@@ -414,7 +414,9 @@ static int stress_getpriority(stress_args_t *args)
 static int stress_getresgid(stress_args_t *args)
 {
 #if defined(HAVE_GETRESGID)
-	gid_t rgid, egid, sgid;
+	gid_t rgid;
+	gid_t egid;
+	gid_t sgid;
 	int ret;
 
 	ret = getresgid(&rgid, &egid, &sgid);
@@ -432,7 +434,9 @@ static int stress_getresgid(stress_args_t *args)
 static int stress_getresuid(stress_args_t *args)
 {
 #if defined(HAVE_GETRESUID)
-	uid_t ruid, euid, suid;
+	uid_t ruid;
+	uid_t euid;
+	uid_t suid;
 	int ret;
 
 	ret = getresuid(&ruid, &euid, &suid);
