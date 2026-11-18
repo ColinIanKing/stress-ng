@@ -583,7 +583,8 @@ static uint64_t TARGET_CLONES OPTIMIZE3 stress_memrate_write_rate##size(	\
 								\
 	t1 = stress_time_now();					\
 	for (ptr = start; ptr < end;) {				\
-		double t2, dur_remainder;			\
+		double t2;					\
+		double dur_remainder;				\
 		const type *loop_end = ptr + loop_elements;	\
 		register const type *write_end = (type *)	\
 			STRESS_PTR_MINIMUM(loop_end, end);	\
