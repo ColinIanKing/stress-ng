@@ -162,7 +162,8 @@ static int stress_fsize_boundary(
  */
 static off_t stress_fsize_max_off_t(void)
 {
-	off_t max = 0, prev_max = 0;
+	off_t max = 0;
+	off_t prev_max = 0;
 
 	while (max >= 0) {
 		prev_max = max;
