@@ -254,7 +254,8 @@ affinity_continue:
 
 static int stress_affinity(stress_args_t *args)
 {
-	stress_pid_t *s_pids, *s_pids_head = NULL;
+	stress_pid_t *s_pids;
+	stress_pid_t *s_pids_head = NULL;
 
 	size_t i;
 	stress_affinity_info_t *info;
