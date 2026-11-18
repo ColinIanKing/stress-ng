@@ -194,7 +194,8 @@ static void *stress_mmapaddr_get_addr(stress_args_t *args)
 			continue;
 
 		for (i = 0, test_addr = (uintptr_t)addr; i < STRESS_VMA_PAGES; i++, test_addr += page_size) {
-			int fd[2], err;
+			int fd[2];
+			int err;
 			ssize_t ret;
 
 			if (UNLIKELY(pipe(fd) < 0))
