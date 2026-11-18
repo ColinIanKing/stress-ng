@@ -741,7 +741,8 @@ ofd_lock_abort:	{ /* Nowt */ }
 
 #if defined(F_DUPFD_QUERY)
 	{
-		int ret, dupfd;
+		int ret;
+		int dupfd;
 
 		ret = fcntl(path_fd, F_DUPFD_QUERY, path_fd);
 		if (UNLIKELY((ret >= 0) && (ret != 1))) {
