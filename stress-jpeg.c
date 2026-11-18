@@ -89,7 +89,8 @@ static inline ALWAYS_INLINE double OPTIMIZE3 stress_plasma(
 	const double whence)
 {
 	const double tau = 2 * M_PI;
-	double cx, cy;
+	double cx;
+	double cy;
 	double value;
 	const double third = 0.3333333333333333333;
 
@@ -364,7 +365,11 @@ static int stress_jpeg(stress_args_t *args)
 	size_t rgb_size;
 	size_t row_pointer_size;
 	size_t jpeg_image = 0; /* plasma */
-	double total_pixels = 0.0, t_start, duration, rate, ratio;
+	double total_pixels = 0.0;
+	double t_start;
+	double duration;
+	double rate;
+	double ratio;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
 	if (!stress_setting_get("jpeg-width", &x_max)) {
