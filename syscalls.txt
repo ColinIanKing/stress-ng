@@ -22,14 +22,14 @@ Syscall				Stressor
 accept				sock
 accept4				sock
 access				access
-acct				[ need privilege, ignore for now ]
+acct				acct
 add_key				key
 adjtimex			get (modes = 0 only)
 arch_prctl			prctl
 alarm				generic run duration timers
 
 bind				sock
-bpf
+bpf				bpf
 brk				bigheap, brk
 
 cacheflush			cache
@@ -224,7 +224,7 @@ open				dentry, open, etc
 open_by_handle_at		handle
 openat				io, open
 openat2				open
-open_tree
+open_tree			bind-mount
 
 pause				kcmp, wait
 perf_event_open			--perf option
@@ -240,16 +240,16 @@ pkey_free			pkey
 pkey_get			pkey
 pkey_mprotect			pkey
 pkey_set			pkey
-poll				poll			HERE (make pollhuge, lots of fds)
+poll				poll
 posix_fallocate			fallocate
 ppoll				poll
-prctl				process name setting	need to find start/end of brk etc.
+prctl				prtctl, process name setting
 pread				readahead
 preadv				hdd
 preadv2				hdd
 prlimit				get
 /proc				proc
-process_madvise			madvise			need to check with newer kernel
+process_madvise			madvise
 process_vm_readv		vm_rw
 process_vm_writev		vm_rw
 pselect6			poll
@@ -274,9 +274,9 @@ recvmmsg			sock
 remap_file_pages		remap
 removexattr			xattr
 rename				rename
-renameat			rename			as above
-renameat2			rename			as above
-request_key			key			callout info non-null case
+renameat			rename
+renameat2			rename
+request_key			key
 restart_syscall			[ ignore this ]
 riscv_flush_icache		icache, syscall, sysinval
 riscv_hwprobe			syscall, sysinval
@@ -291,7 +291,7 @@ rt_sigsuspend
 rt_sigtimedwait
 rt_tgsigqueueinfo
 
-sbrk						brk			libc wrapper on Linux, syscall on some BSDs
+sbrk				brk			libc wrapper on Linux, syscall on some BSDs
 sched_get_priority_max		sched, schedpolicy
 sched_get_priority_min		sched, schedpolicy
 sched_getaffinity		affinity
