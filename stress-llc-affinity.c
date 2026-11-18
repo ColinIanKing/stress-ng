@@ -427,7 +427,8 @@ static int stress_llc_affinity(stress_args_t *args)
 	size_t llc_affinity_size = 0;
 	size_t cache_line_size = 64;
 	size_t mmap_sz;
-	uint64_t *buf, *buf_end;
+	uint64_t *buf;
+	uint64_t *buf_end;
 	uint64_t affinity_changes = 0;
 	double write_duration;
 	double read_duration;
