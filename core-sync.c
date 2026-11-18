@@ -196,7 +196,7 @@ void stress_sync_start_cont_list(stress_pid_t *s_pids_head)
  *	that can be inserted into a binary tree with a fairly good
  *	left/right balance
  */
-static OPTIMIZE3 pid_t stress_sync_order_pid_hash(const pid_t pid)
+static OPTIMIZE3 HOT pid_t stress_sync_order_pid_hash(const pid_t pid)
 {
 	switch (sizeof(pid)) {
 	case 2:
@@ -238,7 +238,7 @@ void stress_sync_init_pids(stress_pid_t *s_pids, const size_t n_pids)
  *	using the PID as the key (mashed by the pid hashing) for
  *	a relatively good balance.
  */
-void OPTIMIZE3 stress_sync_order_pid(stress_pid_t **head, stress_pid_t *s_pid)
+void OPTIMIZE3 HOT stress_sync_order_pid(stress_pid_t **head, stress_pid_t *s_pid)
 {
 	register const pid_t pid_hash = stress_sync_order_pid_hash(s_pid->pid);
 
@@ -254,7 +254,7 @@ void OPTIMIZE3 stress_sync_order_pid(stress_pid_t **head, stress_pid_t *s_pid)
  *  struct_sync_find_pid()
  *	find a PID in a the binary tree head
  */
-stress_pid_t * OPTIMIZE3 struct_sync_find_pid(stress_pid_t *head, const pid_t pid)
+stress_pid_t * OPTIMIZE3 HOT struct_sync_find_pid(stress_pid_t *head, const pid_t pid)
 {
 	register const pid_t pid_hash = stress_sync_order_pid_hash(pid);
 

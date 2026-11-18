@@ -41,7 +41,7 @@ double CONST OPTIMIZE3 stress_time_timeval_to_double(const struct timeval *tv)
  *  stress_time_now_timeval()
  *	get time as double accurate to microseconds
  */
-static OPTIMIZE3 int stress_time_now_timeval(double *dnow)
+static OPTIMIZE3 HOT int stress_time_now_timeval(double *dnow)
 {
 	struct timeval now;
 
@@ -56,7 +56,7 @@ static OPTIMIZE3 int stress_time_now_timeval(double *dnow)
  *  stress_time_now_timespec()
  *	get time as double accurate to nanoseconds
  */
-static OPTIMIZE3 int stress_time_now_timespec(double *dnow)
+static OPTIMIZE3 HOT int stress_time_now_timespec(double *dnow)
 {
 #if defined(HAVE_CLOCK_GETTIME) &&     \
     defined(CLOCK_REALTIME)
@@ -80,7 +80,7 @@ static int (*stress_time_now_func)(double *now) = stress_time_now_timespec;
  *  stress_time_now()
  *	time in seconds as a double
  */
-double OPTIMIZE3 stress_time_now(void)
+double OPTIMIZE3 HOT stress_time_now(void)
 {
 	double now;
 

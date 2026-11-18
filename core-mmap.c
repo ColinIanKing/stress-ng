@@ -38,7 +38,7 @@
  *	a specific pattern - check with
  *	stress_mmap_check().
  */
-void OPTIMIZE3 stress_mmap_set(
+void OPTIMIZE3 HOT stress_mmap_set(
 	uint8_t *buf,
 	const size_t sz,
 	const size_t page_size)
@@ -104,7 +104,7 @@ void OPTIMIZE3 stress_mmap_set(
  *  stress_mmap_check()
  *	check if mmap'd data is sane
  */
-int OPTIMIZE3 stress_mmap_check(
+int OPTIMIZE3 HOT stress_mmap_check(
 	uint8_t *buf,
 	const size_t sz,
 	const size_t page_size)
@@ -164,7 +164,7 @@ int OPTIMIZE3 stress_mmap_check(
  *	a specific pattern at start of each page - check with
  *	stress_mmap_check_light().
  */
-void OPTIMIZE3 stress_mmap_set_light(
+void OPTIMIZE3 HOT stress_mmap_set_light(
 	uint8_t *buf,
 	const size_t sz,
 	const size_t page_size)
@@ -185,7 +185,7 @@ void OPTIMIZE3 stress_mmap_set_light(
  *  stress_mmap_check_light()
  *	check if mmap'd data is sane
  */
-int OPTIMIZE3 stress_mmap_check_light(
+int OPTIMIZE3 HOT stress_mmap_check_light(
 	uint8_t *buf,
 	const size_t sz,
 	const size_t page_size)
@@ -597,7 +597,7 @@ void stress_mmap_stats_report(
  *	if PROT_READ, read data
  *	if no read/write protection, don't do anything
  */
-void OPTIMIZE3 stress_mmap_populate_forward(
+void OPTIMIZE3 HOT stress_mmap_populate_forward(
 	void *addr,
 	const size_t len,
 	const int prot)
@@ -633,7 +633,7 @@ void OPTIMIZE3 stress_mmap_populate_forward(
  *	if PROT_READ, read data
  *	if no read/write protection, don't do anything
  */
-void OPTIMIZE3 stress_mmap_populate_reverse(
+void OPTIMIZE3 HOT stress_mmap_populate_reverse(
 	void *addr,
 	const size_t len,
 	const int prot)

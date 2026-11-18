@@ -2108,7 +2108,7 @@ void stress_make_it_fail_set(void)
  *  stress_log2()
  *	log to the base 2 of n
  */
-size_t stress_log2(const size_t n)
+size_t OPTIMIZE3 HOT stress_log2(const size_t n)
 {
 #if defined(HAVE_BUILTIN_CLZLL)
 	const long long int lln = (long long int)n;

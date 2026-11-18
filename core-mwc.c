@@ -64,7 +64,7 @@ static stress_mwc_t mwc = {
  *  mwc_flush()
  *	reset internal mwc cached values, flush out
  */
-static inline void mwc_flush(void)
+static inline HOT void mwc_flush(void)
 {
 	mwc.n16 = 0;
 	mwc.n8 = 0;
@@ -190,7 +190,7 @@ void stress_mwc_reseed(void)
  *  stress_mwc_seed_set()
  *      set mwc seeds
  */
-void stress_mwc_seed_set(const uint32_t w, const uint32_t z)
+void HOT stress_mwc_seed_set(const uint32_t w, const uint32_t z)
 {
 	mwc.w = w;
 	mwc.z = z;
@@ -201,7 +201,7 @@ void stress_mwc_seed_set(const uint32_t w, const uint32_t z)
  *  stress_mwc_seed_get()
  *      get mwc seeds
  */
-void stress_mwc_seed_get(uint32_t *w, uint32_t *z)
+void HOT stress_mwc_seed_get(uint32_t *w, uint32_t *z)
 {
 	mwc_flush();
 	*w = mwc.w;
@@ -212,7 +212,7 @@ void stress_mwc_seed_get(uint32_t *w, uint32_t *z)
  *  stress_mwc_seed_default()
  *      set default mwc seed
  */
-void stress_mwc_seed_default(void)
+void HOT stress_mwc_seed_default(void)
 {
 	stress_mwc_seed_set(STRESS_MWC_SEED_W, STRESS_MWC_SEED_Z);
 }
@@ -224,7 +224,7 @@ void stress_mwc_seed_default(void)
  *      fast pseudo random number generator, see
  *      http://www.cse.yorku.ca/~oz/marsaglia-rng.html
  */
-inline OPTIMIZE3 uint32_t stress_mwc32(void)
+inline OPTIMIZE3 HOT uint32_t stress_mwc32(void)
 {
 	mwc.z = 36969 * (mwc.z & 65535) + (mwc.z >> 16);
 	mwc.w = 18000 * (mwc.w & 65535) + (mwc.w >> 16);
@@ -236,13 +236,13 @@ inline OPTIMIZE3 uint32_t stress_mwc32(void)
  *  stress_mwc64()
  *	get a 64 bit pseudo random number
  */
-uint64_t OPTIMIZE3 stress_mwc64(void)
+uint64_t OPTIMIZE3 HOT stress_mwc64(void)
 {
 	return (((uint64_t)stress_mwc32()) << 32) | stress_mwc32();
 }
 
 #if defined(HAVE_INT128_T)
-__uint128_t stress_mwc128(void)
+__uint128_t OPTIMIZE3 HOT stress_mwc128(void)
 {
 	return ((__uint128_t)stress_mwc64() << 64) |
 		(__uint128_t)stress_mwc64();
@@ -253,7 +253,7 @@ __uint128_t stress_mwc128(void)
  *  stress_mwc16()
  *	get a 16 bit pseudo random number
  */
-uint16_t OPTIMIZE3 stress_mwc16(void)
+uint16_t OPTIMIZE3 HOT stress_mwc16(void)
 {
 	if (LIKELY(mwc.n16)) {
 		mwc.n16--;
@@ -269,7 +269,7 @@ uint16_t OPTIMIZE3 stress_mwc16(void)
  *  stress_mwc8()
  *	get an 8 bit pseudo random number
  */
-uint8_t OPTIMIZE3 stress_mwc8(void)
+uint8_t OPTIMIZE3 HOT stress_mwc8(void)
 {
 	if (LIKELY(mwc.n8)) {
 		mwc.n8--;
@@ -285,7 +285,7 @@ uint8_t OPTIMIZE3 stress_mwc8(void)
  *  stress_mwc1()
  *	get an 1 bit pseudo random number
  */
-uint8_t OPTIMIZE3 stress_mwc1(void)
+uint8_t OPTIMIZE3 HOT stress_mwc1(void)
 {
 	if (LIKELY(mwc.n1)) {
 		mwc.n1--;
@@ -302,7 +302,7 @@ uint8_t OPTIMIZE3 stress_mwc1(void)
  *  stress_mwc8mask()
  *	generate a mask large enough for 8 bit val
  */
-static inline ALWAYS_INLINE OPTIMIZE3 uint8_t stress_mwc8mask(const uint8_t val)
+static inline ALWAYS_INLINE OPTIMIZE3 HOT uint8_t stress_mwc8mask(const uint8_t val)
 {
 	register uint8_t v = val;
 
@@ -317,7 +317,7 @@ static inline ALWAYS_INLINE OPTIMIZE3 uint8_t stress_mwc8mask(const uint8_t val)
  *	see https://research.kudelskisecurity.com/2020/07/28/the-definitive-guide-to-modulo-bias-and-how-to-avoid-it/
  *	return 8 bit non-modulo biased value 1..max (inclusive)
  */
-uint8_t OPTIMIZE3 stress_mwc8modn(const uint8_t max)
+uint8_t OPTIMIZE3 HOT stress_mwc8modn(const uint8_t max)
 {
 	register uint8_t mask, val;
 
@@ -336,7 +336,7 @@ uint8_t OPTIMIZE3 stress_mwc8modn(const uint8_t max)
  *  stress_mwc16mask()
  *	generate a mask large enough for 16 bit val
  */
-static inline ALWAYS_INLINE OPTIMIZE3 uint16_t stress_mwc16mask(const uint16_t val)
+static inline ALWAYS_INLINE OPTIMIZE3 HOT uint16_t stress_mwc16mask(const uint16_t val)
 {
 	register uint16_t v = val;
 
@@ -352,7 +352,7 @@ static inline ALWAYS_INLINE OPTIMIZE3 uint16_t stress_mwc16mask(const uint16_t v
  *	return 16 bit non-modulo biased value 1..max (inclusive)
  *	where max is most probably not a power of 2
  */
-uint16_t OPTIMIZE3 stress_mwc16modn(const uint16_t max)
+uint16_t OPTIMIZE3 HOT stress_mwc16modn(const uint16_t max)
 {
 	register uint16_t mask;
 	register uint16_t val;
@@ -372,7 +372,7 @@ uint16_t OPTIMIZE3 stress_mwc16modn(const uint16_t max)
  *  stress_mwc32mask()
  *	generate a mask large enough for 32 bit val
  */
-static inline ALWAYS_INLINE OPTIMIZE3 uint32_t stress_mwc32mask(const uint32_t val)
+static inline ALWAYS_INLINE OPTIMIZE3 HOT uint32_t stress_mwc32mask(const uint32_t val)
 {
 	register uint32_t v = val;
 
@@ -389,7 +389,7 @@ static inline ALWAYS_INLINE OPTIMIZE3 uint32_t stress_mwc32mask(const uint32_t v
  *	return 32 bit non-modulo biased value 1..max (inclusive)
  *	with no non-zero max check
  */
-uint32_t OPTIMIZE3 stress_mwc32modn(const uint32_t max)
+uint32_t OPTIMIZE3 HOT stress_mwc32modn(const uint32_t max)
 {
 	register uint32_t mask;
 	register uint32_t val;
@@ -412,7 +412,7 @@ uint32_t OPTIMIZE3 stress_mwc32modn(const uint32_t max)
  *  stress_mwc64mask()
  *	generate a mask large enough for 64 bit val
  */
-static inline ALWAYS_INLINE OPTIMIZE3 uint64_t stress_mwc64mask(const uint64_t val)
+static inline ALWAYS_INLINE OPTIMIZE3 HOT uint64_t stress_mwc64mask(const uint64_t val)
 {
 	register uint64_t v = val;
 
@@ -430,7 +430,7 @@ static inline ALWAYS_INLINE OPTIMIZE3 uint64_t stress_mwc64mask(const uint64_t v
  *	return 64 bit non-modulo biased value 1..max (inclusive)
  *	with no non-zero max check
  */
-uint64_t OPTIMIZE3 stress_mwc64modn(const uint64_t max)
+uint64_t OPTIMIZE3 HOT stress_mwc64modn(const uint64_t max)
 {
 	register uint64_t mask;
 	register uint64_t val;
@@ -451,7 +451,7 @@ uint64_t OPTIMIZE3 stress_mwc64modn(const uint64_t max)
  *  stress_rndbuf()
  *	fill buffer with pseudorandom bytes
  */
-void OPTIMIZE3 stress_rndbuf(void *buf, const size_t len)
+void OPTIMIZE3 HOT stress_rndbuf(void *buf, const size_t len)
 {
 	register char *ptr = (char *)buf;
 	register const char *end = ptr + len;
@@ -464,7 +464,7 @@ void OPTIMIZE3 stress_rndbuf(void *buf, const size_t len)
  *  stress_rndstr()
  *	generate pseudorandom string
  */
-void OPTIMIZE3 stress_rndstr(char *str, const size_t len)
+void OPTIMIZE3 HOT stress_rndstr(char *str, const size_t len)
 {
 	/*
 	 * base64url alphabet.
@@ -513,7 +513,7 @@ void OPTIMIZE3 stress_rndstr(char *str, const size_t len)
  *  stress_uint8rnd4()
  *	fill a uint8_t buffer full of random data
  */
-void OPTIMIZE3 stress_uint8rnd4(uint8_t *data, const size_t len)
+void OPTIMIZE3 HOT stress_uint8rnd4(uint8_t *data, const size_t len)
 {
 	register uint32_t *ptr32;
 	register const uint32_t *ptr32end;

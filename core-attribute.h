@@ -162,6 +162,12 @@
 #define CONST
 #endif
 
+#if defined(HAVE_ATTRIBUTE_HOT)
+#define HOT	__attribute__((hot))
+#else
+#define HOT
+#endif
+
 #if defined(HAVE_ATTRIBUTE_PURE)
 #define PURE	__attribute__((pure))
 #else

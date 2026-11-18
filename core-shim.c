@@ -1388,7 +1388,7 @@ STRESS_PRAGMA_POP
  *  shim_strscpy()
  *	safer string copy
  */
-ssize_t OPTIMIZE3 shim_strscpy(char *dst, const char *src, size_t len)
+ssize_t OPTIMIZE3 HOT shim_strscpy(char *dst, const char *src, size_t len)
 {
 	register size_t i;
 
@@ -1411,7 +1411,7 @@ ssize_t OPTIMIZE3 shim_strscpy(char *dst, const char *src, size_t len)
  *   shim_strlcat()
  *	wrapper / implementation of BSD strlcat
  */
-size_t OPTIMIZE3 shim_strlcat(char *dst, const char *src, size_t len)
+size_t OPTIMIZE3 HOT shim_strlcat(char *dst, const char *src, size_t len)
 {
 #if defined(HAVE_BSD_STRLCAT) &&	\
     defined(HAVE_BSD_STRING_H) &&	\
@@ -1450,7 +1450,7 @@ size_t OPTIMIZE3 shim_strlcat(char *dst, const char *src, size_t len)
  *   shim_strnlen()
  *	wrapper / implementation of strnlen
  */
-size_t OPTIMIZE3 shim_strnlen(const char *str, size_t len)
+size_t OPTIMIZE3 HOT shim_strnlen(const char *str, size_t len)
 {
 #if defined(HAVE_STRNLEN)
 	return strnlen(str, len);

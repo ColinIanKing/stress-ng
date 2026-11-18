@@ -30,7 +30,7 @@ uint64_t stress_sort_compares ALIGN64;
  *  stress_sort_compare_reset
  *	reset stress_sort_compares counter
  */
-void stress_sort_compare_reset(void)
+void HOT stress_sort_compare_reset(void)
 {
 	stress_sort_compares = 0;
 }
@@ -39,7 +39,7 @@ void stress_sort_compare_reset(void)
  *  stress_sort_compare_get
  *	get stress_sort_compares counter
  */
-uint64_t stress_sort_compare_get(void)
+uint64_t HOT stress_sort_compare_get(void)
 {
 	return stress_sort_compares;
 }
@@ -48,7 +48,7 @@ uint64_t stress_sort_compare_get(void)
  *  stress_sort_data_int32_mangle()
  *	flip bits to re-order 16 and 32 bit comparisons
  */
-void OPTIMIZE3 stress_sort_data_int32_mangle(int32_t *data, const size_t n)
+void OPTIMIZE3 HOT stress_sort_data_int32_mangle(int32_t *data, const size_t n)
 {
 	const int32_t *end = data + n;
 
@@ -69,7 +69,7 @@ do {					\
 	i++;				\
 } while (0)
 
-void OPTIMIZE3 stress_sort_data_int32_init(int32_t *data, const size_t n)
+void OPTIMIZE3 HOT stress_sort_data_int32_init(int32_t *data, const size_t n)
 {
 	register int32_t prev = 0;
 	register size_t i;
@@ -99,7 +99,7 @@ void OPTIMIZE3 stress_sort_data_int32_init(int32_t *data, const size_t n)
  * 	https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
  * 	NOTE: n must be < 2^32
  */
-void OPTIMIZE3 stress_sort_data_int32_shuffle(int32_t *data, const size_t n)
+void OPTIMIZE3 HOT stress_sort_data_int32_shuffle(int32_t *data, const size_t n)
 {
 	register uint32_t const a = 16843009;
 	register uint32_t const c = 826366247;
@@ -136,7 +136,7 @@ void OPTIMIZE3 stress_sort_data_int32_shuffle(int32_t *data, const size_t n)
 #endif
 }
 #else
-void OPTIMIZE3 stress_sort_data_int32_shuffle(int32_t *data, const size_t n)
+void OPTIMIZE3 HOT stress_sort_data_int32_shuffle(int32_t *data, const size_t n)
 {
 	register uint32_t const a = 16843009;
         register uint32_t const c = 826366247;
@@ -171,7 +171,7 @@ PRAGMA_UNROLL_N(8)
 }
 #endif
 
-static void OPTIMIZE3 sort_swap8(void *p1, void *p2, register const size_t size)
+static void OPTIMIZE3 HOT sort_swap8(void *p1, void *p2, register const size_t size)
 {
 	register uint64_t tmp64;
 
@@ -182,7 +182,7 @@ static void OPTIMIZE3 sort_swap8(void *p1, void *p2, register const size_t size)
 	*(uint64_t *)p2 = tmp64;
 }
 
-static void OPTIMIZE3 sort_swap4(void *p1, void *p2, register const size_t size)
+static void OPTIMIZE3 HOT sort_swap4(void *p1, void *p2, register const size_t size)
 {
 	register uint32_t tmp32;
 
@@ -193,7 +193,7 @@ static void OPTIMIZE3 sort_swap4(void *p1, void *p2, register const size_t size)
 	*(uint32_t *)p2 = tmp32;
 }
 
-static void OPTIMIZE3 sort_swap2(void *p1, void *p2, register const size_t size)
+static void OPTIMIZE3 HOT sort_swap2(void *p1, void *p2, register const size_t size)
 {
 	register uint16_t tmp16;
 
@@ -204,7 +204,7 @@ static void OPTIMIZE3 sort_swap2(void *p1, void *p2, register const size_t size)
 	*(uint16_t *)p2 = tmp16;
 }
 
-static void OPTIMIZE3 sort_swap1(void *p1, void *p2, register const size_t size)
+static void OPTIMIZE3 HOT sort_swap1(void *p1, void *p2, register const size_t size)
 {
 	register uint8_t tmp8;
 
@@ -215,7 +215,7 @@ static void OPTIMIZE3 sort_swap1(void *p1, void *p2, register const size_t size)
 	*(uint8_t *)p2 = tmp8;
 }
 
-static void OPTIMIZE3 sort_swap(void *p1, void *p2, register size_t size)
+static void OPTIMIZE3 HOT sort_swap(void *p1, void *p2, register size_t size)
 {
 	register uint8_t *u8p1 = (uint8_t *)p1;
 	register uint8_t *u8p2 = (uint8_t *)p2;
@@ -229,35 +229,35 @@ static void OPTIMIZE3 sort_swap(void *p1, void *p2, register size_t size)
 	} while (--size);
 }
 
-static void OPTIMIZE3 sort_copy8(void *p1, void *p2, register const size_t size)
+static void OPTIMIZE3 HOT sort_copy8(void *p1, void *p2, register const size_t size)
 {
 	(void)size;
 
 	*(uint64_t *)p1 = *(uint64_t *)p2;
 }
 
-static void OPTIMIZE3 sort_copy4(void *p1, void *p2, register const size_t size)
+static void OPTIMIZE3 HOT sort_copy4(void *p1, void *p2, register const size_t size)
 {
 	(void)size;
 
 	*(uint32_t *)p1 = *(uint32_t *)p2;
 }
 
-static void OPTIMIZE3 sort_copy2(void *p1, void *p2, register const size_t size)
+static void OPTIMIZE3 HOT sort_copy2(void *p1, void *p2, register const size_t size)
 {
 	(void)size;
 
 	*(uint16_t *)p1 = *(uint16_t *)p2;
 }
 
-static void OPTIMIZE3 sort_copy1(void *p1, void *p2, register const size_t size)
+static void OPTIMIZE3 HOT sort_copy1(void *p1, void *p2, register const size_t size)
 {
 	(void)size;
 
 	*(uint8_t *)p1 = *(uint8_t *)p2;
 }
 
-static void OPTIMIZE3 sort_copy(void *p1, void *p2, register size_t size)
+static void OPTIMIZE3 HOT sort_copy(void *p1, void *p2, register size_t size)
 {
 	register uint8_t *u8p1;
 	register const uint8_t *u8p2;
@@ -270,7 +270,7 @@ static void OPTIMIZE3 sort_copy(void *p1, void *p2, register size_t size)
 	} while (--size);
 }
 
-stress_sort_swap_func_t stress_sort_swap_func(const size_t size)
+stress_sort_swap_func_t HOT stress_sort_swap_func(const size_t size)
 {
 	switch (size) {
 	case 8:
@@ -287,7 +287,7 @@ stress_sort_swap_func_t stress_sort_swap_func(const size_t size)
 	return &sort_swap;
 }
 
-stress_sort_copy_func_t stress_sort_copy_func(const size_t size)
+stress_sort_copy_func_t HOT stress_sort_copy_func(const size_t size)
 {
 	switch (size) {
 	case 8:
@@ -304,12 +304,12 @@ stress_sort_copy_func_t stress_sort_copy_func(const size_t size)
 	return &sort_copy;
 }
 
-static inline size_t qsort_bm_minimum(const size_t x, const size_t y)
+static inline size_t HOT qsort_bm_minimum(const size_t x, const size_t y)
 {
 	return x <= y ? x : y;
 }
 
-static inline uint8_t ALWAYS_INLINE *qsort_bm_med3(
+static inline uint8_t ALWAYS_INLINE HOT *qsort_bm_med3(
 	uint8_t *a,
 	uint8_t *b,
 	uint8_t *c,
@@ -320,7 +320,7 @@ static inline uint8_t ALWAYS_INLINE *qsort_bm_med3(
 		((cmp(b, c) > 0) ? b : (cmp(a, c) > 0) ? c : a);
 }
 
-static inline void ALWAYS_INLINE qsort_bm_swap(
+static inline void ALWAYS_INLINE HOT qsort_bm_swap(
 	uint8_t *a,
 	uint8_t *b,
 	size_t n)
@@ -342,7 +342,7 @@ PRAGMA_UNROLL_N(4)
  *  Bentley and MacIlroy’s quicksort, v2
  *  https://web.ecs.syr.edu/~royer/cis675/slides/07engSort.pdf
  */
-void TARGET_CLONES OPTIMIZE3 qsort_bm(
+void TARGET_CLONES OPTIMIZE3 HOT qsort_bm(
 	void *base,
 	const size_t n,
 	const size_t es,
