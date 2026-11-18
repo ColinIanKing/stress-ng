@@ -734,7 +734,9 @@ static void OPTIMIZE3 stress_mmaprandom_mmap_anon(mr_ctxt_t *ctxt, const int idx
 {
 	size_t page_size = ctxt->page_size;
 	size_t pages = stress_mwc32modn(ctxt->maxpages) + 1;
-	size_t size = page_size * pages, i, j;
+	size_t size = page_size * pages;
+	size_t i;
+	size_t j;
 	uint8_t *addr;
 	int prot_flag;
 	int mmap_flag;
@@ -1297,7 +1299,8 @@ static void OPTIMIZE3 stress_mmaprandom_cache_prefetch(mr_ctxt_t *ctxt, const in
 static void stress_mmaprandom_mremap(mr_ctxt_t *ctxt, const int idx)
 {
 	mr_node_t *mr_node = stress_mmaprandom_get_random_used();
-	size_t pages, new_size;
+	size_t pages;
+	size_t new_size;
 	void *new_addr;
 
 	if (!mr_node)
@@ -1345,7 +1348,9 @@ static void stress_mmaprandom_mremap(mr_ctxt_t *ctxt, const int idx)
 static void stress_mmaprandom_remap_file_pages(mr_ctxt_t *ctxt, const int idx)
 {
 	mr_node_t *mr_node = stress_mmaprandom_get_random_used();
-	size_t size, pages, pgoff;
+	size_t size;
+	size_t pages;
+	size_t pgoff;
 	off_t offset;
 
 	if (!mr_node)
@@ -1422,7 +1427,8 @@ static void stress_mmaprandom_mincore(mr_ctxt_t *ctxt, const int idx)
 {
 	mr_node_t *mr_node = stress_mmaprandom_get_random_used();
 	unsigned char *vec;
-	size_t max_size, size;
+	size_t max_size;
+	size_t size;
 
 	if (!mr_node)
 		return;
@@ -1769,7 +1775,9 @@ static void stress_mmaprandom_clone(mr_ctxt_t *ctxt, const int idx)
 		return;
 
 	if (ctxt->oom_avoid) {
-		size_t total, resident, shared;
+		size_t total;
+		size_t resident;
+		size_t shared;
 
 		if (stress_memory_usage_by_pid_get(getpid(), &total, &resident, &shared) < 0) {
 			/* Can't get memory, random guess at 128MB */
@@ -1806,7 +1814,9 @@ static void stress_mmaprandom_fork(mr_ctxt_t *ctxt, const int idx)
 		return;
 
 	if (ctxt->oom_avoid) {
-		size_t total, resident, shared;
+		size_t total;
+		size_t resident;
+		size_t shared;
 
 		if (stress_memory_usage_by_pid_get(getpid(), &total, &resident, &shared) < 0) {
 			/* Can't get memory, random guess at 128MB */
@@ -1849,9 +1859,11 @@ static void OPTIMIZE3 stress_mmaprandom_join(mr_ctxt_t *ctxt, const int idx)
 
 	for (i = 0; i < ((ctxt->n_mr_nodes >> 8) + 1); i++) {
 		mr_node_t *mr_node = stress_mmaprandom_get_random_used();
-		mr_node_t find_mr_node, *found_mr_node;
+		mr_node_t find_mr_node;
+		mr_node_t *found_mr_node;
 		uint8_t *ptr;
-		size_t page_size, max_size;
+		size_t page_size;
+		size_t max_size;
 
 		if (!mr_node)
 			continue;
