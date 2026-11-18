@@ -507,7 +507,8 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 			offset = stress_mwc64modn((uint64_t)mmap_bytes) & page_mask;
 
 		for (n = 0; n < MMAP_MAPPINGS_MAX; n++) {
-			int flag = 0, mmap_flag;
+			int flag = 0;
+			int mmap_flag;
 
 			const int madvise_option = madvise_options[stress_mwc8modn(SIZEOF_ARRAY(madvise_options))];
 #if defined(HAVE_MPROTECT)
