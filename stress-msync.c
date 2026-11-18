@@ -102,7 +102,8 @@ static int stress_msync(stress_args_t *args)
 	uint64_t *data = NULL;
 	const size_t page_size = args->page_size;
 	const size_t min_size = 2 * page_size;
-	uint64_t msync_bytes, msync_bytes_total = DEFAULT_MSYNC_BYTES;
+	uint64_t msync_bytes;
+	uint64_t msync_bytes_total = DEFAULT_MSYNC_BYTES;
 	CLOBBERED uint64_t sz;
 	ssize_t ret;
 	CLOBBERED ssize_t rc = EXIT_SUCCESS;
