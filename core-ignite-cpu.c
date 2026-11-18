@@ -76,7 +76,7 @@ static stress_settings_t settings[] = {
  *	attempt to apply settings, disable settings in settings_flag
  *	if we cannot apply them.
  */
-static void stress_ignite_cpu_set(
+static void COLD stress_ignite_cpu_set(
 	const bool maximize_freq,
 	const int32_t cpu,
 	const uint64_t max_freq,
@@ -148,7 +148,7 @@ static void stress_ignite_cpu_set(
  *	crank up the CPUs, start a child process to continually
  *	set the most demanding CPU settings
  */
-void stress_ignite_cpu_start(void)
+void COLD stress_ignite_cpu_start(void)
 {
 	size_t i;
 	size_t n = 0;
@@ -372,7 +372,7 @@ void stress_ignite_cpu_start(void)
  *  stress_ignite_cpu_stop()
  *	stop updating settings and restore to original settings
  */
-void stress_ignite_cpu_stop(void)
+void COLD stress_ignite_cpu_stop(void)
 {
 	size_t i;
 

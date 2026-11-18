@@ -102,7 +102,7 @@ static void stress_cpuidle_cstate_add_unique(
  *  stress_cpuidle_init()
  *	initialize the C-state CPU idle list
  */
-void stress_cpuidle_init(void)
+void COLD stress_cpuidle_init(void)
 {
 #if defined(__linux__)
 	DIR *cpu_dir;
@@ -174,7 +174,7 @@ void stress_cpuidle_init(void)
  *  stress_cpuidle_free()
  *	free the C-state CPU idle list
  */
-void stress_cpuidle_free(void)
+void COLD stress_cpuidle_free(void)
 {
 	cpu_cstate_t *cc = cpu_cstate_list;
 
@@ -279,17 +279,17 @@ static void stress_cpuidle_read_cstates(
 	}
 }
 
-void stress_cpuidle_read_cstates_begin(stress_cstate_stats_t *cstate_stats)
+void COLD stress_cpuidle_read_cstates_begin(stress_cstate_stats_t *cstate_stats)
 {
 	stress_cpuidle_read_cstates(0, cstate_stats);
 }
 
-void stress_cpuidle_read_cstates_end(stress_cstate_stats_t *cstate_stats)
+void COLD stress_cpuidle_read_cstates_end(stress_cstate_stats_t *cstate_stats)
 {
 	stress_cpuidle_read_cstates(1, cstate_stats);
 }
 
-void stress_cpuidle_dump(FILE *yaml, stress_list_item_t *stressors_list)
+void COLD stress_cpuidle_dump(FILE *yaml, stress_list_item_t *stressors_list)
 {
 	stress_list_item_t *item;
 
@@ -352,7 +352,7 @@ void stress_cpuidle_dump(FILE *yaml, stress_list_item_t *stressors_list)
  *  stress_cpuidle_log_info()
  *	log the C-states, only log them if list contains C-states
  */
-void stress_cpuidle_log_info(void)
+void COLD stress_cpuidle_log_info(void)
 {
 	char *buf;
 	const cpu_cstate_t *cc;

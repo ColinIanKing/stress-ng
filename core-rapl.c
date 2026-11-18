@@ -303,7 +303,7 @@ int stress_rapl_power_stressor_get(stress_rapl_domain_t *rapl_domains, stress_ra
  *  stress_rapl_dump()
  *	dump rapl power measurements
  */
-void stress_rapl_dump(FILE *yaml, stress_list_item_t *stressors_list, stress_rapl_domain_t *rapl_domains)
+void COLD stress_rapl_dump(FILE *yaml, stress_list_item_t *stressors_list, stress_rapl_domain_t *rapl_domains)
 {
 	bool no_rapl_stats = true;
 	stress_list_item_t *item;

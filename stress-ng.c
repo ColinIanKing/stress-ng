@@ -490,7 +490,7 @@ static void stress_ksm_merge(void)
  *	allocate a prime sized stress_stats_t hash table based
  *	on a hint of n elements
  */
-static int stress_stats_hash_table_alloc(const size_t n)
+static int COLD stress_stats_hash_table_alloc(const size_t n)
 {
 	stress_stats_hash.size = (size_t)stress_prime64_next_get((uint64_t)n);
 	stress_stats_hash.table = (stress_stats_t **)calloc(stress_stats_hash.size, sizeof(*stress_stats_hash.table));
@@ -505,7 +505,7 @@ static int stress_stats_hash_table_alloc(const size_t n)
  *  stress_stats_hash_table_free()
  *	free tress_stats_t hash table
  */
-static inline void stress_stats_hash_table_free(void)
+static inline void COLD stress_stats_hash_table_free(void)
 {
 	free(stress_stats_hash.table);
 	stress_stats_hash.table = NULL;
@@ -614,7 +614,7 @@ ssize_t stress_stressor_find(const char *name)
  *  stress_exclude()
  *  	parse -x --exclude exclude list
  */
-static int stress_exclude(void)
+static int COLD stress_exclude(void)
 {
 	char *str;
 	char *token;
@@ -646,7 +646,7 @@ static int stress_exclude(void)
  *	zero'ing all the bogo_max_ops stops all stressors
  *	that are checking on stress_continue()
  */
-void stress_bogo_max_ops_zero(void)
+void COLD stress_bogo_max_ops_zero(void)
 {
 	stress_list_item_t *item;
 
@@ -770,7 +770,7 @@ static void MLOCKED_TEXT stress_sigalrm_handler(int signum)
  *  stress_signals_block()
  *	block signals
  */
-static void stress_signals_block(void)
+static void COLD stress_signals_block(void)
 {
 	sigset_t set;
 
@@ -880,7 +880,7 @@ static void MLOCKED_TEXT stress_stats_handler(int signum)
  *  stress_handler_set()
  *	set signal handler to catch SIGINT, SIGALRM, SIGHUP
  */
-static int stress_handler_set(const char *stress, const bool child)
+static int COLD stress_handler_set(const char *stress, const bool child)
 {
 #if defined(SA_SIGINFO)
 	struct sigaction sa;
@@ -922,7 +922,7 @@ static int stress_handler_set(const char *stress, const bool child)
  *  stress_version()
  *	print program version info
  */
-static void stress_version(void)
+static void COLD stress_version(void)
 {
 	(void)printf("%s, version " VERSION " (%s, %s)%s\n",
 		g_prog_name, stress_compiler_get(), stress_uname_info_get(),
@@ -933,7 +933,7 @@ static void stress_version(void)
  *  stress_usage_help()
  *	show generic help information
  */
-static void stress_usage_help(const stress_help_t help_info[])
+static void COLD stress_usage_help(const stress_help_t help_info[])
 {
 	size_t i;
 	const int cols = stress_tty_width_get();
@@ -984,7 +984,7 @@ static void stress_usage_help(const stress_help_t help_info[])
  *  stress_verfiable_mode()
  *	show the stressors that are verified by their verify mode
  */
-static void stress_verifiable_mode(const stress_verify_t mode)
+static void COLD stress_verifiable_mode(const stress_verify_t mode)
 {
 	size_t i;
 	bool space = false;
@@ -1002,7 +1002,7 @@ static void stress_verifiable_mode(const stress_verify_t mode)
  *  stress_verfiable()
  *	show the stressors that have --verify ability
  */
-static inline void stress_verifiable(void)
+static inline void COLD stress_verifiable(void)
 {
 	(void)printf("verification always enabled:\n");
 	stress_verifiable_mode(VERIFY_ALWAYS);
@@ -1016,7 +1016,7 @@ static inline void stress_verifiable(void)
  *  stress_stressor_usage_help()
  *	show per stressor help information
  */
-static void stress_stressor_usage_help(void)
+static void COLD stress_stressor_usage_help(void)
 {
 	size_t i;
 
@@ -1030,7 +1030,7 @@ static void stress_stressor_usage_help(void)
  *  stress_stressor_names_show()
  *	show stressor names
  */
-static inline void stress_stressor_names_show(void)
+static inline void COLD stress_stressor_names_show(void)
 {
 	size_t i;
 
@@ -1043,7 +1043,7 @@ static inline void stress_stressor_names_show(void)
  *  stress_usage()
  *	print some help
  */
-static void NORETURN stress_usage(void)
+static void NORETURN COLD stress_usage(void)
 {
 	stress_version();
 	(void)printf("\nusage: %s [OPTION [ARG]]\n", g_prog_name);
@@ -1461,7 +1461,7 @@ static inline void stress_stressors_number_get(uint32_t *n_stressors, uint32_t *
  *  stress_stressors_free()
  *	free stressor info from stressor list
  */
-static void stress_stressors_free(void)
+static void COLD stress_stressors_free(void)
 {
 	stress_list_item_t *item = stress_stressor_list.head;
 
@@ -1481,7 +1481,7 @@ static void stress_stressors_free(void)
  *  stress_total_instances_get()
  *	deterimin number of runnable stressors from list
  */
-static inline size_t stress_total_instances_get(void)
+static inline size_t COLD stress_total_instances_get(void)
 {
 	size_t total_instances = 0;
 	stress_list_item_t *item;
@@ -2041,7 +2041,7 @@ wait_for_stressors:
  *  stress_stressors_show()
  *	show names of stressors that are going to be run
  */
-static int stress_stressors_show(void)
+static int COLD stress_stressors_show(void)
 {
 	char *newstr;
 	char *str = NULL;
@@ -2089,7 +2089,7 @@ static int stress_stressors_show(void)
  *  stress_exit_status_type()
  *	report exit status of all instances of a given status type
  */
-static void stress_exit_status_type(const char *name, const size_t type)
+static void COLD stress_exit_status_type(const char *name, const size_t type)
 {
 	stress_list_item_t *item;
 
@@ -2139,7 +2139,7 @@ static void stress_exit_status_type(const char *name, const size_t type)
  *  stress_exit_status_summary()
  *	provide summary of exit status of all instances
  */
-static void stress_exit_status_summary(void)
+static void COLD stress_exit_status_summary(void)
 {
 	static const struct {
 		const char *name;
@@ -2321,7 +2321,7 @@ static const char *stress_exercise_type_str(const stress_exercise_type_t type)
  *  stress_exercise_dump()
  *	output stressor exercised items
  */
-static void stress_exercise_dump(FILE *yaml)
+static void COLD stress_exercise_dump(FILE *yaml)
 {
 	stress_list_item_t *item;
 	size_t count = 0;
@@ -2421,7 +2421,7 @@ static void stress_exercise_dump(FILE *yaml)
  *  stress_metrics_dump()
  *	output metrics
  */
-static void stress_metrics_dump(FILE *yaml)
+static void COLD stress_metrics_dump(FILE *yaml)
 {
 	stress_list_item_t *item;
 	const char *description;
@@ -2792,7 +2792,7 @@ static void stress_metrics_dump(FILE *yaml)
  *  stress_ios_dump()
  *	output I/O stats
  */
-static void stress_ios_dump(FILE *yaml)
+static void COLD stress_ios_dump(FILE *yaml)
 {
 	stress_list_item_t *item;
 
@@ -2844,7 +2844,7 @@ static void stress_ios_dump(FILE *yaml)
  *  stress_times_dump()
  *	output the run times
  */
-static void stress_times_dump(
+static void COLD stress_times_dump(
 	FILE *yaml,
 	const int32_t ticks_per_sec,
 	const double duration)
@@ -2910,7 +2910,7 @@ static void stress_times_dump(
  *  stress_args_log()
  *	dump to syslog argv[]
  */
-static void stress_args_log(int argc, char **argv)
+static void COLD stress_args_log(int argc, char **argv)
 {
 	size_t i;
 	size_t len;
@@ -2958,7 +2958,7 @@ static void stress_args_log(int argc, char **argv)
  *  stress_system_memory_info_log()
  *	dump system memory info
  */
-void stress_system_memory_info_log(void)
+void COLD stress_system_memory_info_log(void)
 {
 #if defined(HAVE_SYS_SYSINFO_H) && \
     defined(HAVE_SYSINFO) && \
@@ -2987,7 +2987,7 @@ void stress_system_memory_info_log(void)
  *  stress_system_info_log()
  *	dump system info
  */
-static inline void stress_system_info_log(void)
+static inline void COLD stress_system_info_log(void)
 {
 #if defined(HAVE_UNAME) && 		\
     defined(HAVE_SYS_UTSNAME_H) &&	\
@@ -3005,7 +3005,7 @@ static inline void stress_system_info_log(void)
 #endif
 }
 
-static void *stress_page_mmap(
+static void * COLD stress_page_mmap(
 	const int prot,
 	const char *prot_str,
 	const size_t page_size)
@@ -3027,7 +3027,7 @@ static void *stress_page_mmap(
  *	that is marked read-only to stop accidental smashing
  *	from a run-away stack expansion
  */
-static inline void stress_shared_mmap(void)
+static inline void COLD stress_shared_mmap(void)
 {
 	const size_t n_instances = stress_total_instances_get();
 	const size_t page_size = stress_memory_page_size_get();
@@ -3169,7 +3169,7 @@ void stress_shared_readonly(void)
  *  stress_shared_unmap()
  *	unmap shared region
  */
-void stress_shared_unmap(void)
+void COLD stress_shared_unmap(void)
 {
 	const size_t page_size = stress_memory_page_size_get();
 
@@ -3184,7 +3184,7 @@ void stress_shared_unmap(void)
  *  stress_unimplementd_exclude()
  *	report why an unimplemented stressor will be skipped
  */
-static void stress_unimplementd_exclude(
+static void COLD stress_unimplementd_exclude(
 	const char *name,
 	const stressor_info_t *info)
 {
@@ -3222,7 +3222,7 @@ static void stress_unimplementd_exclude(
  *  stress_exclude_unsupported()
  *	tag stressor proc count to be excluded
  */
-static inline void stress_exclude_unsupported(bool *unsupported)
+static inline void COLD stress_exclude_unsupported(bool *unsupported)
 {
 	size_t i;
 
@@ -3267,7 +3267,7 @@ static inline void stress_exclude_unsupported(bool *unsupported)
  *  stress_max_processes_limit_set()
  *	set maximum number of processes for specific stressors
  */
-static void stress_max_processes_limit_set(void)
+static void COLD stress_max_processes_limit_set(void)
 {
 #if defined(HAVE_GETRLIMIT) &&	\
     defined(RLIMIT_NPROC)
@@ -3339,7 +3339,7 @@ static stress_list_item_t *stress_list_item_find(const stress_stressor_t *stress
  *  stress_stressors_init()
  *	initialize any stressors that will be used
  */
-static void stress_stressors_init(void)
+static void COLD stress_stressors_init(void)
 {
 	stress_list_item_t *item;
 
@@ -3359,7 +3359,7 @@ static void stress_stressors_init(void)
  *  stress_stressors_deinit()
  *	de-initialize any stressors that will be used
  */
-static void stress_stressors_deinit(void)
+static void COLD stress_stressors_deinit(void)
 {
 	stress_list_item_t *item;
 
@@ -3380,7 +3380,7 @@ static void stress_stressors_deinit(void)
  *	set up stressor default settings that can be overridden
  *	by user later on
  */
-static inline void stress_stressor_defaults_set(void)
+static inline void COLD stress_stressor_defaults_set(void)
 {
 	size_t i;
 
@@ -3397,7 +3397,7 @@ static inline void stress_stressor_defaults_set(void)
  * 	alloc is added for allocation alignment for 64 bit
  * 	systems.
  */
-static inline size_t stressor_stats_size(void)
+static inline size_t COLD stressor_stats_size(void)
 {
 	register size_t total = 0;
 	register stress_list_item_t *item;
@@ -3425,7 +3425,7 @@ static inline size_t stressor_stats_size(void)
  *	Disable pathological stressors if user has not explicitly
  *	request them to be used. Let's play safe.
  */
-static inline void stress_pathological_exclude(void)
+static inline void COLD stress_pathological_exclude(void)
 {
 	if (!(g_opt_flags & OPT_FLAGS_PATHOLOGICAL)) {
 		stress_list_item_t *item = stress_stressor_list.head;
@@ -3453,7 +3453,7 @@ static inline void stress_pathological_exclude(void)
  *  stress_stats_buffers_setup()
  *	setup the stats data from the shared memory
  */
-static inline int stress_stats_buffers_setup(void)
+static inline int COLD stress_stats_buffers_setup(void)
 {
 	stress_list_item_t *item;
 	stress_stats_t *stats = g_shared->stats;
@@ -3504,7 +3504,7 @@ static inline int stress_stats_buffers_setup(void)
  *  stress_random_stressors_set()
  *	select stressors at random
  */
-static inline void stress_random_stressors_set(void)
+static inline void COLD stress_random_stressors_set(void)
 {
 	int32_t opt_random = 0;
 
@@ -3552,7 +3552,7 @@ static inline void stress_random_stressors_set(void)
 	}
 }
 
-static bool stress_with(const int32_t instances)
+static bool COLD stress_with(const int32_t instances)
 {
 	char *opt_with = NULL;
 	char *dup_with;
@@ -3596,7 +3596,7 @@ static bool stress_with(const int32_t instances)
  *  stress_stressors_enable()
  *	enable all the stressors
  */
-static void stress_stressors_enable(const int32_t instances)
+static void COLD stress_stressors_enable(const int32_t instances)
 {
 	size_t i;
 
@@ -3620,7 +3620,7 @@ static void stress_stressors_enable(const int32_t instances)
 	}
 }
 
-static void stress_stressor_enable(const stress_stressor_t *stressor)
+static void COLD stress_stressor_enable(const stress_stressor_t *stressor)
 {
 	stress_list_item_t *item = stress_list_item_find(stressor);
 
@@ -3638,7 +3638,7 @@ static void stress_stressor_enable(const stress_stressor_t *stressor)
  *  stress_classes_enable()
  *	enable stressors based on class
  */
-static void stress_classes_enable(const uint32_t classifier)
+static void COLD stress_classes_enable(const uint32_t classifier)
 {
 	size_t i;
 
@@ -3781,7 +3781,7 @@ static void OPTIMIZE3 stress_feature_tree_free(
  *	gather up and report unique feature names in
  *	alphabetical order
  */
-static void stress_exercises_features_unique(
+static void COLD stress_exercises_features_unique(
 	const char *opt,
 	const char *feature,
 	const stress_exercise_type_t type)
@@ -3833,7 +3833,7 @@ static void stress_exercises_features_unique(
  *  stress_exercises_detail_show()
  *	show per stressor exercising details
  */
-static void stress_exercises_detail_show(
+static void COLD stress_exercises_detail_show(
 	const stress_exercise_type_t type)
 {
 	size_t j;
@@ -3896,7 +3896,7 @@ static void stress_exercises_detail_show(
  *	parse for exercises option that matches type
  *	and a name in the opt string list
  */
-static int stress_exercises_get(
+static int COLD stress_exercises_get(
 	const char *opt,
 	const stress_exercise_type_t type,
 	int *ret)
@@ -3973,7 +3973,7 @@ static int stress_exercises_get(
  *  	check if oom-avoid-bytes option is too large and adjust
  *  	down to 50% of free memory
  */
-static void stress_oom_avoid_bytes_check(void)
+static void COLD stress_oom_avoid_bytes_check(void)
 {
 	stress_memory_info_t memory_info;
 	size_t bytes;
@@ -4063,7 +4063,7 @@ static const stress_opt_t main_opts[] = {
  *  stress_opts_parse
  *	parse argv[] and set stress-ng options accordingly
  */
-int stress_opts_parse(int argc, char **argv, const bool jobmode)
+int COLD stress_opts_parse(int argc, char **argv, const bool jobmode)
 {
 	optind = 0;
 
@@ -4187,7 +4187,7 @@ next_opt:
  *  stress_stats_alloc()
  *	allocate array of stats based on n stats required
  */
-static void stress_stats_alloc(
+static COLD void stress_stats_alloc(
 	stress_stats_t ***stats,
 	const int32_t n)
 {
@@ -4204,7 +4204,7 @@ static void stress_stats_alloc(
  *  stress_default_timeout_set()
  *	set timeout to a default value if not already set
  */
-static void stress_default_timeout_set(const uint64_t timeout)
+static void COLD stress_default_timeout_set(const uint64_t timeout)
 {
 	const char *action;
 
@@ -4223,7 +4223,7 @@ static void stress_default_timeout_set(const uint64_t timeout)
  *  stress_sequential_setup()
  *	setup for sequential --seq mode stressors
  */
-static void stress_sequential_setup(const uint32_t classifier, const int32_t instances)
+static void COLD stress_sequential_setup(const uint32_t classifier, const int32_t instances)
 {
 	stress_list_item_t *item;
 
@@ -4241,7 +4241,7 @@ static void stress_sequential_setup(const uint32_t classifier, const int32_t ins
  *  stress_parallel_setup()
  *	setup for parallel mode stressors
  */
-static void stress_parallel_setup(const uint32_t classifier, const int32_t instances)
+static void COLD stress_parallel_setup(const uint32_t classifier, const int32_t instances)
 {
 	stress_list_item_t *item;
 
@@ -4430,7 +4430,7 @@ static inline void stress_permute_run(
  *	try to mlock image into memory so it
  *	won't get swapped out
  */
-static inline void stress_executable_mlock(void)
+static inline void COLD stress_executable_mlock(void)
 {
 #if defined(MLOCKED_SECTION)
 	extern void *__start_mlocked_text;
@@ -4444,7 +4444,7 @@ static inline void stress_executable_mlock(void)
  *  stress_yaml_open()
  *	open YAML results file
  */
-static inline FILE *stress_yaml_open(const char *yaml_filename)
+static inline FILE * COLD stress_yaml_open(const char *yaml_filename)
 {
 	FILE *yaml = NULL;
 
@@ -4464,7 +4464,7 @@ static inline FILE *stress_yaml_open(const char *yaml_filename)
  *  stress_yaml_close()
  *	close YAML results file
  */
-static inline void stress_yaml_close(FILE *yaml)
+static inline void COLD stress_yaml_close(FILE *yaml)
 {
 	if (yaml) {
 		pr_yaml(yaml, "...\n");
@@ -4477,7 +4477,7 @@ static inline void stress_yaml_close(FILE *yaml)
  *  stress_global_lock_create()
  *	create global locks
  */
-static int stress_global_lock_create(void)
+static int COLD stress_global_lock_create(void)
 {
 #if defined(STRESS_PERF_STATS) &&	\
     defined(HAVE_LINUX_PERF_EVENT_H)
@@ -4514,7 +4514,7 @@ static int stress_global_lock_create(void)
  *  stress_global_lock_destroy()
  *	destroy global locks
  */
-static void stress_global_lock_destroy(void)
+static void COLD stress_global_lock_destroy(void)
 {
 	if (g_shared->drop_caches.lock)
 		stress_lock_destroy(g_shared->drop_caches.lock);
@@ -4535,7 +4535,7 @@ static void stress_global_lock_destroy(void)
  *  stress_stressor_names_fixup()
  *	replace '_' with '-' in stressor name
  */
-static inline void stress_stressor_names_fixup(void)
+static inline void COLD stress_stressor_names_fixup(void)
 {
 	size_t i;
 

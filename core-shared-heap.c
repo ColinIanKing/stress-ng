@@ -38,7 +38,7 @@ typedef struct stress_shared_heap_str {
  *  stress_shared_heap_init()
  *	initialized shared heap
  */
-void *stress_shared_heap_init(const size_t metrics_size)
+void * COLD stress_shared_heap_init(const size_t metrics_size)
 {
 	const size_t page_size = stress_memory_page_size_get();
 	size_t size = (metrics_size > 0) ? metrics_size : 1;	/* at least one metric */
@@ -68,7 +68,7 @@ void *stress_shared_heap_init(const size_t metrics_size)
  *  stress_shared_heap_free()
  *	free shared heap
  */
-void stress_shared_heap_free(void)
+void COLD stress_shared_heap_free(void)
 {
 	if (g_shared->shared_heap.out_of_memory) {
 		pr_inf("shared heap: out of memory duplicating some strings, increase STRESS_MAX_SHARED_HEAP_SIZE to fix this\n");

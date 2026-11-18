@@ -56,7 +56,7 @@ static void MLOCKED_TEXT stress_config_sigill_handler(int sig)
  *      See: https://github.com/ColinIanKing/stress-ng/issues/589
  *           https://bugs.gentoo.org/show_bug.cgi?id=962017
  */
-static void OPTIMIZE2 stress_config_check_lahf_lm(void)
+static void OPTIMIZE2 COLD stress_config_check_lahf_lm(void)
 {
 	if (stress_cpu_x86_has_lahf_lm()) {
 		uint8_t value;
@@ -79,7 +79,7 @@ static void OPTIMIZE2 stress_config_check_lahf_lm(void)
 #endif
 
 #if defined(__linux__)
-static int stress_config_check_cpu_filter(const struct dirent *d)
+static int COLD stress_config_check_cpu_filter(const struct dirent *d)
 {
         if (UNLIKELY(!d))
                 return 0;
@@ -96,7 +96,7 @@ static int stress_config_check_cpu_filter(const struct dirent *d)
  *  stress_config_read()
  *	read a uint64_t value from a file
  */
-static int stress_config_read(const char *path, uint64_t *value)
+static int COLD stress_config_read(const char *path, uint64_t *value)
 {
 	char buffer[256];
 
@@ -115,7 +115,7 @@ static int stress_config_read(const char *path, uint64_t *value)
  *	sanity check system configuration and inform user if
  *	any sub-optimal performance configurations are being used
  */
-void stress_config_check(void)
+void COLD stress_config_check(void)
 {
 	stress_memory_info_t info;
 	size_t freetotal;

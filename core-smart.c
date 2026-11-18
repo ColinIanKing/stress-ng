@@ -486,7 +486,7 @@ static void stress_smart_free_devs(void)
  *  stress_smart_start()
  *	fetch beginning smart data
  */
-void stress_smart_start(void)
+void COLD stress_smart_start(void)
 {
 	if (g_opt_flags & OPT_FLAGS_SMART) {
 #if defined(HAVE_SMART)
@@ -501,7 +501,7 @@ void stress_smart_start(void)
  *  stress_smart_stop()
  *	fetch stop smart data and print any changes
  */
-void stress_smart_stop(void)
+void COLD stress_smart_stop(void)
 {
 	if (g_opt_flags & OPT_FLAGS_SMART) {
 #if defined(HAVE_SMART)

@@ -28,7 +28,7 @@
  *  stress_dump_processes_filter()
  *	filter out non-process filenames from /proc
  */
-static int stress_processes_dump_filter(const struct dirent *d)
+static int COLD stress_processes_dump_filter(const struct dirent *d)
 {
 	if (UNLIKELY(!d))
 		return 0;
@@ -40,7 +40,7 @@ static int stress_processes_dump_filter(const struct dirent *d)
  *  stress_processes_dump()
  *	dump out names and state of running processes
  */
-void stress_processes_dump(void)
+void COLD stress_processes_dump(void)
 {
 	int i;
 	int n;

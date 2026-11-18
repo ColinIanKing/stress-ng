@@ -156,6 +156,12 @@
 #define SECTION(s)
 #endif
 
+#if defined(HAVE_ATTRIBUTE_COLD)
+#define COLD	__attribute__((cold))
+#else
+#define COLD
+#endif
+
 #if defined(HAVE_ATTRIBUTE_CONST)
 #define CONST	__attribute__((const))
 #else

@@ -690,7 +690,7 @@ int stress_resctrl_set(const char *name, const uint32_t instance, const pid_t pi
  *  stress_resctrl_init()
  * 	initialise resctrls
  */
-void stress_resctrl_init(void)
+void COLD stress_resctrl_init(void)
 {
 #if defined(HAVE_RESCTRL)
 	stress_partition_info_t *partition;
@@ -835,7 +835,7 @@ void stress_resctrl_init(void)
  *  stress_resctrl_deinit()
  *	de-initialize resctrls
  */
-void stress_resctrl_deinit(void)
+void COLD stress_resctrl_deinit(void)
 {
 #if defined(HAVE_RESCTRL)
 	size_t i;

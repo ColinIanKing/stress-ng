@@ -47,7 +47,7 @@ static inline void stress_str_chop(char *str, const char ch)
  *	that informs stress-ng to run the job file
  *	stressors sequentially or in parallel
  */
-static int stress_parse_run(
+static int COLD stress_parse_run(
 	const char *jobfile,
 	int argc,
 	char **argv,
@@ -88,7 +88,7 @@ err:
  *  stress_parse_error()
  *	generic job error message
  */
-static void stress_parse_error(
+static void COLD stress_parse_error(
 	const uint32_t lineno,
 	const char *line)
 {
@@ -101,7 +101,7 @@ static void stress_parse_error(
  *	parse a jobfile, turn job commands into
  *	individual stress-ng options
  */
-int stress_job_parse_file(
+int COLD stress_job_parse_file(
 	const int argc,
 	char **argv,
 	const char *jobfile)

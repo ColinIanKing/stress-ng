@@ -215,7 +215,7 @@ static inline void stress_interrupt_tolower(char *str)
  *  stress_interrupts_dump()
  *	dump interrupts report
  */
-void stress_interrupts_dump(FILE *yaml, stress_list_item_t *stressors_list)
+void COLD stress_interrupts_dump(FILE *yaml, stress_list_item_t *stressors_list)
 {
 	stress_list_item_t *item;
 	size_t i;

@@ -85,7 +85,7 @@ static void stress_tz_insert(stress_tz_info_t **tz_info_list, stress_tz_info_t *
  *  stress_tz_init()
  *	gather all thermal zones
  */
-int stress_tz_init(stress_tz_info_t **tz_info_list)
+int COLD stress_tz_init(stress_tz_info_t **tz_info_list)
 {
 	DIR *dir;
 	const struct dirent *entry;
@@ -240,7 +240,7 @@ static int stress_tz_compare(const void *p1, const void *p2)
  *  stress_tz_dump()
  *	dump thermal zone temperatures
  */
-void stress_tz_dump(FILE *yaml, stress_list_item_t *stressors_list)
+void COLD stress_tz_dump(FILE *yaml, stress_list_item_t *stressors_list)
 {
 	bool no_tz_stats = true;
 	stress_list_item_t *item;

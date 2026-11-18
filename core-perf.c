@@ -385,7 +385,7 @@ static inline size_t stress_perf_info_find(const unsigned int type, const unsign
  *  stress_perf_type_tracepoint_resolve_config()
  *	resolve tracing event config value
  */
-static inline void stress_perf_type_tracepoint_resolve_config(stress_perf_info_t *pi)
+static inline void COLD stress_perf_type_tracepoint_resolve_config(stress_perf_info_t *pi)
 {
 	char path[PATH_MAX];
 	unsigned long int config;
@@ -411,7 +411,7 @@ static inline void stress_perf_type_tracepoint_resolve_config(stress_perf_info_t
  *  stress_perf_init()
  *	perf initialize, resolve all configs
  */
-void stress_perf_init(void)
+void COLD stress_perf_init(void)
 {
 	size_t i;
 
@@ -426,7 +426,7 @@ void stress_perf_init(void)
  *  stress_sys_perf_event_open()
  *	perf_event_open syscall wrapper
  */
-static inline int stress_sys_perf_event_open(
+static inline int COLD stress_sys_perf_event_open(
 	struct perf_event_attr *attr,
 	pid_t pid,
 	int cpu,
@@ -440,7 +440,7 @@ static inline int stress_sys_perf_event_open(
  *  stress_perf_yaml_label()
  *	turns text into a yaml compatible label.
  */
-static char *stress_perf_yaml_label(char *dst, const char *src, const size_t n)
+static char * COLD stress_perf_yaml_label(char *dst, const char *src, const size_t n)
 {
 	if (n) {
 		char *d = dst;
@@ -472,7 +472,7 @@ static char *stress_perf_yaml_label(char *dst, const char *src, const size_t n)
  *  stress_perf_open()
  *	open perf, get leader and perf fd's
  */
-int stress_perf_open(stress_perf_t *sp)
+int COLD stress_perf_open(stress_perf_t *sp)
 {
 	size_t i;
 
@@ -536,7 +536,7 @@ int stress_perf_open(stress_perf_t *sp)
  *  stress_perf_enable()
  *	enable perf counters
  */
-int stress_perf_enable(stress_perf_t *sp)
+int COLD stress_perf_enable(stress_perf_t *sp)
 {
 	size_t i;
 
@@ -569,7 +569,7 @@ int stress_perf_enable(stress_perf_t *sp)
  *  stress_perf_disable()
  *	disable perf counters
  */
-int stress_perf_disable(stress_perf_t *sp)
+int COLD stress_perf_disable(stress_perf_t *sp)
 {
 	size_t i;
 
@@ -596,7 +596,7 @@ int stress_perf_disable(stress_perf_t *sp)
  *  stress_perf_close()
  *	read counters and close
  */
-int stress_perf_close(stress_perf_t *sp, const uint32_t instance)
+int COLD stress_perf_close(stress_perf_t *sp, const uint32_t instance)
 {
 	size_t i = 0;
 	stress_perf_data_t data;
@@ -654,7 +654,7 @@ out_ok:
  *  stress_perf_stat_succeeded()
  *	did perf event open work OK?
  */
-static bool stress_perf_stat_succeeded(const stress_perf_t *sp)
+static bool COLD stress_perf_stat_succeeded(const stress_perf_t *sp)
 {
 	return sp->perf_opened > 0;
 }
@@ -664,7 +664,7 @@ static bool stress_perf_stat_succeeded(const stress_perf_t *sp)
  *	scale a counter by duration seconds
  *	into a human readable form
  */
-static const char *stress_perf_stat_scale(const uint64_t counter, const double duration)
+static const char * COLD stress_perf_stat_scale(const uint64_t counter, const double duration)
 {
 	static char buffer[40];
 	const char *suffix = "E/sec";
@@ -744,7 +744,7 @@ static const perf_relative_t perf_relatives[] = {
  *  stress_perf_stat_dump()
  *	emit perf statistics
  */
-void stress_perf_stat_dump(FILE *yaml, stress_list_item_t *stressors_list, const double duration)
+void COLD stress_perf_stat_dump(FILE *yaml, stress_list_item_t *stressors_list, const double duration)
 {
 	bool no_perf_stats = true;
 	stress_list_item_t *item;

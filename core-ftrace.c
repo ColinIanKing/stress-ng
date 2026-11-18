@@ -436,7 +436,7 @@ static void OPTIMIZE3 stress_ftrace_child(FILE *fp)
  *  stress_ftrace_start()
  *	start ftracing function calls
  */
-void stress_ftrace_start(void)
+void COLD stress_ftrace_start(void)
 {
 	FILE *fp;
 	const char *path;
@@ -541,7 +541,7 @@ void stress_ftrace_start(void)
  *	stop ftracing function calls and analyze the collected
  *	stats
  */
-void stress_ftrace_stop(void)
+void COLD stress_ftrace_stop(void)
 {
 	const char *path;
 	int status;

@@ -40,7 +40,7 @@ static inline void stress_clocksource_tolower(char *str)
  *	check the clocksource being used, warn if the less accurate
  *	HPET is being used
  */
-void stress_clocksource_check(void)
+void COLD stress_clocksource_check(void)
 {
 #if defined(__linux__)
 	DIR *dir;

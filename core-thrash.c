@@ -603,7 +603,7 @@ static void stress_thrash_fragment_mappings(
  *  stress_thrash_start()
  *	start paging in thrash process
  */
-int stress_thrash_start(void)
+int COLD stress_thrash_start(void)
 {
 #if defined(HAVE_LINUX_MEMPOLICY_H)
         stress_numa_mask_t *numa_mask;
@@ -692,7 +692,7 @@ int stress_thrash_start(void)
  *  stress_thrash_stop()
  *	stop paging in thrash process
  */
-void stress_thrash_stop(void)
+void COLD stress_thrash_stop(void)
 {
 	int status;
 
@@ -712,12 +712,12 @@ void stress_thrash_stop(void)
 }
 
 #else
-int CONST stress_thrash_start(void)
+int CONST COLD stress_thrash_start(void)
 {
 	return 0;
 }
 
-void stress_thrash_stop(void)
+void COLD stress_thrash_stop(void)
 {
 }
 #endif

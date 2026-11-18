@@ -76,7 +76,7 @@ static bool CONST stress_klog_err_no_exceptions(const char *str)
  *  stress_klog_kernel_cmdline()
  *	where possible log kernel command line, just once
  */
-static void stress_klog_kernel_cmdline(void)
+static void COLD stress_klog_kernel_cmdline(void)
 {
 	static bool already_dumped = false;
 	char buffer[4096];
@@ -107,7 +107,7 @@ static void stress_klog_kernel_cmdline(void)
  *  stress_klog_convert_nl()
  *	convert escaped nl to space
  */
-static void stress_klog_convert_nl(char *buf)
+static void COLD stress_klog_convert_nl(char *buf)
 {
 	for (;;) {
 		char *ptr = shim_strstr(buf, "\\x0a");
@@ -129,7 +129,7 @@ static void stress_klog_convert_nl(char *buf)
  *	start a child process that monitors kernel log
  *	messages and logs them if they look concerning
  */
-void stress_klog_start(void)
+void COLD stress_klog_start(void)
 {
 #if defined(__linux__)
 	FILE *klog_fp;
@@ -268,7 +268,7 @@ log_info:
  *  stress_klog_stop()
  *	stop klog monitoring child process
  */
-void stress_klog_stop(bool *success)
+void COLD stress_klog_stop(bool *success)
 {
 #if defined(__linux__)
 	if (g_opt_flags & OPT_FLAGS_KLOG_CHECK) {

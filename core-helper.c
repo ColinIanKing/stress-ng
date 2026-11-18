@@ -726,7 +726,7 @@ void stress_yaml_buildinfo(FILE *yaml)
  *	short info about the system we are running stress-ng on
  *	for the -v option
  */
-void stress_runinfo(void)
+void COLD stress_runinfo(void)
 {
 	char real_path[PATH_MAX];
 	char *real_path_ret;
@@ -783,7 +783,7 @@ void stress_runinfo(void)
  *  stress_yaml_runinfo()
  *	log info about the system we are running stress-ng on
  */
-void stress_yaml_runinfo(FILE *yaml)
+void COLD stress_yaml_runinfo(FILE *yaml)
 {
 #if defined(HAVE_UNAME) &&	\
     defined(HAVE_SYS_UTSNAME_H)
@@ -893,7 +893,7 @@ unsigned int stress_cpu_get(void)
  *  stress_compiler_get()
  *	return compiler info
  */
-const char *stress_compiler_get(void)
+const char * COLD stress_compiler_get(void)
 {
 #if   defined(HAVE_COMPILER_ICC) &&	\
       defined(__INTEL_COMPILER) &&	\
@@ -1299,7 +1299,7 @@ int CONST stress_kernel_release(const int major, const int minor, const int patc
  *	return kernel release number in base 1000, e.g.
  *	 4.15.2 -> 40015002, return -1 if failed.
  */
-int stress_kernel_release_get(void)
+int COLD stress_kernel_release_get(void)
 {
 #if defined(HAVE_UNAME) &&	\
     defined(HAVE_SYS_UTSNAME_H)
