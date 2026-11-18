@@ -219,7 +219,8 @@ static int stress_flipflop(stress_args_t *args)
 	uint64_t nr_tries = 0;
 	uint64_t nr_successes = 0;
 	uint64_t max_ops;
-	size_t bits_size, workers_size;
+	size_t bits_size;
+	size_t workers_size;
 	int rc = EXIT_SUCCESS;
 	int setbits;
 	char *flipflop_taskset1 = NULL;
