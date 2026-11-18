@@ -524,7 +524,8 @@ static int stress_mmap_child(stress_args_t *args, void *ctxt)
 
 	do {
 		size_t n;
-		int rnd, rnd_flag;
+		int rnd;
+		int rnd_flag;
 		uint8_t *buf = NULL;
 #if defined(HAVE_MPROTECT)
 		uint64_t *buf64;
@@ -1019,7 +1020,8 @@ static int stress_mmap(stress_args_t *args)
 
 	if (context.mmap_file) {
 		int file_flags = O_CREAT | O_RDWR;
-		ssize_t wr_ret, rc;
+		ssize_t wr_ret;
+		ssize_t rc;
 
 		rc = stress_fs_temp_dir_make_args(args);
 		if (rc < 0)
