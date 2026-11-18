@@ -1411,7 +1411,8 @@ out:
  */
 stress_cpu_cache_cpus_t *stress_cpu_cache_details_get(void)
 {
-	int32_t i, cpu_count;
+	int32_t i;
+	int32_t cpu_count;
 	stress_cpu_cache_cpus_t *cpus = NULL;
 	struct dirent **namelist = NULL;
 
