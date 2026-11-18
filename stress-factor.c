@@ -49,7 +49,8 @@ static int OPTIMIZE3 stress_factor(stress_args_t *args)
 	double t;
 	double duration = 0.0;
 	double rate;
-	uint64_t ops, factors;
+	uint64_t ops;
+	uint64_t factors;
 	mpz_t value;
 	mpz_t divisor;
 	mpz_t q;
