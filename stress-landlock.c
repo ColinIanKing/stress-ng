@@ -275,7 +275,8 @@ static void stress_landlock_many(
 
 	n = scandir(path, &namelist, stress_landlock_filter, alphasort);
 	for (i = 0; i < n; i++) {
-		char newpath[PATH_MAX], resolved[PATH_MAX];
+		char newpath[PATH_MAX];
+		char resolved[PATH_MAX];
 
 		if (shim_strcmp(path, "/"))
 			(void)stress_fs_make_filename(newpath, sizeof(newpath), path, namelist[i]->d_name);
