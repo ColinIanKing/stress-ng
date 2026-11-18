@@ -1097,7 +1097,8 @@ static void stress_fd_pselect_rdwr(const stress_fd_t *fd)
 {
 	if ((fd->fd >= 0) && (fd->fd < FD_SETSIZE)) {
 		struct timespec tv;
-		fd_set rfds, wfds;
+		fd_set rfds;
+		fd_set wfds;
 
 		tv.tv_sec = 0;
 		tv.tv_nsec = 0;
@@ -1873,10 +1874,9 @@ static void stress_fd_copy_file_range(const stress_fd_t *fd)
 
 		fd_in = open(stress_fd_filename, O_RDONLY);
 		if (fd_in >= 0) {
-			off_t off_in, off_out;
+			off_t off_in = 0;
+			off_t off_out = 4096;
 
-			off_in = 0;
-			off_out = 4096;
 			VOID_RET(ssize_t, shim_copy_file_range(fd_in, &off_in, fd->fd, &off_out, 4096, 0));
 			(void)close(fd_in);
 		}
@@ -1892,10 +1892,9 @@ static void stress_fd_splice(const stress_fd_t *fd)
 
 		fd_in = open("/dev/zero", O_RDONLY);
 		if (fd_in >= 0) {
-			off_t off_in, off_out;
+			off_t off_in = 0;
+			off_t off_out = 0;
 
-			off_in = 0;
-			off_out = 0;
 			/* Exercise -ESPIPE errors */
 			VOID_RET(ssize_t, splice(fd_in, &off_in, fd->fd, &off_out, 4096, 0));
 			(void)close(fd_in);
