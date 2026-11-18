@@ -99,7 +99,9 @@ static double TARGET_CLONES OPTIMIZE3 name(			\
 	stress_vecfp_init *vecfp_init,				\
 	bool *success)						\
 {								\
-	type r ALIGN64, add ALIGN64, add_rev ALIGN64;		\
+	type r ALIGN64;						\
+	type add ALIGN64;					\
+	type add_rev ALIGN64;					\
 	register int i;						\
 	const int n = sizeof(r.f) / (sizeof(r.f[0]));		\
 	const int loops = LOOPS_PER_CALL >> 1;			\
@@ -134,7 +136,9 @@ static double TARGET_CLONES OPTIMIZE3 name(			\
 	stress_vecfp_init *vecfp_init,				\
 	bool *success)						\
 {								\
-	type r ALIGN64, mul ALIGN64, mul_rev ALIGN64;		\
+	type r ALIGN64;						\
+	type mul ALIGN64;					\
+	type mul_rev ALIGN64;					\
 	register int i;						\
 	const int n = sizeof(r.f) / (sizeof(r.f[0]));		\
 	const int loops = LOOPS_PER_CALL >> 1;			\
@@ -169,7 +173,9 @@ static double TARGET_CLONES OPTIMIZE3 name(			\
 	stress_vecfp_init *vecfp_init,				\
 	bool *success)						\
 {								\
-	type r ALIGN64, mul ALIGN64, mul_rev ALIGN64;		\
+	type r ALIGN64;						\
+	type mul ALIGN64;					\
+	type mul_rev ALIGN64;					\
 	register int i;						\
 	const int n = sizeof(r.f) / (sizeof(r.f[0]));		\
 	const int loops = LOOPS_PER_CALL >> 1;			\
