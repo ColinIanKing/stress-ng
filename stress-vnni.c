@@ -219,7 +219,9 @@ static void TARGET_AVX512BW OPTIMIZE3 stress_vnni_vpaddb512(stress_args_t *args)
 
 PRAGMA_UNROLL_N(VEC_VNNI512_LOOPS)
 	for (i = 0; i < VEC_SIZE_BYTES; i += VEC_VNNI512_BYTES) {
-		__m512i a, b, r;
+		__m512i a;
+		__m512i b;
+		__m512i r;
 
 		a = _mm512_loadu_si512((void *)&a_init[i]);
 		b = _mm512_loadu_si512((void *)&b_init[i]);
@@ -238,7 +240,9 @@ static void TARGET_AVXVNNI OPTIMIZE3 stress_vnni_vpaddb256(stress_args_t *args)
 
 PRAGMA_UNROLL_N(VEC_VNNI256_LOOPS)
 	for (i = 0; i < VEC_SIZE_BYTES; i += VEC_VNNI256_BYTES) {
-		__m256i a, b, r;
+		__m256i a;
+		__m256i b;
+		__m256i r;
 
 		a = _mm256_loadu_si256((const shim_m256i_u *)&a_init[i]);
 		b = _mm256_loadu_si256((const shim_m256i_u *)&b_init[i]);
@@ -257,7 +261,9 @@ static void TARGET_AVXVNNI OPTIMIZE3 stress_vnni_vpaddb128(stress_args_t *args)
 
 PRAGMA_UNROLL_N(VEC_VNNI128_LOOPS)
 	for (i = 0; i < VEC_SIZE_BYTES; i += VEC_VNNI128_BYTES) {
-		__m128i a, b, r;
+		__m128i a;
+		__m128i b;
+		__m128i r;
 
 		a = _mm_loadu_si128((const shim_m128i_u *)&a_init[i]);
 		b = _mm_loadu_si128((const shim_m128i_u *)&b_init[i]);
@@ -287,7 +293,10 @@ static void TARGET_AVX512VNNI OPTIMIZE3 stress_vnni_vpdpbusd512(stress_args_t *a
 
 PRAGMA_UNROLL_N(VEC_VNNI512_LOOPS)
 	for (i = 0; i < VEC_SIZE_BYTES; i += VEC_VNNI512_BYTES) {
-		__m512i a, b, c, r;
+		__m512i a;
+		__m512i b;
+		__m512i c;
+		__m512i r;
 
 		a = _mm512_loadu_si512((void *)&a_init[i]);
 		b = _mm512_loadu_si512((void *)&b_init[i]);
@@ -307,7 +316,10 @@ static void TARGET_AVXVNNI OPTIMIZE3 stress_vnni_vpdpbusd256(stress_args_t *args
 
 PRAGMA_UNROLL_N(VEC_VNNI256_LOOPS)
 	for (i = 0; i < VEC_SIZE_BYTES; i += VEC_VNNI256_BYTES) {
-		__m256i a, b, c, r;
+		__m256i a;
+		__m256i b;
+		__m256i c;
+		__m256i r;
 
 		a = _mm256_loadu_si256((const shim_m256i_u *)&a_init[i]);
 		b = _mm256_loadu_si256((const shim_m256i_u *)&b_init[i]);
@@ -327,7 +339,10 @@ static void TARGET_AVXVNNI OPTIMIZE3 stress_vnni_vpdpbusd128(stress_args_t *args
 
 PRAGMA_UNROLL_N(VEC_VNNI128_LOOPS)
 	for (i = 0; i < VEC_SIZE_BYTES; i += VEC_VNNI128_BYTES) {
-		__m128i a, b, c, r;
+		__m128i a;
+		__m128i b;
+		__m128i c;
+		__m128i r;
 
 		a = _mm_loadu_si128((const shim_m128i_u *)&a_init[i]);
 		b = _mm_loadu_si128((const shim_m128i_u *)&b_init[i]);
@@ -366,7 +381,10 @@ static void TARGET_AVX512VNNI OPTIMIZE3 stress_vnni_vpdpwssd512(stress_args_t *a
 
 PRAGMA_UNROLL_N(VEC_VNNI512_LOOPS)
 	for (i = 0; i < VEC_SIZE_BYTES; i += VEC_VNNI512_BYTES) {
-		__m512i a, b, c, r;
+		__m512i a;
+		__m512i b;
+		__m512i c;
+		__m512i r;
 
 		a = _mm512_loadu_si512((void *)&a_init[i]);
 		b = _mm512_loadu_si512((void *)&b_init[i]);
@@ -386,7 +404,10 @@ static void TARGET_AVXVNNI OPTIMIZE3 stress_vnni_vpdpwssd256(stress_args_t *args
 
 PRAGMA_UNROLL_N(VEC_VNNI256_LOOPS)
 	for (i = 0; i < VEC_SIZE_BYTES; i += VEC_VNNI256_BYTES) {
-		__m256i a, b, c, r;
+		__m256i a;
+		__m256i b;
+		__m256i c;
+		__m256i r;
 
 		a = _mm256_loadu_si256((const shim_m256i_u *)&a_init[i]);
 		b = _mm256_loadu_si256((const shim_m256i_u *)&b_init[i]);
@@ -406,7 +427,10 @@ static void TARGET_AVXVNNI OPTIMIZE3 stress_vnni_vpdpwssd128(stress_args_t *args
 
 PRAGMA_UNROLL_N(VEC_VNNI128_LOOPS)
 	for (i = 0; i < VEC_SIZE_BYTES; i += VEC_VNNI128_BYTES) {
-		__m128i a, b, c, r;
+		__m128i a;
+		__m128i b;
+		__m128i c;
+		__m128i r;
 
 		a = _mm_loadu_si128((const shim_m128i_u *)&a_init[i]);
 		b = _mm_loadu_si128((const shim_m128i_u *)&b_init[i]);
