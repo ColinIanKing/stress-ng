@@ -873,7 +873,9 @@ static void stress_filerace_mmap(const int fd, const char *filename)
 	void * CLOBBERED ptr;
 	CLOBBERED size_t mmap_size;
 	off_t offset;
-	struct sigaction new_action, old_sigbus_action, old_sigsegv_action;
+	struct sigaction new_action;
+	struct sigaction old_sigbus_action;
+	struct sigaction old_sigsegv_action;
 
 	mmap_size = stress_memory_page_size_get() * (1 + (stress_mwc8() & 0xf));
 	offset = ((off_t)(stress_mwc32() & OFFSET_MASK_UNALIGNED)) & ~(off_t)(mmap_size - 1);
