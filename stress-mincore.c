@@ -151,7 +151,8 @@ static int stress_mincore(stress_args_t *args)
 		int i;
 
 		for (i = 0; LIKELY((i < 100) && stress_continue_flag()); i++) {
-			int ret, redo = 0;
+			int ret;
+			int redo = 0;
 			unsigned char vec[1];
 			double t;
 
