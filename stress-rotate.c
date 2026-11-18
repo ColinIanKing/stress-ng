@@ -52,8 +52,12 @@ static double stress_rotate_all(stress_args_t *args, const bool rotate_random, c
 static inline double OPTIMIZE3					\
 stress_ ## fname ## size ## helper(stress_args_t *args, type *checksum)\
 {								\
-	double t1, t2;						\
-	register type v0, v1, v2, v3;				\
+	double t1;						\
+	double t2;						\
+	register type v0;					\
+	register type v1;					\
+	register type v2;					\
+	register type v3;					\
 	register int i;						\
 								\
 	v0 = stress_mwc ## size();				\
@@ -85,7 +89,8 @@ static double OPTIMIZE3	stress_ ## fname ## size(		\
 	bool *success)						\
 {								\
 	double duration;					\
-	uint32_t w, z;						\
+	uint32_t w;						\
+	uint32_t z;						\
 	type checksum0;						\
 								\
 	(void)rotate_random;					\
@@ -153,8 +158,12 @@ STRESS_ROTATE(ror, __uint128_t, 128, shim_ror)
 static inline double OPTIMIZE3 					\
 stress_random_ ## fname ## size ## helper(stress_args_t *args, type *checksum)\
 {								\
-	double t1, t2;						\
-	register type v0, v1, v2, v3;				\
+	double t1;						\
+	double t2;						\
+	register type v0;					\
+	register type v1;					\
+	register type v2;					\
+	register type v3;					\
 	register int i;						\
 	const uint8_t mask = (sizeof(type) * 8) - 1;		\
 	const uint8_t bits = stress_mwc8() & mask;		\
@@ -188,7 +197,8 @@ static double OPTIMIZE3	stress_random_ ## fname ## size(	\
 	bool *success)						\
 {								\
 	double duration;					\
-	uint32_t w, z;						\
+	uint32_t w;						\
+	uint32_t z;						\
 	type checksum0;						\
 								\
 	(void)rotate_random;					\
