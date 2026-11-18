@@ -473,6 +473,7 @@ static int stress_sockfd(stress_args_t *args)
 		stress_set_oom_adjustment(args, false);
 		stress_make_it_fail_set();
 		ret = stress_socket_client(args, mypid, max_fd, socket_fd_port, socket_fd_reuse, fds, fds_size);
+		free(fds);
 		_exit(ret);
 	} else {
 		int status;
