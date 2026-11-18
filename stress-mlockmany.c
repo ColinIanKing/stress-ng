@@ -101,7 +101,8 @@ static int stress_mlockmany_child(stress_args_t *args, void *context)
     defined(RLIMIT_MEMLOCK)
 	struct rlimit rlim;
 #endif
-	size_t mlock_size, mlockmany_procs = UNSET_MLOCKMANY_PROCS;
+	size_t mlock_size;
+	size_t mlockmany_procs = UNSET_MLOCKMANY_PROCS;
 
 	(void)context;
 
