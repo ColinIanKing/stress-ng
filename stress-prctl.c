@@ -343,7 +343,8 @@ static int stress_prctl_syscall_user_dispatch(stress_args_t *args)
 {
 	int ret;
 	int rc = EXIT_FAILURE;
-	struct sigaction action, oldaction;
+	struct sigaction action;
+	struct sigaction oldaction;
 	const pid_t pid = getpid();
 
 	(void)shim_memset(&action, 0, sizeof(action));
@@ -852,7 +853,8 @@ static int stress_prctl_child(
 #if defined(PR_GET_TSC)
 	{
 		/* x86 only, but try it on all arches */
-		int ret, state;
+		int ret;
+		int state;
 
 		ret = prctl(PR_GET_TSC, &state, 0, 0, 0);
 		(void)ret;
