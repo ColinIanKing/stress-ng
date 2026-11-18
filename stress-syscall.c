@@ -1207,7 +1207,8 @@ static int syscall_clock_nanosleep(void)
 #endif
 	};
 
-	struct timespec t, remain;
+	struct timespec t;
+	struct timespec remain;
 	static size_t i = 0;
 	int ret;
 	const int nanosleep_clock = nanosleep_clocks[i];
@@ -1299,7 +1300,8 @@ static int syscall_clone3(void)
 	pid_t pid;
 	pid_t parent_tid = -1;
 	pid_t child_tid = -1;
-	int status, pidfd = -1;
+	int status;
+	int pidfd = -1;
 	struct shim_clone_args cl_args;
 
 	syscall_shared_info->t1 = ~0ULL;
@@ -2488,7 +2490,8 @@ static int syscall_getsid(void)
 #define HAVE_SYSCALL_GETSOCKNAME
 static int syscall_getsockname(void)
 {
-	int sfd, ret;
+	int sfd;
+	int ret;
 	struct sockaddr addr;
 	socklen_t len = sizeof(addr);
 
@@ -2971,7 +2974,8 @@ static int syscall_iopl(void)
 #define HAVE_SYSCALL_IOCTL
 static int syscall_ioctl(void)
 {
-	int nread, ret;
+	int nread;
+	int ret;
 
 	t1 = syscall_time_now();
 	ret = ioctl(0, FIONREAD, &nread);
@@ -4066,7 +4070,8 @@ static int syscall_mremap(void)
 #define HAVE_SYSCALL_MSGCTL
 static int syscall_msgctl(void)
 {
-	int msgq_id, ret;
+	int msgq_id;
+	int ret;
 
 	msgq_id = msgget(IPC_PRIVATE, S_IRUSR | S_IWUSR | IPC_CREAT | IPC_EXCL);
 	if (msgq_id < 0)
@@ -4110,7 +4115,10 @@ static int syscall_msgrcv(void)
 	struct syscall_msgbuf {
 		long int mtype;
 		uint32_t value;
-	} msg_snd, msg_rcv;
+	};
+	
+	struct syscall_msgbuf msg_snd;
+	struct syscall_msgbuf msg_rcv;
 
 	msgq_id = msgget(IPC_PRIVATE, S_IRUSR | S_IWUSR | IPC_CREAT | IPC_EXCL);
 	if (msgq_id < 0)
@@ -4140,7 +4148,8 @@ static int syscall_msgrcv(void)
 static int syscall_msgsnd(void)
 {
 	const uint32_t value = stress_mwc32();
-	int msgq_id, ret;
+	int msgq_id;
+	int ret;
 
 	struct syscall_msgbuf {
 		long int mtype;
@@ -4220,7 +4229,8 @@ static int syscall_munmap(void)
 #define HAVE_SYSCALL_NAME_TO_HANDLE_AT
 static int syscall_name_to_handle_at(void)
 {
-	int ret, mount_id;
+	int ret;
+	int mount_id;
 	struct file_handle *fhp;
 	struct file_handle *tmp;
 
@@ -4866,7 +4876,8 @@ static int syscall_prlimit(void)
 {
 	static size_t i = 0;
 
-	struct rlimit old_rlim, new_rlim;
+	struct rlimit old_rlim;
+	struct rlimit new_rlim;
 	int ret;
 	const shim_rlimit_resource_t limit = limits[i];
 
@@ -6320,7 +6331,8 @@ static int syscall_shmat(void)
 static int syscall_shmctl(void)
 {
 	key_t key;
-	int shm_id, ret;
+	int shm_id;
+	int ret;
 
 	shm_id = syscall_new_shm_sysv(&key);
 	if (shm_id < 0)
@@ -6341,7 +6353,8 @@ static int syscall_shmdt(void)
 {
 	key_t key;
 	void *addr;
-	int shm_id, ret = -1;
+	int shm_id;
+	int ret = -1;
 
 	shm_id = syscall_new_shm_sysv(&key);
 	if (shm_id < 0)
