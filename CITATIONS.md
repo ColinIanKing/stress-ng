@@ -247,6 +247,7 @@
  * [On-Device Deep Reinforcement Learning for Decentralized Task Offloading: Performance trade-offs in the training process](https://arxiv.org/html/2601.03976v1#S4)
  * [Performance evaluation of two-phase direct-to-chip liquid cooling combined with air cooling for data centers](https://www.sciencedirect.com/science/article/pii/S2214157X26000122#b47)
  * [PTEMagnet: Fine-Grained Physical Memory Reservation for Faster Page Walks in Public Clouds](https://dl.acm.org/doi/epdf/10.1145/3445814.3446704)
+ * [Restoring Fair Hrtick Re-arming After Same-Task Repicks in the Linux EEVDF Scheduler](https://arxiv.org/html/2611.19893v1)
  * [Root Cause Analysis in Distributed Database Transaction Failures ](https://www.researchgate.net/publication/416105294_Root_Cause_Analysis_in_Distributed_Database_Transaction_Failures)
  * [Runtime-Orchestrated Second-Order Optimization for Scalable LLM Training](https://arxiv.org/html/2605.16184v1)
  * [SchedBlame: Who Ran While You Waited?](https://arxiv.org/html/2609.02052v1)
@@ -261,4 +262,3 @@
  * [UnICom: A Universally High-Performant I/O Completion Mechanism for Modern Computer Systems](https://www.usenix.org/system/files/fast26-pan.pdf)
  * [Verification and Validation (V&V)-in-the-Loop for RISC-V Design: The Holistic Vision of BZL](https://arxiv.org/html/2604.27013v1)
  * [Wire-Level Interrupt-to-Decision Latency of On-Sensor MLC versus Host Inference on the NVIDIA Jetson Orin Nano: A Pre-Registered Measurement Study](https://arxiv.org/pdf/2606.00524)
-
