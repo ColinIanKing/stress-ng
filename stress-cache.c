@@ -1033,7 +1033,8 @@ static inline ALWAYS_INLINE void stress_cache_reverse(
  */
 static void OPTIMIZE3 stress_cache_permute(const int *perms_init, int *perms, const int n)
 {
-	int i, j;
+	register int i;
+	register int j;
 
 	if (UNLIKELY(n < 2))
 		return;
