@@ -29,7 +29,8 @@ int stress_kill_pid(const pid_t pid)
 {
 #if defined(__linux__) && 		\
     defined(__NR_process_mrelease)
-	int pidfd, ret;
+	int pidfd;
+	int ret;
 
 	pidfd = shim_pidfd_open(pid, 0);
 	ret = shim_kill(pid, SIGKILL);
