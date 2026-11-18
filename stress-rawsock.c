@@ -277,7 +277,8 @@ die:
 
 static int stress_rawsock_child(stress_args_t *args, void *context)
 {
-	int rc = EXIT_SUCCESS, parent_cpu;
+	int rc = EXIT_SUCCESS;
+	int parent_cpu;
 	pid_t pid;
 	const int rawsock_port = *(int *)context;
 
