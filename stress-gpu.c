@@ -270,7 +270,8 @@ static int gles2_init(
 {
 	int ret;
 	GLint ufrag_n;
-	GLuint apos, acolor;
+	GLuint apos;
+	GLuint acolor;
 
 	if (stress_instance_zero(args)) {
 		pr_inf("%s: GL_VENDOR: %s\n", args->name, (const char *)glGetString(GL_VENDOR));
@@ -302,7 +303,8 @@ static int gles2_init(
 	glVertexAttribPointer(acolor, 4, GL_FLOAT, 0, 0, color);
 
 	if (texsize > 0) {
-		GLint maxsize, bytesPerImage;
+		GLint maxsize;
+		GLint bytesPerImage;
 		GLuint texobj;
 
 		glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxsize);
