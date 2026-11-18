@@ -405,7 +405,8 @@ static int stress_mmapcow_child(stress_args_t *args, void *ctxt)
  */
 static int stress_mmapcow(stress_args_t *args)
 {
-	int ret, flags = 0;
+	int ret;
+	int flags = 0;
 	bool mmapcow_fork = false;
 	bool mmapcow_free = false;
 	bool mmapcow_mlock = false;
