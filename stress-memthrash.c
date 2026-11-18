@@ -260,7 +260,14 @@ static void OPTIMIZE3 TARGET_CLONES stress_memthrash_swap64(
 	(void)context;
 
 	while (LIKELY(ptr < end)) {
-		register uint64_t r0, r1, r2, r3, r4, r5, r6, r7;
+		register uint64_t r0;
+		register uint64_t r1;
+		register uint64_t r2;
+		register uint64_t r3;
+		register uint64_t r4;
+		register uint64_t r5;
+		register uint64_t r6;
+		register uint64_t r7;
 
 		r0 = ptr[0];
 		r1 = ptr[1];
@@ -318,7 +325,14 @@ static void OPTIMIZE3 TARGET_CLONES stress_memthrash_copy128(
 	(void)context;
 
 	while (LIKELY(ptr < end)) {
-		register __uint128_t r0, r1, r2, r3, r4, r5, r6, r7;
+		register __uint128_t r0;
+		register __uint128_t r1;
+		register __uint128_t r2;
+		register __uint128_t r3;
+		register __uint128_t r4;
+		register __uint128_t r5;
+		register __uint128_t r6;
+		register __uint128_t r7;
 
 		r0 = ptr[8];
 		r1 = ptr[9];
@@ -370,7 +384,14 @@ static void OPTIMIZE3 TARGET_CLONES stress_memthrash_copy128nt(
 		stress_memthrash_copy128(context, mem_size);
 
 	while (LIKELY(ptr < end)) {
-		register __uint128_t r0, r1, r2, r3, r4, r5, r6, r7;
+		register __uint128_t r0;
+		register __uint128_t r1;
+		register __uint128_t r2;
+		register __uint128_t r3;
+		register __uint128_t r4;
+		register __uint128_t r5;
+		register __uint128_t r6;
+		register __uint128_t r7;
 
 		r0 = MEMTHRASH_LOAD128(ptr + 8);
 		r1 = MEMTHRASH_LOAD128(ptr + 9);
@@ -716,7 +737,8 @@ static void OPTIMIZE3 TARGET_CLONES stress_memthrash_swapfwdrev(
 	const stress_memthrash_context_t *context,
 	const size_t mem_size)
 {
-	register uint64_t *fwd, *rev;
+	register uint64_t *fwd;
+	register uint64_t *rev;
 	uint64_t *const end = (uint64_t *)((uintptr_t)mem + mem_size);
 
 	(void)context;
