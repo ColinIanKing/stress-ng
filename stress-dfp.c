@@ -384,7 +384,8 @@ static int stress_dfp_call_method(
 			return EXIT_SUCCESS;
 
 		for (i = 0; i < DFP_ELEMENTS; i++) {
-			long double r0, r1;
+			long double r0;
+			long double r1;
 			int ret;
 
 			switch (dfp_type) {
