@@ -58,6 +58,7 @@
 #define PI		(3.14159265358979323846264338327950288419716939937511L)
 
 #define STATS_MAX		(250)
+#define IDCT_SIZE		(8)
 #define FFT_SIZE		(4096)
 #define STRESS_CPU_DITHER_X	(1024)
 #define STRESS_CPU_DITHER_Y	(768)
@@ -115,6 +116,9 @@ typedef struct stress_cpu_data {
 
 	double corr_data[CORRELATE_DATA_LEN] ALIGN64;
 	double corr_result[CORRELATE_LEN + 1] ALIGN64;
+
+	float data[IDCT_SIZE][IDCT_SIZE] ALIGN64;
+	float idct[IDCT_SIZE][IDCT_SIZE] ALIGN64;
 
 	uint32_t sieve[(SIEVE_SIZE + 31) / 32] ALIGN64;
 } stress_cpu_data_t;
@@ -736,16 +740,12 @@ static int OPTIMIZE3 TARGET_CLONES stress_cpu_collatz(const char *name)
  */
 static int OPTIMIZE3 TARGET_CLONES stress_cpu_idct(const char *name)
 {
-#define IDCT_SIZE	(8)
-
 	const double invsqrt2 = 1.0 / shim_sqrt(2.0);
 	const double pi_over_16 = (double)PI / 16.0;
 	int i;
 	int j;
 	int u;
 	int v;
-	float data[IDCT_SIZE][IDCT_SIZE];
-	float idct[IDCT_SIZE][IDCT_SIZE];
 
 	/*
 	 *  Set up DCT
@@ -753,7 +753,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_cpu_idct(const char *name)
 	for (i = 0; i < IDCT_SIZE; i++) {
 PRAGMA_UNROLL_N(8)
 		for (j = 0; j < IDCT_SIZE; j++) {
-			data[i][j] = (i + j == 0) ? 2040: 0;
+			cpu_data->data[i][j] = (i + j == 0) ? 2040: 0;
 		}
 	}
 	for (i = 0; i < IDCT_SIZE; i++) {
@@ -770,22 +770,22 @@ PRAGMA_UNROLL_N(8)
 				for (v = 0; v < IDCT_SIZE; v++) {
 					const double cos_pi_j_v = shim_cos(pi_j * v);
 
-					sum += (double)data[u][v] *
+					sum += (double)cpu_data->data[u][v] *
 						(v ? 1.0 : invsqrt2) * cos_pi_j_v * tmp;
 				}
 			}
-			idct[i][j] = (float)(0.25 * sum);
+			cpu_data->idct[i][j] = (float)(0.25 * sum);
 		}
 	}
 	/* Final output should be a 8x8 matrix of values 255 */
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
 		for (i = 0; i < IDCT_SIZE; i++) {
 			for (j = 0; j < IDCT_SIZE; j++) {
-				if ((int)idct[i][j] != 255) {
+				if ((int)cpu_data->idct[i][j] != 255) {
 					pr_fail("%s: IDCT error detected, "
 						"IDCT[%d][%d] was %d, "
 						"expecting 255\n",
-						name, i, j, (int)idct[i][j]);
+						name, i, j, (int)cpu_data->idct[i][j]);
 					return EXIT_FAILURE;
 				}
 			}
