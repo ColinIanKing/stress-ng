@@ -401,7 +401,9 @@ static void stress_x86_rdmsr(void)
 #if defined(HAVE_ASM_X86_RDPMC)
 static void stress_x86_rdpmc(void)
 {
-        uint32_t lo, hi, counter = 0;
+        uint32_t lo;
+	uint32_t hi;
+	uint32_t counter = 0;
 
         __asm__ __volatile__("rdpmc" : "=a" (lo), "=d" (hi) : "c" (counter));
 }
@@ -474,7 +476,9 @@ static op_info_t op_info[] =
 
 static sigjmp_buf jmp_env;
 static size_t idx = 0;
-static double t_start, duration, count;
+static double t_start;
+static double duration;
+static double count;
 
 static void MLOCKED_TEXT NORETURN stress_sigsegv_handler(int signum)
 {
