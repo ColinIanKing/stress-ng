@@ -380,7 +380,8 @@ static int stress_shm(stress_args_t *args)
 	bool retry = true;
 	bool shm_mlock = false;
 	uint32_t restarts = 0;
-	size_t shm_posix_bytes, shm_posix_bytes_total = DEFAULT_SHM_POSIX_BYTES;
+	size_t shm_posix_bytes;
+	size_t shm_posix_bytes_total = DEFAULT_SHM_POSIX_BYTES;
 	size_t shm_posix_objects = DEFAULT_SHM_POSIX_OBJECTS;
 
 	if (!stress_setting_get("shm-mlock", &shm_mlock)) {
