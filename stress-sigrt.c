@@ -96,7 +96,8 @@ static int stress_sigrt(stress_args_t *args)
 		} else if (s_pids[i].pid == 0) {
 			sigset_t mask;
 			siginfo_t info ALIGN64;
-			int idx, j;
+			int idx;
+			int j;
 
 			stress_proc_state_set(args->name, STRESS_STATE_RUN);
 			stress_make_it_fail_set();
