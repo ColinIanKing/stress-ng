@@ -163,7 +163,8 @@ static double TARGET_CLONES opt stress_vecshuf_ ## tag ## _ ## elements (	\
 	stress_vec_ ## tag ## _ ## elements ## _t *RESTRICT s;		\
 	stress_vec_ ## tag ## _ ## elements ## _t *RESTRICT mask1;	\
 	stress_vec_ ## tag ## _ ## elements ## _t *RESTRICT mask2;	\
-	double t1, t2;							\
+	double t1;							\
+	double t2;							\
 	register int i;							\
 									\
 	s = &data->tag ## _ ## elements.s;				\
@@ -431,10 +432,9 @@ static int stress_vecshuf(stress_args_t *args)
 		}
 
 		if (total_duration > 0.0) {
-			double ops_rate, bytes_rate;
+			double ops_rate = n / inverse_sum_ops;
+			double bytes_rate = n / inverse_sum_bytes;
 
-			ops_rate = n / inverse_sum_ops;
-			bytes_rate = n / inverse_sum_bytes;
 			pr_dbg("%s: %14.14s %13.3f %13.3f\n", args->name,
 				"Harmonic Mean:", bytes_rate, ops_rate);
 		}
