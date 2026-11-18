@@ -406,7 +406,8 @@ static int stress_seccomp(stress_args_t *args)
 			 *  causing seccomp to kill it and the parent
 			 *  sees it die on a SIGSYS
 			 */
-			int fd, rc = EXIT_SUCCESS;
+			int fd;
+			int rc = EXIT_SUCCESS;
 
 			stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
