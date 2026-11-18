@@ -112,7 +112,9 @@ static int stress_mtx(stress_args_t *args)
 	bool created = false;
 	pthread_info_t pthread_info[MAX_MTX_PROCS];
 	uint64_t mtx_procs = DEFAULT_MTX_PROCS;
-	double duration = 0.0, count = 0.0, rate;
+	double duration = 0.0;
+	double count = 0.0;
+	double rate;
 
 	if (!stress_setting_get("mtx-procs", &mtx_procs)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
