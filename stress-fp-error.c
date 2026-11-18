@@ -143,7 +143,8 @@ static int stress_fp_error(stress_args_t *args)
 
 	do {
 #if defined(FE_INEXACT)
-		volatile double d1, d2;
+		volatile double d1;
+		volatile double d2;
 #endif
 #if defined(EDOM) && defined(FE_INVALID)
 		stress_fp_clear_error();
