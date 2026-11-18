@@ -1062,7 +1062,8 @@ fork_again:
 			return EXIT_FAILURE;
 		} else if (pid > 0) {
 			/* Parent */
-			int status, shm_ids[MAX_SHM_SYSV_SEGMENTS];
+			int status;
+			int shm_ids[MAX_SHM_SYSV_SEGMENTS];
 #if defined(__linux__)
 			bool get_procinfo = true;
 #endif
