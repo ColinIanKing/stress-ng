@@ -1056,20 +1056,17 @@ static int OPTIMIZE3 hashjudy_put(void *handle, const uint32_t x, const uint32_t
 
 /*
  *  hashjudy_del()
- *	put a value into a hash based judy array
+ *	delete a value into a hash based judy array
  */
 static void OPTIMIZE3 hashjudy_del(void *handle, const uint32_t x, const uint32_t y)
 {
 	sparse_hashjudy_table_t *table = (sparse_hashjudy_table_t *)handle;
-	Word_t *pvalue;
+	int rc;
 
 	if (UNLIKELY(!table))
 		return;
 
-	JLG(pvalue, table->hash_table[x], y);
-	if (UNLIKELY((pvalue == NULL) || (pvalue == PJERR)))
-		return;
-	*pvalue = 0;
+	JLD(rc, table->hash_table[x], (Word_t)y);
 }
 
 /*
