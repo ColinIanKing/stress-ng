@@ -232,6 +232,7 @@ static int stress_shm_posix_child(
 			newpid = fork();
 			if (newpid == 0) {
 				(void)munmap(addr, page_size);
+				free(addrs);
 				_exit(0);
 			}
 
