@@ -108,6 +108,7 @@ static int stress_acct(stress_args_t *args)
 		if (pid < 0) {
 			continue;
 		} else if (pid == 0) {
+			(void)close(fd);
 			_exit(0);
 		} else {
 			int status;
