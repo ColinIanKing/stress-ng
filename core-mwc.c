@@ -112,7 +112,8 @@ static uint64_t CONST stress_aux_random_seed(void)
 void stress_mwc_reseed(void)
 {
 	if (g_opt_flags & OPT_FLAGS_SEED) {
-		uint64_t seed;
+		uint64_t seed = ((uint64_t)STRESS_MWC_SEED_Z << 32) |
+				STRESS_MWC_SEED_W;
 
 		if (stress_setting_get("seed", &seed)) {
 			mwc.z = seed >> 32;
