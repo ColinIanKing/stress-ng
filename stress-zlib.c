@@ -1074,10 +1074,10 @@ static void TARGET_CLONES stress_rand_data_lehmer(
 	if (UNLIKELY(!seeded)) {
 		register uint32_t *ptr32 = (uint32_t *)&state;
 
-		*ptr32++ = stress_mwc32();
-		*ptr32++ = stress_mwc32();
-		*ptr32++ = stress_mwc32();
-		*ptr32++ = stress_mwc32();
+		ptr32[0] = stress_mwc32();
+		ptr32[1] = stress_mwc32();
+		ptr32[2] = stress_mwc32();
+		ptr32[3] = stress_mwc32();
 		seeded = true;
 	}
 
