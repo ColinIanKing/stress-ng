@@ -618,7 +618,7 @@ static int COLD stress_exclude(void)
 {
 	char *str;
 	char *token;
-	char *opt_exclude;
+	char *opt_exclude = NULL;
 	char *saveptr = NULL;
 
 	if (!stress_setting_get("exclude", &opt_exclude))
