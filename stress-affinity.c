@@ -132,13 +132,13 @@ static void stress_affinity_child(
 	uint32_t cpu = args->instance;
 	uint32_t last_cpu = cpu;
 	cpu_set_t mask0;
-	bool stress_continue_affinity = true;
 	const bool taskset_random = g_opt_flags & OPT_FLAGS_TASKSET_RANDOM;
 
 	CPU_ZERO(&mask0);
 
 	do {
 		cpu_set_t mask;
+		bool stress_continue_affinity;
 
 		if (info->affinity_rand) {
 			cpu = stress_mwc32modn(info->cpus);
