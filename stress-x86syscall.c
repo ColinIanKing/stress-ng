@@ -335,7 +335,7 @@ static char *x86syscall_list_str(void)
  */
 static int x86syscall_check_x86syscall_func(void)
 {
-	char *name;
+	char *name = NULL;
 	size_t i;
 	bool exercise = false;
 
