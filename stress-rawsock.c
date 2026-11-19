@@ -143,8 +143,10 @@ static int OPTIMIZE3 stress_rawsock_client(stress_args_t *args, const int rawsoc
 	while (LIKELY(!stop_rawsock && stress_continue(args))) {
 		uint32_t ready;
 
-		if (UNLIKELY(stress_lock_acquire(rawsock_lock) < 0))
+		if (UNLIKELY(stress_lock_acquire(rawsock_lock) < 0)) {
+			(void)close(fd);
 			_exit(EXIT_FAILURE);
+		}
 		ready = g_shared->rawsock.ready;
 		(void)stress_lock_release(rawsock_lock);
 
@@ -268,7 +270,7 @@ die:
 	(void)shim_waitpid(pid, &status, 0);
 
 	/* close recv socket after sender closed */
-	if (fd > -1)
+	if (fd >= 0)
 		(void)close(fd);
 
 	return rc;
