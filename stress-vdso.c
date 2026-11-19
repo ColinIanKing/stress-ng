@@ -493,7 +493,7 @@ static int stress_vdso_supported(const char *name)
 static int vdso_sym_list_check_vdso_func(stress_vdso_sym_t **list)
 {
 	stress_vdso_sym_t *vs1;
-	char *name;
+	char *name = NULL;
 
 	if (!stress_setting_get("vdso-func", &name))
 		return 0;
