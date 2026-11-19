@@ -336,7 +336,7 @@ bool stress_arm_has_dmb_sy(void)
 		return false;
 	}
 
-	act.sa_handler = stress_dekker_sigill_handler;
+	act.sa_handler = stress_cpu_sigill_handler;
         (void)sigemptyset(&act.sa_mask);
         act.sa_flags = SA_NOCLDSTOP;
 	if (sigaction(SIGILL, &act, &oldact) < 0) {
