@@ -1564,7 +1564,7 @@ static void OPTIMIZE3 hammer_write_fill(
 
 	pattern = shim_ror64n(pattern, 11);
 	*(vptr++) = pattern;
-	*(vptr++) = pattern ^ flip;
+	*vptr = pattern ^ flip;
 
 	vptr = (volatile uint64_t *)addr2;
 	pattern = shim_rol64n(rnd, 11);
@@ -1573,7 +1573,7 @@ static void OPTIMIZE3 hammer_write_fill(
 
 	pattern = shim_rol64n(pattern, 11);
 	*(vptr++) = pattern;
-	*(vptr++) = pattern ^ flip;
+	*vptr = pattern ^ flip;
 
 	if (UNLIKELY(verify)) {
 		uint64_t val;
@@ -1581,30 +1581,33 @@ static void OPTIMIZE3 hammer_write_fill(
 		if (addr1 != addr2) {
 			vptr = (volatile uint64_t *)addr1;
 
-			val = *(vptr++);
+			val = *vptr;
 			pattern = rnd;
 			if (UNLIKELY(val != pattern)) {
 				pr_fail("%s: write-fill: read back of stored value at address "
 					"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
 					args->name, (volatile void *)vptr, pattern, val);
 			}
+			vptr++;
 
-			val = *(vptr++);
+			val = *vptr;
 			if (UNLIKELY(val != (pattern ^ flip))) {
 				pr_fail("%s: write-fill: read back of stored value at address "
 					"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
 					args->name, (volatile void *)vptr, pattern, val);
 			}
+			vptr++;
 
-			val = *(vptr++);
+			val = *vptr;
 			pattern = shim_ror64n(pattern, 11);
 			if (UNLIKELY(val != pattern)) {
 				pr_fail("%s: write-fill: read back of stored value at address "
 					"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
 					args->name, (volatile void *)vptr, pattern, val);
 			}
+			vptr++;
 
-			val = *(vptr);
+			val = *vptr;
 			if (UNLIKELY(val != (pattern ^ flip))) {
 				pr_fail("%s: write-fill: read back of stored value at address "
 					"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
@@ -1613,30 +1616,33 @@ static void OPTIMIZE3 hammer_write_fill(
 		}
 
 		vptr = (volatile uint64_t *)addr2;
-		val = *(vptr++);
+		val = *vptr;
 		pattern = shim_rol64n(rnd, 11);
 		if (UNLIKELY(val != pattern)) {
 			pr_fail("%s: write-fill: read back of stored value at address "
 				"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
 				args->name, (volatile void *)vptr, pattern, val);
 		}
+		vptr++;
 
-		val = *(vptr++);
+		val = *vptr;
 		if (UNLIKELY(val != (pattern ^ flip))) {
 			pr_fail("%s: write-fill: read back of stored value at address "
 				"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
 				args->name, (volatile void *)vptr, pattern, val);
 		}
+		vptr++;
 
-		val = *(vptr++);
+		val = *vptr;
 		pattern = shim_rol64n(pattern, 11);
 		if (UNLIKELY(val != pattern)) {
 			pr_fail("%s: write-fill: read back of stored value at address "
 				"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
 				args->name, (volatile void *)vptr, pattern, val);
 		}
+		vptr++;
 
-		val = *(vptr++);
+		val = *vptr;
 		if (UNLIKELY(val != (pattern ^ flip))) {
 			pr_fail("%s: write-fill: read back of stored value at address "
 				"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
