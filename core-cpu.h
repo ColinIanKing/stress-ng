@@ -22,6 +22,46 @@
 #include "core-version.h"
 #include "core-arch.h"
 
+static inline bool stress_cpu_is_power7(void)
+{
+#if defined(HAVE_BUILTIN_CPU_IS_POWER7)
+	return __builtin_cpu_is("power7");
+#endif
+	return false;
+}
+
+static inline bool stress_cpu_is_power8(void)
+{
+#if defined(HAVE_BUILTIN_CPU_IS_POWER8)
+	return __builtin_cpu_is("power8");
+#endif
+	return false;
+}
+
+static inline bool stress_cpu_is_power9(void)
+{
+#if defined(HAVE_BUILTIN_CPU_IS_POWER9)
+	return __builtin_cpu_is("power9");
+#endif
+	return false;
+}
+
+static inline bool stress_cpu_is_power10(void)
+{
+#if defined(HAVE_BUILTIN_CPU_IS_POWER10)
+	return __builtin_cpu_is("power10");
+#endif
+	return false;
+}
+
+static inline bool stress_cpu_is_power11(void)
+{
+#if defined(HAVE_BUILTIN_CPU_IS_POWER11)
+	return __builtin_cpu_is("power11");
+#endif
+	return false;
+}
+
 extern WARN_UNUSED bool stress_arm_has_dmb_sy(void);
 
 extern WARN_UNUSED bool stress_cpu_is_x86(void);
