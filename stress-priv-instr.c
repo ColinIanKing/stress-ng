@@ -401,7 +401,7 @@ static void stress_x86_rdmsr(void)
 #if defined(HAVE_ASM_X86_RDPMC)
 static void stress_x86_rdpmc(void)
 {
-        uint32_t lo;
+	uint32_t lo;
 	uint32_t hi;
 	uint32_t counter = 0;
 
