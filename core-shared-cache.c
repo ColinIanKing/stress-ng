@@ -37,6 +37,7 @@ int stress_shared_cache_alloc(const char *name)
 	uint16_t max_cache_level = 0;
 	uint16_t level;
 	char cache_info[512];
+	size_t l1_cache_line_size = 0;
 	long int numa_nodes = stress_numa_nodes();
 
 	if (UNLIKELY(numa_nodes < 1))
@@ -109,13 +110,22 @@ int stress_shared_cache_alloc(const char *name)
 		size_t cache_line_size = 0;
 
 		stress_cpu_cache_level_size_get(level, &cache_size, &cache_line_size, CACHE_TYPE_DATA);
+		if ((level == 1) && (cache_line_size > 0))
+			l1_cache_line_size = cache_line_size;
 		if ((cache_size > 0) && (cache_line_size > 0)) {
 			char tmp[64];
 
 			(void)snprintf(tmp, sizeof(tmp), "%sL%" PRIu16 ": %zuK",
 				(level > 1) ? ", " : "", level, cache_size >> 10);
-			shim_strlcat(cache_info, tmp, sizeof(cache_info));
+			(void)shim_strlcat(cache_info, tmp, sizeof(cache_info));
 		}
+	}
+	if (l1_cache_line_size) {
+		char tmp[64];
+
+		(void)snprintf(tmp, sizeof(tmp), "%sL1 line size: %zu",
+				(*cache_info) ? ", " : "", l1_cache_line_size);
+		(void)shim_strlcat(cache_info, tmp, sizeof(cache_info));
 	}
 	pr_dbg("CPU data cache: %s\n", cache_info);
 init_done:
