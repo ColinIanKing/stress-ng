@@ -103,24 +103,11 @@ static bool rdrand_supported = false;
 
 static int stress_rdrand_supported(const char *name)
 {
-#if defined(HAVE_BUILTIN_CPU_IS_POWER9)
-	if (__builtin_cpu_is("power9")) {
-		rdrand_supported = true;
+	if (stress_cpu_is_power9() ||
+	    stress_cpu_is_power10() ||
+	    stress_cpu_is_power11()) {
 		return 0;
 	}
-#endif
-#if defined(HAVE_BUILTIN_CPU_IS_POWER10)
-	if (__builtin_cpu_is("power10")) {
-		rdrand_supported = true;
-		return 0;
-	}
-#endif
-#if defined(HAVE_BUILTIN_CPU_IS_POWER11)
-	if (__builtin_cpu_is("power11")) {
-		rdrand_supported = true;
-		return 0;
-	}
-#endif
 	pr_inf_skip("%s stressor will be skipped, cannot detect if the CPU "
 		"supports the instruction 'darn'\n", name);
 	return -1;
