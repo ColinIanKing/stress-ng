@@ -433,6 +433,7 @@ static int stress_readpages_maps_get(
 			for (j = 0; j < i; j++)
 				free(maps->maps[j].pages);
 			free(maps->maps);
+			maps->maps = NULL;
 			return -1;
 		}
 		stress_readpages_order_set(page_size, &maps->maps[i], readpages_order);
@@ -621,9 +622,11 @@ tidy:
 		(void)munmap(data, data_size);
 
 tidy_maps:
-	for (i = 0; i < maps.n_maps; i++)
-		free(maps.maps[i].pages);
-	free(maps.maps);
+	if (maps.maps) {
+		for (i = 0; i < maps.n_maps; i++)
+			free(maps.maps[i].pages);
+		free(maps.maps);
+	}
 
 	return rc;
 }
