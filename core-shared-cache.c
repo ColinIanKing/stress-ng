@@ -124,7 +124,7 @@ int stress_shared_cache_alloc(const char *name)
 		char tmp[64];
 
 		(void)snprintf(tmp, sizeof(tmp), "%sL1 line size: %zu",
-				(*cache_info) ? ", " : "", l1_cache_line_size);
+				(cache_info[0]) ? ", " : "", l1_cache_line_size);
 		(void)shim_strlcat(cache_info, tmp, sizeof(cache_info));
 	}
 	pr_dbg("CPU data cache: %s\n", cache_info);
