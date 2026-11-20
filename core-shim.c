@@ -1101,8 +1101,6 @@ static int shim_madvise_to_posix(void *addr, size_t length, int advice)
 	int posix_advice;
 	int ret;
 
-	pr_inf("shim_madvise_to_posix()\n");
-
 	switch (advice) {
 #if defined(POSIX_MADV_NORMAL) &&	\
     defined(MADV_NORMAL)
@@ -1211,7 +1209,7 @@ int shim_madvise(void *addr, size_t length, int advice)
 		ret = shim_madvise_to_posix(addr, length, advice);
 	return ret;
 #else
-	return (int)shim_enosys(0, addr, length, advice);
+	return shim_madvise_to_posix(addr, length, advice);
 #endif
 }
 
