@@ -138,6 +138,42 @@ static void OPTIMIZE3 stress_memrate_flush(const stress_memrate_context_t *conte
 	}
 }
 
+#define VOLATILE_READ_OP_16(type, op, ptr)\
+{					\
+	v = *(volatile type *)&ptr[0];	\
+	(void)v;			\
+	v = *(volatile type *)&ptr[1];	\
+	(void)v;			\
+	v = *(volatile type *)&ptr[2];	\
+	(void)v;			\
+	v = *(volatile type *)&ptr[3];	\
+	(void)v;			\
+	v = *(volatile type *)&ptr[4];	\
+	(void)v;			\
+	v = *(volatile type *)&ptr[5];	\
+	(void)v;			\
+	v = *(volatile type *)&ptr[6];	\
+	(void)v;			\
+	v = *(volatile type *)&ptr[7];	\
+	(void)v;			\
+	v = *(volatile type *)&ptr[8];	\
+	(void)v;			\
+	v = *(volatile type *)&ptr[9];	\
+	(void)v;			\
+	v = *(volatile type *)&ptr[10];	\
+	(void)v;			\
+	v = *(volatile type *)&ptr[11];	\
+	(void)v;			\
+	v = *(volatile type *)&ptr[12];	\
+	(void)v;			\
+	v = *(volatile type *)&ptr[13];	\
+	(void)v;			\
+	v = *(volatile type *)&ptr[14];	\
+	(void)v;			\
+	v = *(volatile type *)&ptr[15];	\
+	(void)v;			\
+}
+
 #define STRESS_MEMRATE_READ(size, type, prefetch)		\
 static uint64_t TARGET_CLONES OPTIMIZE3 stress_memrate_read##size(		\
 	const stress_memrate_context_t *context,		\
@@ -150,38 +186,7 @@ static uint64_t TARGET_CLONES OPTIMIZE3 stress_memrate_read##size(		\
 								\
 	for (ptr = start; ptr < end;) {				\
 		prefetch((uint8_t *)ptr + STRESS_MEMRATE_PF_OFFSET, 0, 3);	\
-		v = *(volatile type *)&ptr[0];			\
-		(void)v;					\
-		v = *(volatile type *)&ptr[1];			\
-		(void)v;					\
-		v = *(volatile type *)&ptr[2];			\
-		(void)v;					\
-		v = *(volatile type *)&ptr[3];			\
-		(void)v;					\
-		v = *(volatile type *)&ptr[4];			\
-		(void)v;					\
-		v = *(volatile type *)&ptr[5];			\
-		(void)v;					\
-		v = *(volatile type *)&ptr[6];			\
-		(void)v;					\
-		v = *(volatile type *)&ptr[7];			\
-		(void)v;					\
-		v = *(volatile type *)&ptr[8];			\
-		(void)v;					\
-		v = *(volatile type *)&ptr[9];			\
-		(void)v;					\
-		v = *(volatile type *)&ptr[10];			\
-		(void)v;					\
-		v = *(volatile type *)&ptr[11];			\
-		(void)v;					\
-		v = *(volatile type *)&ptr[12];			\
-		(void)v;					\
-		v = *(volatile type *)&ptr[13];			\
-		(void)v;					\
-		v = *(volatile type *)&ptr[14];			\
-		(void)v;					\
-		v = *(volatile type *)&ptr[15];			\
-		(void)v;					\
+		VOLATILE_READ_OP_16(type, op, ptr)		\
 		ptr += 16;					\
 	}							\
 	*valid = true;						\
@@ -216,38 +221,7 @@ static uint64_t TARGET_CLONES OPTIMIZE3 stress_memrate_read_rate##size(		\
 								\
 		while (ptr < read_end) {			\
 			prefetch((uint8_t *)ptr + STRESS_MEMRATE_PF_OFFSET, 0, 3);	\
-			v = *(volatile type *)&ptr[0];		\
-			(void)v;				\
-			v = *(volatile type *)&ptr[1];		\
-			(void)v;				\
-			v = *(volatile type *)&ptr[2];		\
-			(void)v;				\
-			v = *(volatile type *)&ptr[3];		\
-			(void)v;				\
-			v = *(volatile type *)&ptr[4];		\
-			(void)v;				\
-			v = *(volatile type *)&ptr[5];		\
-			(void)v;				\
-			v = *(volatile type *)&ptr[6];		\
-			(void)v;				\
-			v = *(volatile type *)&ptr[7];		\
-			(void)v;				\
-			v = *(volatile type *)&ptr[8];		\
-			(void)v;				\
-			v = *(volatile type *)&ptr[9];		\
-			(void)v;				\
-			v = *(volatile type *)&ptr[10];		\
-			(void)v;				\
-			v = *(volatile type *)&ptr[11];		\
-			(void)v;				\
-			v = *(volatile type *)&ptr[12];		\
-			(void)v;				\
-			v = *(volatile type *)&ptr[13];		\
-			(void)v;				\
-			v = *(volatile type *)&ptr[14];		\
-			(void)v;				\
-			v = *(volatile type *)&ptr[15];		\
-			(void)v;				\
+			VOLATILE_READ_OP_16(type, op, ptr)	\
 			ptr += 16;				\
 		}						\
 		t2 = stress_time_now();				\
@@ -269,12 +243,49 @@ static uint64_t TARGET_CLONES OPTIMIZE3 stress_memrate_read_rate##size(		\
 	return ((uintptr_t)ptr - (uintptr_t)start) / STRESS_KB;	\
 }
 
+#define READ_OP_16(type, op, ptr)\
+{				\
+	register type v;	\
+				\
+	v = op(&ptr[0]);	\
+	(void)v;		\
+	v = op(&ptr[1]);	\
+	(void)v;		\
+	v = op(&ptr[2]);	\
+	(void)v;		\
+	v = op(&ptr[3]);	\
+	(void)v;		\
+	v = op(&ptr[4]);	\
+	(void)v;		\
+	v = op(&ptr[5]);	\
+	(void)v;		\
+	v = op(&ptr[6]);	\
+	(void)v;		\
+	v = op(&ptr[7]);	\
+	(void)v;		\
+	v = op(&ptr[8]);	\
+	(void)v;		\
+	v = op(&ptr[9]);	\
+	(void)v;		\
+	v = op(&ptr[10]);	\
+	(void)v;		\
+	v = op(&ptr[11]);	\
+	(void)v;		\
+	v = op(&ptr[12]);	\
+	(void)v;		\
+	v = op(&ptr[13]);	\
+	(void)v;		\
+	v = op(&ptr[14]);	\
+	(void)v;		\
+	v = op(&ptr[15]);	\
+	(void)v;		\
+}
+
 #define STRESS_MEMRATE_READ_OP(size, type, op, read_op, check)	\
 static uint64_t TARGET_CLONES OPTIMIZE3 stress_memrate_read_##read_op##size(		\
 	const stress_memrate_context_t *context,		\
 	bool *valid)						\
 {								\
-	register type v;					\
 	register type *ptr;					\
 	type *start ALIGNED(4096) = (type *)context->start;	\
 	const type *end ALIGNED(4096) = (type *)context->end;	\
@@ -285,38 +296,7 @@ static uint64_t TARGET_CLONES OPTIMIZE3 stress_memrate_read_##read_op##size(		\
 	}							\
 								\
 	for (ptr = start; ptr < end;) {				\
-		v = op(&ptr[0]);				\
-		(void)v;					\
-		v = op(&ptr[1]);				\
-		(void)v;					\
-		v = op(&ptr[2]);				\
-		(void)v;					\
-		v = op(&ptr[3]);				\
-		(void)v;					\
-		v = op(&ptr[4]);				\
-		(void)v;					\
-		v = op(&ptr[5]);				\
-		(void)v;					\
-		v = op(&ptr[6]);				\
-		(void)v;					\
-		v = op(&ptr[7]);				\
-		(void)v;					\
-		v = op(&ptr[8]);				\
-		(void)v;					\
-		v = op(&ptr[9]);				\
-		(void)v;					\
-		v = op(&ptr[10]);				\
-		(void)v;					\
-		v = op(&ptr[11]);				\
-		(void)v;					\
-		v = op(&ptr[12]);				\
-		(void)v;					\
-		v = op(&ptr[13]);				\
-		(void)v;					\
-		v = op(&ptr[14]);				\
-		(void)v;					\
-		v = op(&ptr[15]);				\
-		(void)v;					\
+		READ_OP_16(type, op, ptr)			\
 		ptr += 16;					\
 	}							\
 	*valid = true;						\
@@ -329,7 +309,6 @@ static uint64_t TARGET_CLONES OPTIMIZE3 stress_memrate_read_rate_##read_op##size
 	bool *valid)						\
 {								\
 	register type *ptr;					\
-	type v;							\
 	type *start ALIGNED(4096) = (type *)context->start;	\
 	const type *end ALIGNED(4096) = (type *)context->end;	\
 	const uint64_t loops = 					\
@@ -355,38 +334,7 @@ static uint64_t TARGET_CLONES OPTIMIZE3 stress_memrate_read_rate_##read_op##size
 			STRESS_PTR_MINIMUM(loop_end, end);	\
 								\
 		while (ptr < read_end) {			\
-			v = op(&ptr[0]);			\
-			(void)v;				\
-			v = op(&ptr[1]);			\
-			(void)v;				\
-			v = op(&ptr[2]);			\
-			(void)v;				\
-			v = op(&ptr[3]);			\
-			(void)v;				\
-			v = op(&ptr[4]);			\
-			(void)v;				\
-			v = op(&ptr[5]);			\
-			(void)v;				\
-			v = op(&ptr[6]);			\
-			(void)v;				\
-			v = op(&ptr[7]);			\
-			(void)v;				\
-			v = op(&ptr[8]);			\
-			(void)v;				\
-			v = op(&ptr[9]);			\
-			(void)v;				\
-			v = op(&ptr[10]);			\
-			(void)v;				\
-			v = op(&ptr[11]);			\
-			(void)v;				\
-			v = op(&ptr[12]);			\
-			(void)v;				\
-			v = op(&ptr[13]);			\
-			(void)v;				\
-			v = op(&ptr[14]);			\
-			(void)v;				\
-			v = op(&ptr[15]);			\
-			(void)v;				\
+			READ_OP_16(type, op, ptr)		\
 			ptr += 16;				\
 		}						\
 		t2 = stress_time_now();				\
@@ -517,6 +465,26 @@ static uint64_t OPTIMIZE3 stress_memrate_memset_rate(
 	return ((uintptr_t)ptr - (uintptr_t)start) / STRESS_KB;
 }
 
+#define WRITE_16(ptr, v)	\
+{				\
+	ptr[0] = v;		\
+	ptr[1] = v;		\
+	ptr[2] = v;		\
+	ptr[3] = v;		\
+	ptr[4] = v;		\
+	ptr[5] = v;		\
+	ptr[6] = v;		\
+	ptr[7] = v;		\
+	ptr[8] = v;		\
+	ptr[9] = v;		\
+	ptr[10] = v;		\
+	ptr[11] = v;		\
+	ptr[12] = v;		\
+	ptr[13] = v;		\
+	ptr[14] = v;		\
+	ptr[15] = v;		\
+}
+
 #define STRESS_MEMRATE_WRITE(size, type)			\
 static uint64_t TARGET_CLONES OPTIMIZE3	stress_memrate_write##size(	\
 	const stress_memrate_context_t *context,		\
@@ -535,22 +503,7 @@ static uint64_t TARGET_CLONES OPTIMIZE3	stress_memrate_write##size(	\
 	}							\
 								\
 	for (ptr = start; ptr < end; ptr += 16) {		\
-		ptr[0] = v;					\
-		ptr[1] = v;					\
-		ptr[2] = v;					\
-		ptr[3] = v;					\
-		ptr[4] = v;					\
-		ptr[5] = v;					\
-		ptr[6] = v;					\
-		ptr[7] = v;					\
-		ptr[8] = v;					\
-		ptr[9] = v;					\
-		ptr[10] = v;					\
-		ptr[11] = v;					\
-		ptr[12] = v;					\
-		ptr[13] = v;					\
-		ptr[14] = v;					\
-		ptr[15] = v;					\
+		WRITE_16(ptr, v)				\
 	}							\
 	*valid = true;						\
 	return ((uintptr_t)ptr - (uintptr_t)start) / STRESS_KB;	\
@@ -590,22 +543,7 @@ static uint64_t TARGET_CLONES OPTIMIZE3 stress_memrate_write_rate##size(	\
 			STRESS_PTR_MINIMUM(loop_end, end);	\
 								\
 		while (ptr < write_end) {			\
-			ptr[0] = v;				\
-			ptr[1] = v;				\
-			ptr[2] = v;				\
-			ptr[3] = v;				\
-			ptr[4] = v;				\
-			ptr[5] = v;				\
-			ptr[6] = v;				\
-			ptr[7] = v;				\
-			ptr[8] = v;				\
-			ptr[9] = v;				\
-			ptr[10] = v;				\
-			ptr[11] = v;				\
-			ptr[12] = v;				\
-			ptr[13] = v;				\
-			ptr[14] = v;				\
-			ptr[15] = v;				\
+			WRITE_16(ptr, v)			\
 			ptr += 16;				\
 		}						\
 		t2 = stress_time_now();				\
@@ -625,6 +563,26 @@ static uint64_t TARGET_CLONES OPTIMIZE3 stress_memrate_write_rate##size(	\
 	}							\
 	*valid = true;						\
 	return ((uintptr_t)ptr - (uintptr_t)start) / STRESS_KB;	\
+}
+
+#define WRITE_OP_16(op, vptr, v)\
+{				\
+	op(vptr + 0, v);	\
+	op(vptr + 1, v);	\
+	op(vptr + 2, v);	\
+	op(vptr + 3, v);	\
+	op(vptr + 4, v);	\
+	op(vptr + 5, v);	\
+	op(vptr + 6, v);	\
+	op(vptr + 7, v);	\
+	op(vptr + 8, v);	\
+	op(vptr + 9, v);	\
+	op(vptr + 10, v);	\
+	op(vptr + 11, v);	\
+	op(vptr + 12, v);	\
+	op(vptr + 13, v);	\
+	op(vptr + 14, v);	\
+	op(vptr + 15, v);	\
 }
 
 #define STRESS_MEMRATE_WRITE_OP(size, type, op, write_op, check)	\
@@ -653,22 +611,7 @@ static uint64_t OPTIMIZE3 stress_memrate_write_ ## write_op ## size (	\
 		register type *vptr = (type *)ptr;		\
 								\
 		ptr += 16;					\
-		op(vptr + 0, v);				\
-		op(vptr + 1, v);				\
-		op(vptr + 2, v);				\
-		op(vptr + 3, v);				\
-		op(vptr + 4, v);				\
-		op(vptr + 5, v);				\
-		op(vptr + 6, v);				\
-		op(vptr + 7, v);				\
-		op(vptr + 8, v);				\
-		op(vptr + 9, v);				\
-		op(vptr + 10, v);				\
-		op(vptr + 11, v);				\
-		op(vptr + 12, v);				\
-		op(vptr + 13, v);				\
-		op(vptr + 14, v);				\
-		op(vptr + 15, v);				\
+		WRITE_OP_16(op, vptr, v)			\
 	}							\
 	*valid = true;						\
 	return ((uintptr_t)ptr - (uintptr_t)start) / STRESS_KB;	\
@@ -716,22 +659,7 @@ static uint64_t OPTIMIZE3 stress_memrate_write_ ## write_op ## _rate ## size( \
 			register type *vptr = (type *)ptr;	\
 								\
 			ptr += 16;				\
-			op(vptr + 0, v);			\
-			op(vptr + 1, v);			\
-			op(vptr + 2, v);			\
-			op(vptr + 3, v);			\
-			op(vptr + 4, v);			\
-			op(vptr + 5, v);			\
-			op(vptr + 6, v);			\
-			op(vptr + 7, v);			\
-			op(vptr + 8, v);			\
-			op(vptr + 9, v);			\
-			op(vptr + 10, v);			\
-			op(vptr + 11, v);			\
-			op(vptr + 12, v);			\
-			op(vptr + 13, v);			\
-			op(vptr + 14, v);			\
-			op(vptr + 15, v);			\
+			WRITE_OP_16(op, vptr, v)		\
 		}						\
 		t2 = stress_time_now();				\
 		total_dur += dur;				\
