@@ -144,7 +144,7 @@ static int stress_mmapfork(stress_args_t *args)
 	if (wipe_ptr != MAP_FAILED) {
 		stress_memory_anon_name_set(wipe_ptr, wipe_size, "wipe-on-fork-data");
 		(void)shim_memset(wipe_ptr, 0xff, wipe_size);
-		if (shim_madvise(wipe_ptr, wipe_size, MADV_WIPEONFORK) == 0)
+		if (shim_madvise(wipe_ptr, wipe_size, SHIM_MADV_WIPEONFORK) == 0)
 			wipe_ok = true;
 	}
 #endif
@@ -222,7 +222,7 @@ static int stress_mmapfork(stress_args_t *args)
 					if (should_terminate(args, ppid))
 						_exit(EXIT_SUCCESS);
 					segv_ret = MMAPFORK_SEGV_MADV_WILLNEED;
-					(void)shim_madvise(ptr, len, MADV_WILLNEED);
+					(void)shim_madvise(ptr, len, SHIM_MADV_WILLNEED);
 #endif
 					if (should_terminate(args, ppid))
 						_exit(EXIT_SUCCESS);
@@ -233,7 +233,7 @@ static int stress_mmapfork(stress_args_t *args)
 					if (should_terminate(args, ppid))
 						_exit(EXIT_SUCCESS);
 					segv_ret = MMAPFORK_SEGV_MADV_DONTNEED;
-					(void)shim_madvise(ptr, len, MADV_DONTNEED);
+					(void)shim_madvise(ptr, len, SHIM_MADV_DONTNEED);
 #endif
 
 					if (should_terminate(args, ppid))

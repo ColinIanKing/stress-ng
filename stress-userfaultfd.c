@@ -163,12 +163,14 @@ static int stress_userfaultfd_clone(void *arg)
 		register uint8_t *ptr;
 		register const uint8_t *end = c->data + c->sz;
 
+#if defined(MADV_DONTNEED)
 		/* hint we don't need these pages */
-		if (UNLIKELY(shim_madvise(c->data, c->sz, MADV_DONTNEED) < 0)) {
+		if (UNLIKELY(shim_madvise(c->data, c->sz, SHIM_MADV_DONTNEED) < 0)) {
 			pr_fail("%s: madvise failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return -1;
 		}
+#endif
 		/* and trigger some page faults */
 		for (ptr = c->data; ptr < end; ptr += c->page_size)
 			*ptr = 0xff;

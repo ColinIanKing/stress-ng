@@ -795,7 +795,7 @@ mappings_unmap:
 #endif
 
 #if defined(SHIM_MADV_NORMAL)
-				if (shim_madvise((void *)ptr, mmap_size, MADV_NORMAL) == 0)
+				if (shim_madvise((void *)ptr, mmap_size, SHIM_MADV_NORMAL) == 0)
 					mmap_stats->madvise_pages += mmap_size / page_size;
 #endif
 #if defined(HAVE_MPROTECT)
@@ -805,7 +805,7 @@ mappings_unmap:
 				(void)shim_munlock((void *)ptr, mmap_size);
 #if defined(SHIM_MADV_DONTNEED)
 				if (stress_mwc1()) {
-					if (shim_madvise((void *)ptr, mmap_size, MADV_DONTNEED) == 0)
+					if (shim_madvise((void *)ptr, mmap_size, SHIM_MADV_DONTNEED) == 0)
 						mmap_stats->madvise_pages += mmap_size / page_size;
 				}
 #endif
@@ -815,10 +815,10 @@ mappings_unmap:
 
 					for (j = 0; j < mmap_size; j += page_size) {
 						if (stress_mwc1()) {
-							if (shim_madvise((void *)(ptr + j), page_size, MADV_REMOVE) == 0)
+							if (shim_madvise((void *)(ptr + j), page_size, SHIM_MADV_REMOVE) == 0)
 								mmap_stats->madvise_pages += 1;
 #if defined(MADV_RANDOM)
-							else if (shim_madvise((void *)(ptr + j), 0, MADV_RANDOM) == 0)
+							else if (shim_madvise((void *)(ptr + j), 0, SHIM_MADV_RANDOM) == 0)
 								mmap_stats->madvise_pages += 1;
 #endif
 						}

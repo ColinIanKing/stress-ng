@@ -487,7 +487,9 @@ static int stress_swap_child(stress_args_t *args, void *context)
 			const char *p_end = ptr + mmap_size;
 			char *p;
 
-			(void)shim_madvise(ptr, mmap_size, MADV_WILLNEED);
+#if defined(MADV_WILLNEED)
+			(void)shim_madvise(ptr, mmap_size, SHIM_MADV_WILLNEED);
+#endif
 			/* Add simple check value to start of each page */
 			for (i = 0, p = ptr; p < p_end; p += page_size, i++) {
 				uintptr_t *up = (uintptr_t *)(uintptr_t)p;
@@ -496,7 +498,7 @@ static int stress_swap_child(stress_args_t *args, void *context)
 				*up = (uintptr_t)p;
 			}
 #if defined(MADV_PAGEOUT)
-			(void)shim_madvise(ptr, mmap_size, MADV_PAGEOUT);
+			(void)shim_madvise(ptr, mmap_size, SHIM_MADV_PAGEOUT);
 #endif
 #if defined(MADV_PAGEOUT) &&	\
     defined(__linux__)

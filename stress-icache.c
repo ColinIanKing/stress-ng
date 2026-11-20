@@ -56,7 +56,7 @@ static int icache_madvise_nohugepage(
 	size_t size)
 {
 #if defined(MADV_NOHUGEPAGE)
-	if (shim_madvise((void *)addr, size, MADV_NOHUGEPAGE) < 0) {
+	if (shim_madvise((void *)addr, size, SHIM_MADV_NOHUGEPAGE) < 0) {
 		/*
 		 * We may get EINVAL on kernels that don't support this
 		 * so don't treat that as non-fatal as this is just advisory

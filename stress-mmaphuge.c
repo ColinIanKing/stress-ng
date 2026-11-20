@@ -211,10 +211,10 @@ static int stress_mmaphuge_child(stress_args_t *args, void *v_context)
 				continue;
 			/* Try Transparent Huge Pages THP */
 #if defined(MADV_HUGEPAGE)
-			(void)shim_madvise(bufs[i].buf, bufs[i].sz, MADV_NOHUGEPAGE);
+			(void)shim_madvise(bufs[i].buf, bufs[i].sz, SHIM_MADV_NOHUGEPAGE);
 #endif
 #if defined(MADV_HUGEPAGE)
-			(void)shim_madvise(bufs[i].buf, bufs[i].sz, MADV_HUGEPAGE);
+			(void)shim_madvise(bufs[i].buf, bufs[i].sz, SHIM_MADV_HUGEPAGE);
 #endif
 		}
 

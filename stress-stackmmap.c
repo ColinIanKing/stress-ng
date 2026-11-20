@@ -190,10 +190,12 @@ static int stress_stackmmap(stress_args_t *args)
 	(void)close(fd);
 	stress_memory_anon_name_set(stack_mmap, MMAPSTACK_SIZE, "altstack-file");
 
-	if (shim_madvise((void *)stack_mmap, MMAPSTACK_SIZE, MADV_RANDOM) < 0) {
+#if defined(MADV_RANDOM)
+	if (shim_madvise((void *)stack_mmap, MMAPSTACK_SIZE, SHIM_MADV_RANDOM) < 0) {
 		pr_dbg("%s: madvise failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 	}
+#endif
 	(void)shim_memset(stack_mmap, 0, MMAPSTACK_SIZE);
 
 #if defined(HAVE_MPROTECT)

@@ -610,7 +610,7 @@ static int stress_mmaprandom_madvise_pages(
 	if (stress_mwc1()) {
 #if defined(MADV_NORMAL)
 		if (shim_madvise(addr, length, advice) < 0)
-			return shim_madvise(addr, length, MADV_NORMAL);
+			return shim_madvise(addr, length, SHIM_MADV_NORMAL);
 
 #else
 		return shim_madvise(addr, length, advice);
@@ -621,14 +621,14 @@ static int stress_mmaprandom_madvise_pages(
 		if (stress_mwc1()) {
 #if defined(MADV_NORMAL)
 			if (shim_madvise(ptr, page_size, advice) < 0)
-				(void)shim_madvise(ptr, page_size, MADV_NORMAL);
+				(void)shim_madvise(ptr, page_size, SHIM_MADV_NORMAL);
 #else
 			(void)shim_madvise(ptr, page_size, advice);
 #endif
 			ptr += page_size;
 		} else {
 #if defined(MADV_NORMAL)
-			(void)shim_madvise(ptr, page_size, MADV_NORMAL);
+			(void)shim_madvise(ptr, page_size, SHIM_MADV_NORMAL);
 #endif
 			ptr += page_size;
 		}

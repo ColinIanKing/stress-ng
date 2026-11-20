@@ -403,7 +403,7 @@ static int stress_easy_opcode(stress_args_t *args)
 			(void)stress_sched_settings_apply(true);
 
 #if defined(MADV_HUGEPAGE)
-			(void)shim_madvise((void*)opcodes, page_size * (PAGES + 2), MADV_HUGEPAGE);
+			(void)shim_madvise((void*)opcodes, page_size * (PAGES + 2), SHIM_MADV_HUGEPAGE);
 #endif
 			(void)mprotect((void *)opcodes, ops_size, PROT_NONE);
 			(void)mprotect((void *)ops_end, page_size, PROT_NONE);

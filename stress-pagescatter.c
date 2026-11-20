@@ -134,12 +134,14 @@ static void OPTIMIZE3 *stress_pagescatter_mmap(
 		/* if page is resident, it's mapped, try again  */
 		if (shim_mincore((void *)addr, page_size, vec) == 0)
 			continue;
+#if defined(MADV_NORMAL)
 		/* if addr can be madvised then it's mapped, try again */
-		if  (shim_madvise((void *)addr, page_size, MADV_NORMAL) == 0)
+		if  (shim_madvise((void *)addr, page_size, SHIM_MADV_NORMAL) == 0)
 			continue;
 		/* if errno == ENOMEM it maybe not mapped */
 		if (errno != ENOMEM)
 			continue;
+#endif
 		/* now do an expensive pipe page check */
 		if (stress_memory_readable((void *)addr, page_size))
 			continue;

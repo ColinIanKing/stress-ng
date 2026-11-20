@@ -258,7 +258,7 @@ static void *stress_madvise_pages(void *arg)
 #if defined(MADV_GUARD_INSTALL) && defined(MADV_NORMAL)
 		/* avoid segfaults by setting back to normal */
 		if (advice == MADV_GUARD_INSTALL)
-			(void)shim_madvise(ptr, page_size, MADV_NORMAL);
+			(void)shim_madvise(ptr, page_size, SHIM_MADV_NORMAL);
 #endif
 		(void)shim_msync(ptr, page_size, MS_ASYNC);
 	}
@@ -271,16 +271,16 @@ static void *stress_madvise_pages(void *arg)
 #if defined(MADV_GUARD_INSTALL) && defined(MADV_NORMAL)
 		/* avoid segfaults by setting back to normal */
 		if (advice == MADV_GUARD_INSTALL)
-			(void)shim_madvise(ptr, page_size, MADV_NORMAL);
+			(void)shim_madvise(ptr, page_size, SHIM_MADV_NORMAL);
 #endif
 		(void)shim_msync(ptr, page_size, MS_ASYNC);
 	}
 #if defined(MADV_PAGEOUT) && defined(MS_SYNC)
 	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE) {
-		(void)shim_madvise(buf, madvise_bytes, MADV_PAGEOUT);
+		(void)shim_madvise(buf, madvise_bytes, SHIM_MADV_PAGEOUT);
 		(void)shim_msync(buf, madvise_bytes, MS_SYNC);
 #if defined(MADV_POPULATE_WRITE)
-		(void)shim_madvise(buf, madvise_bytes, MADV_POPULATE_WRITE);
+		(void)shim_madvise(buf, madvise_bytes, SHIM_MADV_POPULATE_WRITE);
 		(void)shim_msync(buf, madvise_bytes, MS_SYNC);
 #endif
 	}
@@ -295,7 +295,7 @@ static void *stress_madvise_pages(void *arg)
 	/*
 	 *  Exercise with non-page aligned address
 	 */
-	(void)shim_madvise(((uint8_t *)buf) + 1, page_size, MADV_NORMAL);
+	(void)shim_madvise(((uint8_t *)buf) + 1, page_size, SHIM_MADV_NORMAL);
 #endif
 #if defined(_POSIX_MEMLOCK_RANGE) &&	\
     defined(HAVE_MLOCK) &&		\
@@ -310,10 +310,10 @@ static void *stress_madvise_pages(void *arg)
 		ret = shim_mlock(buf, page_size);
 		if (ret == 0) {
 #if defined(MADV_REMOVE)
-			(void)shim_madvise(buf, page_size, MADV_REMOVE);
+			(void)shim_madvise(buf, page_size, SHIM_MADV_REMOVE);
 #endif
 #if defined(MADV_DONTNEED)
-			(void)shim_madvise(buf, page_size, MADV_DONTNEED);
+			(void)shim_madvise(buf, page_size, SHIM_MADV_DONTNEED);
 #endif
 			shim_munlock(buf, page_size);
 		}
@@ -331,7 +331,7 @@ static void *stress_madvise_pages(void *arg)
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 		if (unmapped != MAP_FAILED) {
 			(void)stress_munmap_force(unmapped, page_size);
-			(void)shim_madvise(unmapped, page_size, MADV_NORMAL);
+			(void)shim_madvise(unmapped, page_size, SHIM_MADV_NORMAL);
 		}
 	}
 #endif
