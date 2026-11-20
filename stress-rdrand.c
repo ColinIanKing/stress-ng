@@ -106,6 +106,7 @@ static int stress_rdrand_supported(const char *name)
 	if (stress_cpu_is_power9() ||
 	    stress_cpu_is_power10() ||
 	    stress_cpu_is_power11()) {
+		rdrand_supported = true;
 		return 0;
 	}
 	pr_inf_skip("%s stressor will be skipped, cannot detect if the CPU "
