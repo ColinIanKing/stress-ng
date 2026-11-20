@@ -719,7 +719,7 @@ static int stress_cpu_cache_get_x86(stress_cpu_cache_cpu_t *cpu)
 			cpu->caches[i].level = (eax >> 5) & 0x7;
 			cpu->caches[i].line_size = ((ebx >> 0) & 0xfff) + 1;
 			if ((cpu->caches[i].line_size > 0) && (cpu->caches[i].level == 1))
-				stress_cpu_cache_line_size_set((uint32_t)cpu->caches[i].line_size);
+				stress_cpu_cache_line_size_set(cpu->caches[i].line_size);
 			cpu->caches[i].ways = ((ebx >> 22) & 0x3ff) + 1;
 			cpu->caches[i].size = ((uint64_t)(((ebx >> 12) & 0x3ff) + 1) *
 					cpu->caches[i].line_size *
