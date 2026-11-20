@@ -1092,56 +1092,16 @@ int shim_sysfs(int option, ...)
 }
 
 /*
- *  shim_madvise()
- *	wrapper for madvise(2) - get filesystem type information
+ *  shim_madvise_to_posix()
+ *	madvise to POSIX madvise helper
  */
-int shim_madvise(void *addr, size_t length, int advice)
+static int shim_madvise_to_posix(void *addr, size_t length, int advice)
 {
-#if defined(HAVE_MADVISE)
-	int madvice;
-
-	switch (advice) {
-#if defined(POSIX_MADV_NORMAL) &&	\
-    defined(MADV_NORMAL)
-	case POSIX_MADV_NORMAL:
-		madvice = MADV_NORMAL;
-		break;
-#endif
-#if defined(POSIX_MADV_SEQUENTIAL) &&	\
-    defined(MADV_SEQUENTIAL)
-	case POSIX_MADV_SEQUENTIAL:
-		madvice = MADV_SEQUENTIAL;
-		break;
-#endif
-#if defined(POSIX_MADV_RANDOM) &&	\
-    defined(MADV_RANDOM)
-	case POSIX_MADV_RANDOM:
-		madvice = MADV_RANDOM;
-		break;
-#endif
-#if defined(POSIX_MADV_WILLNEED) &&	\
-    defined(MADV_WILLNEED)
-	case POSIX_MADV_WILLNEED:
-		madvice = MADV_WILLNEED;
-		break;
-#endif
-#if defined(POSIX_MADV_DONTNEED) &&	\
-    defined(MADV_DONTNEED)
-	case POSIX_MADV_DONTNEED:
-		madvice = MADV_DONTNEED;
-		break;
-#endif
-	default:
-		madvice = advice;
-		break;
-	}
-	return (int)madvise(addr, length, madvice);
-#elif defined(__NR_madvise) &&	\
-      defined(HAVE_SYSCALL)
-	return (int)syscall(__NR_madvise, addr, length, advice);
-#elif defined(HAVE_POSIX_MADVISE)
+#if defined(HAVE_POSIX_MADVISE)
 	int posix_advice;
 	int ret;
+
+	pr_inf("shim_madvise_to_posix()\n");
 
 	switch (advice) {
 #if defined(POSIX_MADV_NORMAL) &&	\
@@ -1185,6 +1145,71 @@ int shim_madvise(void *addr, size_t length, int advice)
 		return -1;
 	}
 	return 0;
+#else
+	errno = shim_enosys(0, addr, length, advice);
+	return -1;
+#endif
+}
+
+/*
+ *  shim_madvise()
+ *	wrapper for madvise(2)
+ */
+int shim_madvise(void *addr, size_t length, int advice)
+{
+#if defined(HAVE_MADVISE)
+	int madvice;
+	int ret;
+
+	switch (advice) {
+#if defined(POSIX_MADV_NORMAL) &&	\
+    defined(MADV_NORMAL)
+	case POSIX_MADV_NORMAL:
+		madvice = MADV_NORMAL;
+		break;
+#endif
+#if defined(POSIX_MADV_SEQUENTIAL) &&	\
+    defined(MADV_SEQUENTIAL)
+	case POSIX_MADV_SEQUENTIAL:
+		madvice = MADV_SEQUENTIAL;
+		break;
+#endif
+#if defined(POSIX_MADV_RANDOM) &&	\
+    defined(MADV_RANDOM)
+	case POSIX_MADV_RANDOM:
+		madvice = MADV_RANDOM;
+		break;
+#endif
+#if defined(POSIX_MADV_WILLNEED) &&	\
+    defined(MADV_WILLNEED)
+	case POSIX_MADV_WILLNEED:
+		madvice = MADV_WILLNEED;
+		break;
+#endif
+#if defined(POSIX_MADV_DONTNEED) &&	\
+    defined(MADV_DONTNEED)
+	case POSIX_MADV_DONTNEED:
+		madvice = MADV_DONTNEED;
+		break;
+#endif
+	default:
+		madvice = advice;
+		break;
+	}
+	ret = madvise(addr, length, madvice);
+	/* no madvise? try posix variant */
+	if ((ret < 0) && (errno == ENOSYS))
+		return shim_madvise_to_posix(addr, length, advice);
+	return ret;
+#elif defined(__NR_madvise) &&	\
+      defined(HAVE_SYSCALL)
+	int ret;
+
+	ret = syscall(__NR_madvise, addr, length, advice);
+	/* no madvise? try posix variant */
+	if ((ret < 0) && (errno == ENOSYS))
+		ret = shim_madvise_to_posix(addr, length, advice);
+	return ret;
 #else
 	return (int)shim_enosys(0, addr, length, advice);
 #endif
