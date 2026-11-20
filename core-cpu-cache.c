@@ -23,6 +23,7 @@
 #include "core-asm-x86.h"
 #include "core-arch.h"
 #include "core-builtin.h"
+#include "core-cpu.h"
 #include "core-cpu-cache.h"
 
 #include <ctype.h>
@@ -89,7 +90,14 @@ uint32_t stress_cpu_cache_line_size_get(void)
 	stress_cpu_cache_line_size = 16;
 #elif defined(STRESS_ARCH_PPC64)
 	/* power7 and up has a 128 byte L1 cache line size */
-	stress_cpu_cache_line_size = 128;
+	if (stress_cpu_is_power7() ||
+	    stress_cpu_is_power8() ||
+	    stress_cpu_is_power9() ||
+	    stress_cpu_is_power10() ||
+	    stress_cpu_is_power11())
+		stress_cpu_cache_line_size = 128;
+	else
+		stress_cpu_cache_line_size = 64;
 #elif defined(STRESS_ARCH_PPC)
 	stress_cpu_cache_line_size = 32;
 #elif defined(STRESS_ARCH_RISCV)
