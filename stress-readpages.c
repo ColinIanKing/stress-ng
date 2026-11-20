@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-asm-generic.h"
 #include "core-builtin.h"
 #include "core-cpu-cache.h"
 #include "core-madvise.h"
@@ -105,28 +106,16 @@ static void OPTIMIZE3 stress_readpages_mapping_prefetch(
 			(void)*(ptr + 1);
 			(void)*(ptr + 2);
 			(void)*(ptr + 3);
-			ptr += 4;
+			stress_asm_mb();
 
-			shim_builtin_prefetch(PTR_OFFSET(ptr), PREFETCH_RD, PREFETCH_LOCALIITY);
-			(void)*(ptr + 0);
-			(void)*(ptr + 1);
-			(void)*(ptr + 2);
-			(void)*(ptr + 3);
-			ptr += 4;
+			shim_builtin_prefetch(PTR_OFFSET(ptr + 4), PREFETCH_RD, PREFETCH_LOCALIITY);
+			(void)*(ptr + 4);
+			(void)*(ptr + 5);
+			(void)*(ptr + 6);
+			(void)*(ptr + 7);
+			stress_asm_mb();
 
-			shim_builtin_prefetch(PTR_OFFSET(ptr), PREFETCH_RD, PREFETCH_LOCALIITY);
-			(void)*(ptr + 0);
-			(void)*(ptr + 1);
-			(void)*(ptr + 2);
-			(void)*(ptr + 3);
-			ptr += 4;
-
-			shim_builtin_prefetch(PTR_OFFSET(ptr), PREFETCH_RD, PREFETCH_LOCALIITY);
-			(void)*(ptr + 0);
-			(void)*(ptr + 1);
-			(void)*(ptr + 2);
-			(void)*(ptr + 3);
-			ptr += 4;
+			ptr += 8;
 		}
 	}
 }
@@ -150,25 +139,12 @@ static void OPTIMIZE3 stress_readpages_mapping(
 			(void)*(ptr + 1);
 			(void)*(ptr + 2);
 			(void)*(ptr + 3);
-			ptr += 4;
+			(void)*(ptr + 4);
+			(void)*(ptr + 5);
+			(void)*(ptr + 6);
+			(void)*(ptr + 7);
 
-			(void)*(ptr + 0);
-			(void)*(ptr + 1);
-			(void)*(ptr + 2);
-			(void)*(ptr + 3);
-			ptr += 4;
-
-			(void)*(ptr + 0);
-			(void)*(ptr + 1);
-			(void)*(ptr + 2);
-			(void)*(ptr + 3);
-			ptr += 4;
-
-			(void)*(ptr + 0);
-			(void)*(ptr + 1);
-			(void)*(ptr + 2);
-			(void)*(ptr + 3);
-			ptr += 4;
+			ptr += 8;
 		}
 	}
 }
@@ -198,40 +174,20 @@ static void OPTIMIZE3 stress_readpages_mapping_prefetch(
 			(void)*(ptr + 5);
 			(void)*(ptr + 6);
 			(void)*(ptr + 7);
-			ptr += 8;
+			stress_asm_mb();
 
-			shim_builtin_prefetch(PTR_OFFSET(ptr), PREFETCH_RD, PREFETCH_LOCALIITY);
-			(void)*(ptr + 0);
-			(void)*(ptr + 1);
-			(void)*(ptr + 2);
-			(void)*(ptr + 3);
-			(void)*(ptr + 4);
-			(void)*(ptr + 5);
-			(void)*(ptr + 6);
-			(void)*(ptr + 7);
-			ptr += 8;
+			shim_builtin_prefetch(PTR_OFFSET(ptr + 8), PREFETCH_RD, PREFETCH_LOCALIITY);
+			(void)*(ptr + 8);
+			(void)*(ptr + 9);
+			(void)*(ptr + 10);
+			(void)*(ptr + 11);
+			(void)*(ptr + 12);
+			(void)*(ptr + 13);
+			(void)*(ptr + 14);
+			(void)*(ptr + 15);
+			stress_asm_mb();
 
-			shim_builtin_prefetch(PTR_OFFSET(ptr), PREFETCH_RD, PREFETCH_LOCALIITY);
-			(void)*(ptr + 0);
-			(void)*(ptr + 1);
-			(void)*(ptr + 2);
-			(void)*(ptr + 3);
-			(void)*(ptr + 4);
-			(void)*(ptr + 5);
-			(void)*(ptr + 6);
-			(void)*(ptr + 7);
-			ptr += 8;
-
-			shim_builtin_prefetch(PTR_OFFSET(ptr), PREFETCH_RD, PREFETCH_LOCALIITY);
-			(void)*(ptr + 0);
-			(void)*(ptr + 1);
-			(void)*(ptr + 2);
-			(void)*(ptr + 3);
-			(void)*(ptr + 4);
-			(void)*(ptr + 5);
-			(void)*(ptr + 6);
-			(void)*(ptr + 7);
-			ptr += 8;
+			ptr += 16;
 		}
 	}
 }
@@ -259,37 +215,16 @@ static void OPTIMIZE3 stress_readpages_mapping(
 			(void)*(ptr + 5);
 			(void)*(ptr + 6);
 			(void)*(ptr + 7);
-			ptr += 8;
+			(void)*(ptr + 8);
+			(void)*(ptr + 9);
+			(void)*(ptr + 10);
+			(void)*(ptr + 11);
+			(void)*(ptr + 12);
+			(void)*(ptr + 13);
+			(void)*(ptr + 14);
+			(void)*(ptr + 15);
 
-			(void)*(ptr + 0);
-			(void)*(ptr + 1);
-			(void)*(ptr + 2);
-			(void)*(ptr + 3);
-			(void)*(ptr + 4);
-			(void)*(ptr + 5);
-			(void)*(ptr + 6);
-			(void)*(ptr + 7);
-			ptr += 8;
-
-			(void)*(ptr + 0);
-			(void)*(ptr + 1);
-			(void)*(ptr + 2);
-			(void)*(ptr + 3);
-			(void)*(ptr + 4);
-			(void)*(ptr + 5);
-			(void)*(ptr + 6);
-			(void)*(ptr + 7);
-			ptr += 8;
-
-			(void)*(ptr + 0);
-			(void)*(ptr + 1);
-			(void)*(ptr + 2);
-			(void)*(ptr + 3);
-			(void)*(ptr + 4);
-			(void)*(ptr + 5);
-			(void)*(ptr + 6);
-			(void)*(ptr + 7);
-			ptr += 8;
+			ptr += 16;
 		}
 	}
 }
