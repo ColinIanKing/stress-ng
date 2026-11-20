@@ -4116,7 +4116,7 @@ static int syscall_msgrcv(void)
 		long int mtype;
 		uint32_t value;
 	};
-	
+
 	struct syscall_msgbuf msg_snd;
 	struct syscall_msgbuf msg_rcv;
 
