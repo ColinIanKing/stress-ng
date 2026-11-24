@@ -982,6 +982,7 @@ static int stress_memthrash_child(stress_args_t *args, void *ctxt)
 	stress_memthrash_context_t *context = (stress_memthrash_context_t *)ctxt;
 	const uint32_t max_threads = context->max_threads;
 	uint32_t i;
+	uint32_t n;
 	int ret;
 	stress_pthread_info_t *pthread_info;
 
@@ -991,6 +992,9 @@ static int stress_memthrash_child(stress_args_t *args, void *ctxt)
 			args->name, stress_memory_free_get());
 		return EXIT_NO_RESOURCE;
 	}
+
+	for (i = 0; i < max_threads; i++)
+		pthread_info[i].ret = -1;
 
 	VOID_RET(int, stress_signal_handler(args->name, SIGALRM, stress_memthrash_sigalrm_handler, NULL));
 
@@ -1016,12 +1020,12 @@ mmap_retry:
 	(void)stress_madvise_mergeable(mem, MEM_SIZE);
 	(void)stress_madvise_nohugepage(mem, MEM_SIZE);
 
-	for (i = 0; i < max_threads; i++) {
-		pthread_info[i].ret = pthread_create(&pthread_info[i].pthread,
+	for (n = 0; n < max_threads; n++) {
+		pthread_info[n].ret = pthread_create(&pthread_info[n].pthread,
 						NULL, stress_memthrash_func,
 						(void *)context);
-		if (pthread_info[i].ret) {
-			ret = pthread_info[i].ret;
+		if (pthread_info[n].ret) {
+			ret = pthread_info[n].ret;
 
 			/* Just give up and go to next thread */
 			if (ret == EAGAIN)
@@ -1039,7 +1043,7 @@ mmap_retry:
 
 reap:
 	thread_terminate = true;
-	for (i = 0; i < max_threads; i++) {
+	for (i = 0; i < n; i++) {
 		if (!pthread_info[i].ret) {
 			pthread_info[i].ret = pthread_join(pthread_info[i].pthread, NULL);
 			if (pthread_info[i].ret && (pthread_info[i].ret != ESRCH)) {
