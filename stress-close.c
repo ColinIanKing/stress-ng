@@ -287,9 +287,9 @@ static int stress_close(stress_args_t *args)
 {
 	stress_pthread_args_t pargs;
 	pthread_t pthread[MAX_PTHREADS];
+	int rets[MAX_PTHREADS];
 	int rc = EXIT_NO_RESOURCE;
 	int ret;
-	int rets[MAX_PTHREADS];
 	const int bad_fd = stress_fs_bad_fd_get();
 	size_t i;
 	const uid_t uid = getuid();
@@ -568,12 +568,12 @@ tidy:
 	stress_metrics_set(args, "close calls per sec", rate, STRESS_METRIC_HARMONIC_MEAN);
 
 	for (i = 0; i < MAX_PTHREADS; i++) {
-		if (rets[i] == -1)
-			continue;
-		ret = pthread_join(pthread[i], NULL);
-		if ((ret) && (ret != ESRCH)) {
-			pr_fail("%s: pthread_join failed (parent), errno=%d (%s)\n",
-				args->name, ret, strerror(ret));
+		if (rets[i] == 0) {
+			ret = pthread_join(pthread[i], NULL);
+			if ((ret) && (ret != ESRCH)) {
+				pr_fail("%s: pthread_join failed (parent), errno=%d (%s)\n",
+					args->name, ret, strerror(ret));
+			}
 		}
 	}
 
