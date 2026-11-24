@@ -60,6 +60,7 @@ typedef struct {
 #endif
 	uint32_t max_residency;
 	int mask;
+	int ret;
 } stress_ctxt_t;
 
 static volatile bool thread_terminate;
@@ -297,17 +298,17 @@ static int stress_nanosleep(stress_args_t *args)
 		ctxts[n].mask = mask;
 		ctxts[n].cstate_list = cstate_list;
 
-		ret = pthread_create(&ctxts[n].pthread, NULL,
+		ctxts[n].ret = pthread_create(&ctxts[n].pthread, NULL,
 			stress_nanosleep_pthread, &ctxts[n]);
-		if (ret) {
+		if (ctxts[n].ret) {
 			/* Out of resources, don't try any more */
-			if (ret == EAGAIN) {
+			if (ctxts[n].ret == EAGAIN) {
 				limited++;
 				break;
 			}
 			/* Something really unexpected */
 			pr_err("%s: pthread create failed, errno=%d (%s)\n",
-				args->name, ret, strerror(ret));
+				args->name, ctxts[n].ret, strerror(ret));
 			ret = EXIT_NO_RESOURCE;
 			goto tidy;
 		}
@@ -334,7 +335,8 @@ tidy:
 
 	thread_terminate = true;
 	for (i = 0; i < n; i++) {
-		VOID_RET(int, pthread_join(ctxts[i].pthread, NULL));
+		if (ctxts[i].ret == 0)
+			VOID_RET(int, pthread_join(ctxts[i].pthread, NULL));
 	}
 
 #if defined(HAVE_CLOCK_GETTIME) &&	\
