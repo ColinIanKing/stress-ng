@@ -165,6 +165,7 @@ static void OPTIMIZE3 *stress_mutex_exercise(void *arg)
 static int stress_mutex(stress_args_t *args)
 {
 	size_t i;
+	size_t n;
 	bool created = false;
 	int prio_min;
 	int prio_max;
@@ -231,18 +232,18 @@ static int stress_mutex(stress_args_t *args)
 	for (i = 0; i < mutex_procs; i++)
 		pthread_info[i].ret = -1;
 
-	for (i = 0; i < mutex_procs; i++) {
-		pthread_info[i].args = args;
-		pthread_info[i].prio_min = prio_min;
-		pthread_info[i].prio_max = prio_max;
-		pthread_info[i].mutex_affinity = mutex_affinity;
-		pthread_info[i].lock_duration = 0.0;
-		pthread_info[i].lock_count = 0.0;
-		pthread_info[i].ret = pthread_create(&pthread_info[i].pthread, NULL,
-                                stress_mutex_exercise, (void *)&pthread_info[i]);
-		if ((pthread_info[i].ret) && (pthread_info[i].ret != EAGAIN)) {
+	for (n = 0; n < mutex_procs; n++) {
+		pthread_info[n].args = args;
+		pthread_info[n].prio_min = prio_min;
+		pthread_info[n].prio_max = prio_max;
+		pthread_info[n].mutex_affinity = mutex_affinity;
+		pthread_info[n].lock_duration = 0.0;
+		pthread_info[n].lock_count = 0.0;
+		pthread_info[n].ret = pthread_create(&pthread_info[n].pthread, NULL,
+                                stress_mutex_exercise, (void *)&pthread_info[n]);
+		if ((pthread_info[n].ret) && (pthread_info[n].ret != EAGAIN)) {
 			pr_fail("%s: pthread create failed, errno=%d (%s)\n",
-				args->name, pthread_info[i].ret, strerror(pthread_info[i].ret));
+				args->name, pthread_info[n].ret, strerror(pthread_info[n].ret));
 			break;
 		}
 		created = true;
@@ -265,14 +266,13 @@ static int stress_mutex(stress_args_t *args)
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
-	for (i = 0; i < mutex_procs; i++) {
-		if (pthread_info[i].ret)
-			continue;
+	for (i = 0; i < n; i++) {
+		if (pthread_info[i].ret == 0) {
+			VOID_RET(int, pthread_join(pthread_info[i].pthread, NULL));
 
-		VOID_RET(int, pthread_join(pthread_info[i].pthread, NULL));
-
-		duration += pthread_info[i].lock_duration;
-		count += pthread_info[i].lock_count;
+			duration += pthread_info[i].lock_duration;
+			count += pthread_info[i].lock_count;
+		}
 	}
 	(void)pthread_mutex_destroy(&mutex);
 
