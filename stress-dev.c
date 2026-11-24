@@ -4773,8 +4773,6 @@ static inline void stress_sys_dev_infos_free(sys_dev_info_t **list)
  */
 static int stress_dev(stress_args_t *args)
 {
-	pthread_t pthreads[STRESS_DEV_THREADS_MAX];
-	int ret[STRESS_DEV_THREADS_MAX];
 	int rc = EXIT_SUCCESS;
 	stress_pthread_args_t pa;
 	char *dev_file = NULL;
@@ -4795,8 +4793,6 @@ static int stress_dev(stress_args_t *args)
 
 	pthread_dev_info = &dev_null;
 	pa.args = args;
-
-	(void)shim_memset(ret, 0, sizeof(ret));
 
 	(void)stress_setting_get("dev-alldev", &dev_alldev);
 	(void)stress_setting_get("dev-file", &dev_file);
@@ -4886,6 +4882,8 @@ static int stress_dev(stress_args_t *args)
 				}
 			}
 		} else {
+			pthread_t pthreads[STRESS_DEV_THREADS_MAX];
+			int ret[STRESS_DEV_THREADS_MAX];
 			size_t i;
 			int r;
 			sys_dev_info_t *sys_dev_info = sys_dev_info_list;
@@ -4894,6 +4892,10 @@ static int stress_dev(stress_args_t *args)
 			stress_make_it_fail_set();
 			stress_parent_died_alarm();
 			(void)stress_sched_settings_apply(true);
+
+			for (i = 0; i < STRESS_DEV_THREADS_MAX; i++)
+				ret[i] = -1;
+
 			rc = shim_pthread_spin_init(&lock, SHIM_PTHREAD_PROCESS_SHARED);
 			if (rc) {
 				pr_inf("%s: pthread_spin_init failed, errno=%d (%s)\n",
