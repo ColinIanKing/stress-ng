@@ -273,7 +273,7 @@ static int stress_fstat_threads(stress_args_t *args, stress_stat_info_t *si, con
 	for (i = 0; i < MAX_FSTAT_THREADS; i++) {
 		if (pthreads[i].create_ret == 0) {
 			(void)pthread_join(pthreads[i].pthread, NULL);
-			if (pthreads[i].pthread_ret < 0)
+			if (pthreads[i].pthread_ret != 0)
 				rc = EXIT_FAILURE;
 		}
 	}
