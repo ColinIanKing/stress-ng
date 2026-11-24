@@ -207,6 +207,7 @@ static int stress_sem(stress_args_t *args)
 {
 	uint64_t semaphore_posix_procs = DEFAULT_SEM_POSIX_PROCS;
 	uint64_t i;
+	uint64_t n;
 	double wait_count = 0;
 	double trywait_count = 0;
 	double timedwait_count = 0;
@@ -250,21 +251,24 @@ static int stress_sem(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
+	for (i = 0; i < semaphore_posix_procs; i++)
+		sem_pthreads[i].ret = -1;
+
 	t = stress_time_now();
-	for (i = 0; i < semaphore_posix_procs; i++) {
-		sem_pthreads[i].trywait_count = 0.0;
-		sem_pthreads[i].timedwait_count = 0.0;
-		sem_pthreads[i].wait_count = 0.0;
+	for (n = 0; n < semaphore_posix_procs; n++) {
+		sem_pthreads[n].trywait_count = 0.0;
+		sem_pthreads[n].timedwait_count = 0.0;
+		sem_pthreads[n].wait_count = 0.0;
 
-		sem_pthread_args[i].args = args;
-		sem_pthread_args[i].data = &sem_pthreads[i];
-		sem_pthread_args[i].pthread_ret = 0;
+		sem_pthread_args[n].args = args;
+		sem_pthread_args[n].data = &sem_pthreads[i];
+		sem_pthread_args[n].pthread_ret = 0;
 
-		sem_pthreads[i].ret = pthread_create(&sem_pthreads[i].pthread, NULL,
-                                stress_sem_thrash, (void *)&sem_pthread_args[i]);
-		if ((sem_pthreads[i].ret) && (sem_pthreads[i].ret != EAGAIN)) {
+		sem_pthreads[n].ret = pthread_create(&sem_pthreads[n].pthread, NULL,
+                                stress_sem_thrash, (void *)&sem_pthread_args[n]);
+		if ((sem_pthreads[n].ret) && (sem_pthreads[n].ret != EAGAIN)) {
 			pr_fail("%s: pthread create failed, errno=%d (%s)\n",
-				args->name, sem_pthreads[i].ret, strerror(sem_pthreads[i].ret));
+				args->name, sem_pthreads[n].ret, strerror(sem_pthreads[n].ret));
 			break;
 		}
 		if (UNLIKELY(!stress_continue_flag()))
@@ -283,16 +287,15 @@ static int stress_sem(stress_args_t *args)
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
-	for (i = 0; i < semaphore_posix_procs; i++) {
-		if (sem_pthreads[i].ret)
-			continue;
+	for (i = 0; i < n; i++) {
+		if (sem_pthreads[i].ret == 0) {
+			VOID_RET(int, pthread_cancel(sem_pthreads[i].pthread));
+			VOID_RET(int, pthread_join(sem_pthreads[i].pthread, NULL));
 
-		VOID_RET(int, pthread_cancel(sem_pthreads[i].pthread));
-		VOID_RET(int, pthread_join(sem_pthreads[i].pthread, NULL));
-
-		trywait_count += sem_pthreads[i].trywait_count;
-		timedwait_count += sem_pthreads[i].timedwait_count;
-		wait_count += sem_pthreads[i].wait_count;
+			trywait_count += sem_pthreads[i].trywait_count;
+			timedwait_count += sem_pthreads[i].timedwait_count;
+			wait_count += sem_pthreads[i].wait_count;
+		}
 	}
 	duration = stress_time_now() - t;
 	if (duration > 0.0) {
