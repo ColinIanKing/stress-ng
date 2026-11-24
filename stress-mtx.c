@@ -109,6 +109,7 @@ static void OPTIMIZE3 *mtx_exercise(void *arg)
 static int stress_mtx(stress_args_t *args)
 {
 	size_t i;
+	size_t n;
 	bool created = false;
 	pthread_info_t pthread_info[MAX_MTX_PROCS];
 	uint64_t mtx_procs = DEFAULT_MTX_PROCS;
@@ -134,15 +135,18 @@ static int stress_mtx(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
-	for (i = 0; i < mtx_procs; i++) {
-		pthread_info[i].args = args;
-		pthread_info[i].lock_duration = 0.0;
-		pthread_info[i].lock_count = 0.0;
-		pthread_info[i].ret = pthread_create(&pthread_info[i].pthread, NULL,
-                                mtx_exercise, (void *)&pthread_info[i]);
-		if ((pthread_info[i].ret) && (pthread_info[i].ret != EAGAIN)) {
+	for (i = 0; i < mtx_procs; i++)
+		pthread_info[i].ret = -1;
+
+	for (n = 0; n < mtx_procs; n++) {
+		pthread_info[n].args = args;
+		pthread_info[n].lock_duration = 0.0;
+		pthread_info[n].lock_count = 0.0;
+		pthread_info[n].ret = pthread_create(&pthread_info[n].pthread, NULL,
+                                mtx_exercise, (void *)&pthread_info[n]);
+		if ((pthread_info[n].ret) && (pthread_info[n].ret != EAGAIN)) {
 			pr_fail("%s: pthread create failed, errno=%d (%s)\n",
-				args->name, pthread_info[i].ret, strerror(pthread_info[i].ret));
+				args->name, pthread_info[n].ret, strerror(pthread_info[n].ret));
 			break;
 		}
 		if (UNLIKELY(!stress_continue_flag()))
@@ -161,13 +165,12 @@ static int stress_mtx(stress_args_t *args)
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
-	for (i = 0; i < mtx_procs; i++) {
-		if (pthread_info[i].ret)
-			continue;
-
-		VOID_RET(int, pthread_join(pthread_info[i].pthread, NULL));
-		duration += pthread_info[i].lock_duration;
-		count += pthread_info[i].lock_count;
+	for (i = 0; i < n; i++) {
+		if (pthread_info[i].ret == 0) {
+			VOID_RET(int, pthread_join(pthread_info[i].pthread, NULL));
+			duration += pthread_info[i].lock_duration;
+			count += pthread_info[i].lock_count;
+		}
 	}
 	mtx_destroy(&mtx);
 
