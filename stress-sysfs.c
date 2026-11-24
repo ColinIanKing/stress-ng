@@ -689,9 +689,7 @@ static int stress_sysfs(stress_args_t *args)
 	int i;
 	int n;
 	int rc = EXIT_SUCCESS;
-	pthread_t pthreads[MAX_SYSFS_THREADS];
 	int ret;
-	int pthreads_ret[MAX_SYSFS_THREADS];
 	stress_ctxt_t *ctxt;
 	struct dirent **dlist = NULL;
 	double t;
@@ -770,8 +768,6 @@ static int stress_sysfs(stress_args_t *args)
 		goto exit_destroy_open_lock;
 	}
 
-	(void)shim_memset(pthreads_ret, 0, sizeof(pthreads_ret));
-
 	stress_proc_state_set(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
@@ -826,6 +822,9 @@ static int stress_sysfs(stress_args_t *args)
 				}
 			}
 		} else {
+			pthread_t pthreads[MAX_SYSFS_THREADS];
+			int pthreads_ret[MAX_SYSFS_THREADS];
+
 			/* Child, spawn threads for sysfs stressing */
 
 			stress_proc_state_set(args->name, STRESS_STATE_RUN);
