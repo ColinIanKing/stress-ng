@@ -44,6 +44,7 @@ typedef struct {
 	uint64_t underruns;
 	uint32_t *cpus;
 	uint32_t n_cpus;
+	int ret;
 	bool sleep_affinity;
 } stress_ctxt_t;
 
@@ -472,6 +473,9 @@ static int stress_sleep(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
+	for (i = 0; i < sleep_max; i++)
+		ctxts[i].ret = -1;
+
 	for (n = 0; n < sleep_max; n++) {
 		ctxts[n].args = args;
 		ctxts[n].sleep_max = sleep_max;
@@ -482,17 +486,17 @@ static int stress_sleep(stress_args_t *args)
 		ctxts[n].n_cpus = n_cpus;
 #endif
 		ctxts[n].sleep_affinity = sleep_affinity;
-		ret = pthread_create(&ctxts[n].pthread, NULL,
+		ctxts[n].ret = pthread_create(&ctxts[n].pthread, NULL,
 			stress_pthread_func, &ctxts[n]);
-		if (ret) {
+		if (ctxts[n].ret) {
 			/* Out of resources, don't try any more */
-			if (ret == EAGAIN) {
+			if (ctxts[n].ret == EAGAIN) {
 				limited++;
 				break;
 			}
 			/* Something really unexpected */
 			pr_fail("%s: pthread create failed, errno=%d (%s)\n",
-				args->name, ret, strerror(ret));
+				args->name, ctxts[n].ret, strerror(ctxts[n].ret));
 			ret = EXIT_NO_RESOURCE;
 			goto tidy;
 		}
@@ -512,8 +516,10 @@ tidy:
 
 	thread_terminate = true;
 	for (i = 0; i < n; i++) {
-		VOID_RET(int, pthread_join(ctxts[i].pthread, NULL));
-		underruns += ctxts[i].underruns;
+		if (ctxts[i].ret == 0) {
+			VOID_RET(int, pthread_join(ctxts[i].pthread, NULL));
+			underruns += ctxts[i].underruns;
+		}
 	}
 
 	if (underruns) {
