@@ -420,6 +420,7 @@ static int stress_tlb_numa(stress_args_t *args)
 	size_t tlb_entries = DEFAULT_TLB_NUMA_ENTRIES;
 	size_t size;
 	size_t i;
+	size_t n;
 	uint32_t prev_cpu = 0;
 	int rc = EXIT_SUCCESS;
 
@@ -568,12 +569,15 @@ static int stress_tlb_numa(stress_args_t *args)
 		stress_memory_usage_get(args, usage, usage * args->instances);
 	}
 
-	for (i = 0; i < TLB_NUMA_PTHREADS; i++) {
-		pthreads[i].ret = pthread_create(&pthreads[i].pthread, NULL,
-				stress_tlb_pthreads[i], (void *)&tlb_numa);
-		if (UNLIKELY(pthreads[i].ret)) {
+	for (i = 0; i < TLB_NUMA_PTHREADS; i++)
+		pthreads[i].ret = -1;
+
+	for (n = 0; n < TLB_NUMA_PTHREADS; n++) {
+		pthreads[n].ret = pthread_create(&pthreads[n].pthread, NULL,
+				stress_tlb_pthreads[n], (void *)&tlb_numa);
+		if (UNLIKELY(pthreads[n].ret)) {
 			pr_fail("%s: pthread_create failed, errno=%d (%s)\n",
-				args->name, pthreads[i].ret, strerror(pthreads[i].ret));
+				args->name, pthreads[n].ret, strerror(pthreads[n].ret));
 			rc = EXIT_NO_RESOURCE;
 			goto err_reap;
 		}
@@ -631,7 +635,7 @@ static int stress_tlb_numa(stress_args_t *args)
 
 
 err_reap:
-	for (i = 0; i < TLB_NUMA_PTHREADS; i++) {
+	for (i = 0; i < n; i++) {
 		if (pthreads[i].ret == 0) {
 			(void)pthread_cancel(pthreads[i].pthread);
 			(void)pthread_join(pthreads[i].pthread, NULL);
