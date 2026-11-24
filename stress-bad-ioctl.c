@@ -674,7 +674,6 @@ static void stress_bad_ioctl_dir(
  */
 static int stress_bad_ioctl(stress_args_t *args)
 {
-	stress_bad_ioctl_thread_t threads[MAX_DEV_THREADS];
 	int rc = EXIT_SUCCESS;
 	int bad_ioctl_method = STRESS_BAD_IOCTL_CMD_RANDOM_INC;
 	bool bad_ioctl_alldev = false;
@@ -728,6 +727,7 @@ static int stress_bad_ioctl(stress_args_t *args)
 				}
 			}
 		} else if (pid == 0) {
+			stress_bad_ioctl_thread_t threads[MAX_DEV_THREADS];
 			size_t i;
 			int r;
 			int ssjret;
