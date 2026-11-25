@@ -30,7 +30,7 @@
 #define MAX_MS		(1000)
 #define DEFAULT_MS	(100)
 
-#define MIN_STRIDE	(1)
+#define MIN_STRIDE	(0)
 #define MAX_STRIDE	(256)
 #define DEFAULT_STRIDE	(1)
 
