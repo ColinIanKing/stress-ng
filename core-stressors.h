@@ -99,6 +99,7 @@
 	MACRO(expmath)		\
 	MACRO(factor)		\
 	MACRO(fallocate)	\
+	MACRO(falsesharing)	\
 	MACRO(fanotify)		\
 	MACRO(far_branch)	\
 	MACRO(fault)		\

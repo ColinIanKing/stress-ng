@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "12 November 2026"
+.TH STRESS-NG 1 "25 November 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -3491,6 +3491,35 @@ the suffix b, k, m or g.
 .TP
 .B \-\-fallocate\-ops N
 stop fallocate stress workers after N bogo fallocate operations.
+.RE
+.TP
+.B Cache line false sharing stressor
+.RS 5
+.TQ
+.B \-\-falsesharing N
+start N workers that perform 8 bit atomic add operations on shared memory.
+Each instance iterates over 1 to the number of online CPUs and spawns
+that many pthreads to perform multiple back-to-back 8 bit atomic add
+operations. By default, each pthread operates on memory that is adjacent
+to the next pthread, this is a a falsesharing\-stride of 1 byte. The stressor
+is intended to create a performance-degrading memory usage pattern that
+impacts cache and memory.
+.TP
+.B \-\-falsesharing\-ms N
+set the per pthread run duration to N milliseconds, the default is 100. Range
+100 to 1000. Making this larger may improve accuracy of the metrics but requires
+a longer run time to coveral all CPUs. Setting this smaller will reduce accuracy
+with larger share of run time will be related to pthread creation, synchronization
+and deletion.
+.TP
+.B \-\-falsesharing\-ops N
+stop after N falsesharing bogo operations.
+.TP
+.B \-\-falsesahring\-stride N
+specify stride in bytes between adjacent atomtic add operations. A stride of
+1 is the default (totally adjacent memory), range 1 to 256. A value of 0 will
+default to the L1 cache line size. A cache line sized stride will minimize
+the false sharing impact on the cache, a 1 byte stride maximizes the impact.
 .RE
 .TP
 .B Filesystem notification (fanotify) stressor

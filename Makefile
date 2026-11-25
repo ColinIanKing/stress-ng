@@ -590,6 +590,7 @@ STRESS_SRC = \
 	stress-expmath.c \
 	stress-factor.c \
 	stress-fallocate.c \
+	stress-falsesharing.c \
 	stress-fanotify.c \
 	stress-far-branch.c \
 	stress-fault.c \

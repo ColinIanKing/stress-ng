@@ -381,6 +381,11 @@ const struct option stress_long_options[] = {
 	{ "fallocate-bytes",	1,	NULL,	OPT_fallocate_bytes },
 	{ "fallocate-ops",	1,	NULL,	OPT_fallocate_ops },
 
+	{ "falsesharing",	1,	NULL,	OPT_falsesharing },
+	{ "falsesharing-ms",	1,	NULL, 	OPT_falsesharing_ms },
+	{ "falsesharing-ops",	1,	NULL,	OPT_falsesharing_ops },
+	{ "falsesharing-stride",1,	NULL,	OPT_falsesharing_stride },
+
 	{ "fanotify",		1,	NULL,	OPT_fanotify },
 	{ "fanotify-ops",	1,	NULL,	OPT_fanotify_ops },
 

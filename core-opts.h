@@ -502,6 +502,11 @@ typedef enum {
 	OPT_fallocate_bytes,
 	OPT_fallocate_ops,
 
+	OPT_falsesharing,
+	OPT_falsesharing_ms,
+	OPT_falsesharing_ops,
+	OPT_falsesharing_stride,
+
 	OPT_fanotify,
 	OPT_fanotify_ops,
 
