@@ -96,6 +96,15 @@ static int stress_dekker_p0(stress_args_t *args)
 		}
 	}
 
+#if defined(STRESS_ARCH_ARM) ||		\
+    defined(STRESS_ARCH_PPC64) ||	\
+    defined(STRESS_ARCH_PPC) ||		\
+    defined(STRESS_ARCH_RISCV)
+	/* ensure lock acquisition is ordered before critical section accesses */
+	shim_mfence();
+	dekker_mbarrier();
+#endif
+
 	/* Critical section */
 	check0 = dekker->m.check;
 	dekker->m.check++;
@@ -141,6 +150,15 @@ static int stress_dekker_p1(stress_args_t *args)
 			dekker_mbarrier();
 		}
 	}
+
+#if defined(STRESS_ARCH_ARM) ||		\
+    defined(STRESS_ARCH_PPC64) ||	\
+    defined(STRESS_ARCH_PPC) ||		\
+    defined(STRESS_ARCH_RISCV)
+	/* ensure lock acquisition is ordered before critical section accesses */
+	shim_mfence();
+	dekker_mbarrier();
+#endif
 
 	/* Critical section */
 	check0 = dekker->m.check;
