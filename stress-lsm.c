@@ -239,11 +239,13 @@ static int stress_lsm(stress_args_t *args)
 		rate, STRESS_METRIC_HARMONIC_MEAN);
 
 err:
-	pr_dbg("%s: got LSM IDs: undefined: %s, reserved: %s, defined: %s\n",
-		args->name,
-		lsm_id_undef ? "yes" : "no",
-		lsm_id_reserved ? "yes" : "no",
-		lsm_id_defined ? "yes" : "no");
+	if (stress_warn_once()) {
+		pr_dbg("%s: got LSM IDs: undefined: %s, reserved: %s, defined: %s\n",
+			args->name,
+			lsm_id_undef ? "yes" : "no",
+			lsm_id_reserved ? "yes" : "no",
+			lsm_id_defined ? "yes" : "no");
+	}
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 	(void)munmap(buf, buf_size);
