@@ -652,6 +652,7 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
  * [sched_ext: Handle proxy-exec races in remote DSQ transfers](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=13ae184e4b8279dcc7b84bf58e987a60d9aad69a)
  * [sched_ext: Don't leave balance callbacks queued across a pick retry](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=ff0545e0c263727b200f60af47d0364e4d041bde)
  * [mm/madvise: add cond_resched() in THP branch of madvise_cold_or_pageout_pte_range()](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=f5cfc8e3b20ad71949a1e5623ff45882c063a71b)
+ * [pinmem in ubuntu_stress_smoke_test failed on focal](https://bugs.launchpad.net/ubuntu-kernel-tests/+bug/2178215)
 
 ## Kernel improvements that used stress-ng
 
