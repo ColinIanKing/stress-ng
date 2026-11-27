@@ -124,55 +124,23 @@ static const stress_opt_t opts[] = {
  */
 static void stress_swap_self(const size_t page_size)
 {
-	char buffer[4096];
-	FILE *fp;
-	const uintmax_t max_addr = UINTMAX_MAX - (UINTMAX_MAX >> 1);
+	stress_mmaps_t mmaps;
+	size_t i;
 
-	fp = fopen("/proc/self/maps", "r");
-	if (!fp)
+	if (stress_mmaps_get(-1, page_size, 0, false, true, &mmaps) < 0)
 		return;
 
-	/*
-	 * Look for field 0060b000-0060c000 r--p 0000b000 08:01 1901726
-	 */
-	while (fgets(buffer, sizeof(buffer), fp)) {
-		uint64_t begin;
-		uint64_t end;
-		uint64_t len;
-		uint64_t offset;
-		char tmppath[1024];
-		char prot[6];
+	for (i = 0; i < mmaps.n_mmaps; i++) {
+		const stress_mmap_t *mmap = &mmaps.mmaps[i];
 
-		tmppath[0] = '\0';
-		if (sscanf(buffer, "%" SCNx64 "-%" SCNx64
-		           " %5s %" SCNx64 " %*x:%*x %*d %1023s", &begin, &end, prot, &offset, tmppath) != 5) {
-			continue;
-		}
-#if 0
-		if ((prot[2] != 'x') && (prot[1] != 'w'))
-			continue;
-		if (tmppath[0] == '\0')
-			continue;
-#endif
 		/* Avoid vdso and vvar */
-		if (shim_strncmp("[v", tmppath, 2) == 0)
+		if (shim_strncmp("[v", mmap->path, 2) == 0)
 			continue;
 
-		if ((begin > UINTPTR_MAX) || (end > UINTPTR_MAX))
-			continue;
-
-		/* Ignore bad ranges */
-		if ((begin >= end) || (begin == 0) || (end == 0) || (end >= max_addr))
-			continue;
-
-		len = end - begin;
-		/* Skip invalid ranges */
-		if ((len < page_size) || (len > 0x80000000UL))
-			continue;
-
-		(void)madvise((void *)(uintptr_t)begin, len, MADV_PAGEOUT);
+		(void)madvise((void *)mmap->mmap_begin, mmap->size, MADV_PAGEOUT);
 	}
-	(void)fclose(fp);
+
+	stress_mmaps_free(&mmaps);
 }
 #endif
 
