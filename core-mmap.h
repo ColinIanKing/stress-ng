@@ -43,6 +43,28 @@ typedef struct {
 	size_t pages_null;		/* number of pages with physical zero address */
 } stress_mmap_stats_t;
 
+#define STRESS_MMAP_READ	(0x01)
+#define STRESS_MMAP_WRITE	(0x02)
+#define STRESS_MMAP_EXEC	(0x04)
+#define STRESS_MMAP_PRIVATE	(0x08)
+#define STRESS_MMAP_SHARED	(0x10)
+#define STRESS_MMAP_ANON	(0x20)
+
+typedef struct {
+	uintptr_t mmap_begin;	/* mapping beginning */
+	uintptr_t mmap_end;	/* mapping ending */
+	uintptr_t *addrs;	/* address of pages, can be NULL */
+	size_t	  size;		/* mapping size in bytes */
+	size_t	  n_pages;	/* mapping size in pages */
+	int prot;		/* protection STRESS_MMAP_PROT_* */
+	char *path;		/* mapping file, NULL if none */
+} stress_mmap_t;
+
+typedef struct stress_mmaps {
+        stress_mmap_t  *mmaps;	/* array of mmaps */
+        size_t n_mmaps;		/* number of mmaps */
+} stress_mmaps_t;
+
 extern void stress_mmap_set(uint8_t *buf, const size_t sz, const size_t page_size);
 extern int stress_mmap_check(uint8_t *buf, const size_t sz, const size_t page_size);
 extern void stress_mmap_set_light(uint8_t *buf, const size_t sz, const size_t page_size);
@@ -59,6 +81,11 @@ extern void stress_mmap_stats_report(stress_args_t *args, const stress_mmap_stat
 extern void stress_mmap_discontiguous(void *addr, const size_t len);
 extern void stress_mmap_populate_forward(void *addr, const size_t len, const int prot);
 extern void stress_mmap_populate_reverse(void *addr, const size_t len, const int prot);
+
+extern int stress_mmaps_get(const pid_t pid, const size_t page_size,
+	const int prot_mask, const bool alloc_addrs, const bool alloc_paths,
+	stress_mmaps_t *mmaps);
+extern void stress_mmaps_free(stress_mmaps_t *mmaps);
 
 static inline void stress_mmap_stats_clear(stress_mmap_stats_t *stats)
 {

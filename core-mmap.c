@@ -710,3 +710,182 @@ void OPTIMIZE3 stress_mmap_discontiguous(void *addr, const size_t len)
 	(void)len;
 #endif
 }
+
+
+/*
+ *  stress_mmap_get()
+ *	get mmap mappings
+ */
+static int stress_mmap_get(
+	const char *buffer,
+	const size_t page_size,
+	const int prot_mask,
+	const bool alloc_addrs,
+	const bool alloc_path,
+	stress_mmap_t *mmap)
+{
+	char tmppath[1024];
+	char perms[6];
+	uint64_t offset;
+	const uintmax_t max_addr = UINTMAX_MAX - (UINTMAX_MAX >> 1);
+	uint64_t begin;
+	uint64_t end;
+	int64_t  n_pages;
+	const size_t max_pages = 0x80000000UL / page_size;
+	int prot;
+
+	tmppath[0] = '\0';
+	if (sscanf(buffer, "%" SCNx64 "-%" SCNx64
+		   " %5s %" SCNx64 " %*x:%*x %*d %1023s",
+		   &begin, &end, perms, &offset, tmppath) != 5) {
+		return -1;
+	}
+
+	prot = ((perms[0] == 'r') ? STRESS_MMAP_READ : 0) |
+	       ((perms[1] == 'w') ? STRESS_MMAP_WRITE : 0) |
+	       ((perms[2] == 'x') ? STRESS_MMAP_EXEC : 0) |
+	       ((perms[3] == 'p') ? STRESS_MMAP_PRIVATE : 0) |
+	       ((perms[3] == 's') ? STRESS_MMAP_SHARED: 0) |
+	       ((tmppath[0] == '\0') ? STRESS_MMAP_ANON : 0);
+
+	if ((prot_mask != 0) && (prot & prot_mask) != prot_mask)
+		return -1;
+
+	/* Avoid vdso and vvar */
+	if (shim_strncmp("[v", tmppath, 2) == 0)
+		return -1;
+
+	/* Ignore bad ranges */
+	if ((begin >= end) || (begin == 0) || (end == 0) || (end >= max_addr))
+		return -1;
+
+	n_pages = (int64_t)(end / page_size) - (int64_t)(begin / page_size);
+	mmap->n_pages = (size_t)n_pages;
+
+	/* Skip invalid or huge ranges */
+	if ((mmap->n_pages == 0) || (mmap->n_pages > max_pages))
+		return -1;
+	mmap->mmap_begin = (uintptr_t)begin;
+	mmap->mmap_end = (uintptr_t)end;
+	mmap->addrs = NULL;
+	mmap->path = NULL;
+	mmap->prot = prot;
+	mmap->size = n_pages * page_size;
+
+	if (alloc_addrs) {
+		size_t i;
+		uintptr_t addr = mmap->mmap_begin;
+
+		mmap->addrs = (uintptr_t *)calloc(mmap->n_pages, sizeof(uintptr_t));
+		if (!mmap->addrs)
+			return -1;
+
+		for (i = 0; i < mmap->n_pages; i++) {
+			mmap->addrs[i] = addr;
+			addr += page_size;
+		}
+	}
+	if (alloc_path) {
+		mmap->path = strdup(tmppath);
+		if (!mmap->path) {
+			if (mmap->addrs)
+				free(mmap->addrs);
+			return -1;
+		}
+	}
+
+	return 0;
+}
+
+/*
+ *  stress_mmaps_get()
+ *  	get process space read-only mappings
+ */
+int stress_mmaps_get(
+	const pid_t pid,		/* PID, -1 = oneself */
+	const size_t page_size,		/* page size */
+	const int prot_mask,		/* prot mask to match mappings */
+	const bool alloc_addrs,		/* true = alloc page mappings */
+	const bool alloc_paths,		/* true = alloc mapping path */
+	stress_mmaps_t *mmaps)		/* mappings struct */
+{
+	FILE *fp;
+	char buffer[1024];
+	size_t n_mmaps;
+	size_t i;
+
+	if (!mmaps)
+		return -1;
+
+	mmaps->mmaps = NULL;
+	mmaps->n_mmaps = 0;
+
+	if (pid == (pid_t)-1) {
+		fp = fopen("/proc/self/maps", "r");
+	} else {
+		(void)snprintf(buffer, sizeof(buffer), "/proc/%" PRIdMAX "/maps", (intmax_t)pid);
+		fp = fopen(buffer, "r");
+	}
+	if (!fp)
+		return -1;
+
+	for (n_mmaps = 0; fgets(buffer, sizeof(buffer), fp);) {
+		stress_mmap_t mmap;
+
+		if (stress_mmap_get(buffer, page_size, prot_mask, false, false, &mmap) == 0)
+			n_mmaps++;
+	}
+	if (n_mmaps == 0) {
+		(void)fclose(fp);
+		return -1;
+	}
+	mmaps->mmaps = calloc(n_mmaps, sizeof(*mmaps->mmaps));
+	if (!mmaps->mmaps) {
+		(void)fclose(fp);
+		return -1;
+	}
+	rewind(fp);
+	for (i = 0; ((i < n_mmaps) && fgets(buffer, sizeof(buffer), fp));) {
+		if (stress_mmap_get(buffer, page_size, prot_mask, alloc_addrs, alloc_paths, &mmaps->mmaps[i]) == 0)
+			i++;
+	}
+	(void)fclose(fp);
+	for (i = 0; i < n_mmaps; i++) {
+		mmaps->mmaps[i].addrs = (uintptr_t *)calloc(mmaps->mmaps[i].n_pages, sizeof(uintptr_t));
+		if (!mmaps->mmaps[i].addrs) {
+			size_t j;
+
+			for (j = 0; j < i; j++)
+				free(mmaps->mmaps[j].addrs);
+			free(mmaps->mmaps);
+			mmaps->mmaps = NULL;
+			return -1;
+		}
+	}
+
+	mmaps->n_mmaps = i;
+
+	return 0;
+}
+
+/*
+ *  stress_mmaps_free()
+ *	free mmap mappings information
+ */
+void stress_mmaps_free(stress_mmaps_t *mmaps)
+{
+	size_t i;
+
+	if (!mmaps)
+		return;
+	if (!mmaps->mmaps)
+		return;
+
+	for (i = 0; i < mmaps->n_mmaps; i++) {
+		if (mmaps->mmaps[i].addrs)
+			free(mmaps->mmaps[i].addrs);
+		if (mmaps->mmaps[i].path)
+			free(mmaps->mmaps[i].path);
+	}
+	free(mmaps->mmaps);
+}
