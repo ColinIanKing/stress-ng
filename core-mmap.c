@@ -767,6 +767,7 @@ static int stress_mmap_get(
 		return -1;
 	mmap->mmap_begin = (uintptr_t)begin;
 	mmap->mmap_end = (uintptr_t)end;
+	mmap->mmap_offset = (uintptr_t)offset;
 	mmap->addrs = NULL;
 	mmap->path = NULL;
 	mmap->prot = prot;

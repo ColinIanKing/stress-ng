@@ -53,6 +53,7 @@ typedef struct {
 typedef struct {
 	uintptr_t mmap_begin;	/* mapping beginning */
 	uintptr_t mmap_end;	/* mapping ending */
+	uintptr_t mmap_offset;	/* mapping offset into mmap'd file */
 	uintptr_t *addrs;	/* address of pages, can be NULL */
 	size_t	  size;		/* mapping size in bytes */
 	size_t	  n_pages;	/* mapping size in pages */
