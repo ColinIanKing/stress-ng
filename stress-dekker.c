@@ -60,6 +60,17 @@ static inline void ALWAYS_INLINE dekker_mbarrier(void)
 #endif
 }
 
+static inline void ALWAYS_INLINE dekker_weak_memory_ordered(void)
+{
+#if defined(STRESS_ARCH_ARM) ||		\
+    defined(STRESS_ARCH_PPC64) ||	\
+    defined(STRESS_ARCH_PPC) ||		\
+    defined(STRESS_ARCH_RISCV)
+	shim_mfence();
+	dekker_mbarrier();
+#endif
+}
+
 static int stress_dekker_supported(const char *name)
 {
 #if defined(STRESS_ARCH_ARM)
@@ -96,14 +107,11 @@ static int stress_dekker_p0(stress_args_t *args)
 		}
 	}
 
-#if defined(STRESS_ARCH_ARM) ||		\
-    defined(STRESS_ARCH_PPC64) ||	\
-    defined(STRESS_ARCH_PPC) ||		\
-    defined(STRESS_ARCH_RISCV)
-	/* ensure lock acquisition is ordered before critical section accesses */
-	shim_mfence();
-	dekker_mbarrier();
-#endif
+	/*
+	 *  ensure lock acquisition is ordered before
+	 *  the critical section accesses
+	 */
+	dekker_weak_memory_ordered();
 
 	/* Critical section */
 	check0 = dekker->m.check;
@@ -151,14 +159,11 @@ static int stress_dekker_p1(stress_args_t *args)
 		}
 	}
 
-#if defined(STRESS_ARCH_ARM) ||		\
-    defined(STRESS_ARCH_PPC64) ||	\
-    defined(STRESS_ARCH_PPC) ||		\
-    defined(STRESS_ARCH_RISCV)
-	/* ensure lock acquisition is ordered before critical section accesses */
-	shim_mfence();
-	dekker_mbarrier();
-#endif
+	/*
+	 *  ensure lock acquisition is ordered before
+	 *  the critical section accesses
+	 */
+	dekker_weak_memory_ordered();
 
 	/* Critical section */
 	check0 = dekker->m.check;
