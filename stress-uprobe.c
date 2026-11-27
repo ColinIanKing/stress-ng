@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
+#include "core-mmap.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"uprobe N",	"start N workers that generate uprobe events" },
@@ -82,45 +83,33 @@ static int stress_uprobe_write(const char *path, const int flags, const char *st
  *  stress_uprobe_libc_start()
  *	find start address of libc text segment by scanning /proc/$PID/maps
  */
-static void *stress_uprobe_libc_start(const pid_t pid, char *libc_path)
+static void *stress_uprobe_libc_start(
+	const size_t page_size,
+	char *libc_path,
+	const size_t libc_path_len)
 {
-	char buf[PATH_MAX];
-	char path[PATH_MAX];
-	char perm[5];
-	FILE *fp;
 	void *addr = NULL;
-	uint64_t start;
-	uint64_t end;
-	uint64_t offset;
-	uint64_t dev_major;
-	uint64_t dev_minor;
-	uint64_t inode;
+	stress_mmaps_t mmaps;
+	size_t i;
+	const int mask = STRESS_MMAP_READ | STRESS_MMAP_EXEC | STRESS_MMAP_PRIVATE;
 
-	(void)snprintf(path, sizeof(path), "/proc/%" PRIdMAX "/maps", (intmax_t)pid);
-	fp = fopen(path, "r");
-	if (UNLIKELY(!fp))
+	if (stress_mmaps_get(-1, page_size, mask, false, true, &mmaps) < 0)
 		return addr;
 
-	while (fgets(buf, sizeof(buf), fp)) {
-		int n;
+	for (i = 0; i < mmaps.n_mmaps; i++) {
+		const stress_mmap_t *mmap = &mmaps.mmaps[i];
+		const char *path = mmap->path;
 
-		n = sscanf(buf, "%" SCNx64 "-%" SCNx64 "%4s %" SCNx64 " %" SCNx64
-			":%" SCNx64 " %" SCNu64 "%" X_STR(PATH_MAX) "s\n",
-			&start, &end, perm, &offset, &dev_major, &dev_minor,
-			&inode, libc_path);
-
-		/*
-		 *  name /libc-*.so or /libc.so found?
-		 */
-		if (((n == 8) && !shim_strncmp(perm, "r-xp", 4) &&
-		     shim_strstr(libc_path, ".so")) &&
-		    (shim_strstr(libc_path, "/libc-") ||
-		     shim_strstr(libc_path, "/libc.so"))) {
-			addr = (void *)(intptr_t)(start - offset);
+		if ((((mmap->prot & mask) == mask) &&
+		     shim_strstr(path, ".so")) &&
+		    (shim_strstr(path, "/libc-") ||
+		     shim_strstr(path, "/libc.so"))) {
+			addr = (void *)(mmap->mmap_begin - mmap->mmap_offset);
+			(void)shim_strscpy(libc_path, path, libc_path_len);
 			break;
 		}
 	}
-	(void)fclose(fp);
+	stress_mmaps_free(&mmaps);
 
 	return addr;
 }
@@ -136,7 +125,6 @@ static int stress_uprobe(stress_args_t *args)
 	char event[128];
 	void *libc_addr;
 	ptrdiff_t offset;
-	pid_t pid = getpid();
 	int ret;
 	int rc = EXIT_SUCCESS;
 	int fd;
@@ -145,7 +133,7 @@ static int stress_uprobe(stress_args_t *args)
 	double bytes = 0.0;
 	double rate;
 
-	libc_addr = stress_uprobe_libc_start(pid, libc_path);
+	libc_addr = stress_uprobe_libc_start(args->page_size, libc_path, sizeof(libc_path));
 	if (!libc_addr) {
 		if (stress_instance_zero(args))
 			pr_inf_skip("%s: cannot find start of libc text section, skipping stressor\n",
