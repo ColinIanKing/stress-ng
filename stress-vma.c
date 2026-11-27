@@ -523,33 +523,24 @@ static void *stress_vma_msync(void *ptr)
 	return NULL;
 }
 
-#if defined(__linux__)
 /*
  *  stress_vma_maps()
- *	exercise /proc/self/maps
+ *	exercise reading per process map information
  */
 static void *stress_vma_maps(void *ptr)
 {
 	stress_vma_context_t *ctxt = (stress_vma_context_t *)ptr;
 	stress_args_t *args = (stress_args_t *)ctxt->args;
-	int fd;
+	stress_mmaps_t mmaps;
 
-	fd = open("/proc/self/maps", O_RDONLY);
-	if (LIKELY(fd != -1)) {
-		while (stress_vma_continue_flag && stress_vma_continue(args)) {
-			char buf[4096];
+	if (stress_mmaps_get(-1, args->page_size, 0, false, false, &mmaps) < 0)
+		return NULL;
 
-			if (UNLIKELY(lseek(fd, 0, SEEK_SET) < 0))
-				break;
-			while (read(fd, buf, sizeof(buf)) > 1)
-				;
-		}
-		stress_vma_metrics->s.metrics[STRESS_VMA_PROC_MAPS]++;
-		(void)close(fd);
-	}
+	stress_vma_metrics->s.metrics[STRESS_VMA_PROC_MAPS]++;
+	stress_mmaps_free(&mmaps);
+
 	return NULL;
 }
-#endif
 
 /*
  *  stress_vma_access()
