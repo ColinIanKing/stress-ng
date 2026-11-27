@@ -129,96 +129,64 @@ static void stress_munmap_range(
  */
 static int stress_munmap_child(stress_args_t *args, void *context)
 {
-	FILE *fp;
-	char path[4096];
-	char buf[4096];
-	char prot[5];
-	const pid_t pid = getpid();
 	munmap_context_t *ctxt = (munmap_context_t *)context;
-	void *start;
-	void *end;
-	void *offset;
-	int n;
-	unsigned int major;
-	unsigned int minor;
 	int rc = EXIT_SUCCESS;
-	uint64_t inode;
+	size_t i;
+	stress_mmaps_t mmaps;
 
 	VOID_RET(int, stress_signal_handler(args->name, SIGSEGV, stress_signal_exit_handler, NULL));
 	VOID_RET(int, stress_signal_handler(args->name, SIGBUS, stress_signal_exit_handler, NULL));
 
-	(void)snprintf(path, sizeof(path), "/proc/%" PRIdMAX "/maps", (intmax_t)pid);
-	fp = fopen(path, "r");
-	if (!fp)
+	if (stress_mmaps_get(-1, args->page_size, 0, false, true, &mmaps) < 0)
 		return EXIT_NO_RESOURCE;
+
 #if defined(HAVE_MADVISE) &&	\
     (defined(MADV_DONTDUMP) || 	\
      defined(MADV_PAGEOUT))
 	/*
 	 *  Vainly attempt to reduce any potential core dump size
 	 */
-	while (stress_continue(args) && fgets(buf, sizeof(buf), fp)) {
-		size_t size;
+	for (i = 0; i < mmaps.n_mmaps; i++) {
+		const stress_mmap_t *mmap = &mmaps.mmaps[i];
 
-		*path = '\0';
-		n = sscanf(buf, "%p-%p %4s %p %x:%x %" PRIu64 " %4095s\n",
-			&start, &end, prot, &offset, &major, &minor,
-			&inode, path);
-		if (n < 7)
-			continue;	/* bad sscanf data */
-		if (UNLIKELY(start >= end))
-			continue;	/* invalid address range */
-		size = (uintptr_t)end - (uintptr_t)start;
 #if defined(MADV_DONTDUMP)
-		(void)madvise(start, size, MADV_DONTDUMP);
+		(void)madvise((void *)mmap->mmap_begin, mmap->size, MADV_DONTDUMP);
 #endif
 #if defined(MADV_PAGEOUT)
 		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
-			(void)madvise(start, size, MADV_PAGEOUT);
+			(void)madvise((void *)mmap->mmap_begin, mmap->size, MADV_PAGEOUT);
+#endif
+	}
 #endif
 
-	}
-	errno = 0;
-	rewind(fp);
-	if (UNLIKELY(errno)) {
-		(void)fclose(fp);
-		return EXIT_NO_RESOURCE;
-	}
-#endif
-	while (stress_continue(args) && fgets(buf, sizeof(buf), fp)) {
-		*path = '\0';
-		n = sscanf(buf, "%p-%p %4s %p %x:%x %" PRIu64 " %4095s\n",
-			&start, &end, prot, &offset, &major, &minor,
-			&inode, path);
+	for (i = 0; i < mmaps.n_mmaps; i++) {
+		const stress_mmap_t *mmap = &mmaps.mmaps[i];
+
 		/*
 		 *  Filter out mappings that we should avoid from
 		 *  unmapping
 		 */
-		if (n < 7)
-			continue;	/* bad sscanf data */
-		if (UNLIKELY(start >= end))
-			continue;	/* invalid address range */
-		if (UNLIKELY(start == context))
+		if (UNLIKELY((void *)mmap->mmap_begin == context))
 			continue;	/* don't want to unmap shared context */
-		if (((const void *)args >= start) && ((const void *)args < end))
+		if (((void *)args >= (void *)mmap->mmap_begin) && ((void *)args < (void *)mmap->mmap_end))
 			continue;	/* don't want to unmap shard args */
-		if (!path[0])
+		if (!mmap->path[0])
 			continue;	/* don't unmap anonymous mappings */
-		if (path[0] == '[')
+		if (mmap->path[0] == '[')
 			continue;	/* don't unmap special mappings (stack, vdso etc) */
-		if (shim_strstr(path, "libc"))
+		if (shim_strstr(mmap->path, "libc"))
 			continue;	/* don't unmap libc */
-		if (shim_strstr(path, "/dev/zero"))
+		if (shim_strstr(mmap->path, "/dev/zero"))
 			continue;	/* need this for zero'd page data */
-		if (!shim_strcmp(path, ctxt->exec_path))
+		if (!shim_strcmp(mmap->path, ctxt->exec_path))
 			continue;	/* don't unmap stress-ng */
-		if (prot[0] != 'r')
+		if ((mmap->prot & STRESS_MMAP_READ) == 0)
 			continue;	/* don't unmap non-readable pages */
-		if (prot[2] == 'x')
+		if (mmap->prot & STRESS_MMAP_EXEC)
 			continue;	/* don't unmap executable pages */
-		stress_munmap_range(args, start, end, ctxt, &rc);
+
+		stress_munmap_range(args, (void *)mmap->mmap_begin, (void *)mmap->mmap_end, ctxt, &rc);
 	}
-	(void)fclose(fp);
 
 	if (LIKELY(stress_continue(args)))
 		stress_bogo_inc(args);	/* bump per stressor */
