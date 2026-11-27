@@ -188,6 +188,8 @@ static int stress_munmap_child(stress_args_t *args, void *context)
 		stress_munmap_range(args, (void *)mmap->mmap_begin, (void *)mmap->mmap_end, ctxt, &rc);
 	}
 
+	stress_mmaps_free(&mmaps);
+
 	if (LIKELY(stress_continue(args)))
 		stress_bogo_inc(args);	/* bump per stressor */
 
