@@ -771,6 +771,7 @@ static int stress_mmap_get(
 	mmap->addrs = NULL;
 	mmap->path = NULL;
 	mmap->prot = prot;
+	mmap->flags = 0;
 	mmap->size = n_pages * page_size;
 
 	if (alloc_addrs) {
@@ -852,8 +853,12 @@ int stress_mmaps_get(
 	}
 	(void)fclose(fp);
 	for (i = 0; i < n_mmaps; i++) {
-		mmaps->mmaps[i].addrs = (uintptr_t *)calloc(mmaps->mmaps[i].n_pages, sizeof(uintptr_t));
-		if (!mmaps->mmaps[i].addrs) {
+		size_t j;
+		stress_mmap_t *mmap = &mmaps->mmaps[i];
+		uintptr_t addr;
+
+		mmap->addrs = (uintptr_t *)calloc(mmaps->mmaps[i].n_pages, sizeof(uintptr_t));
+		if (!mmap->addrs) {
 			size_t j;
 
 			for (j = 0; j < i; j++)
@@ -861,6 +866,12 @@ int stress_mmaps_get(
 			free(mmaps->mmaps);
 			mmaps->mmaps = NULL;
 			return -1;
+		}
+
+		addr = mmap->mmap_begin;
+		for (j = 0; j < mmap->n_pages; j++) {
+			mmap->addrs[j] = addr;
+			addr += page_size;
 		}
 	}
 

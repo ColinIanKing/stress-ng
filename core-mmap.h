@@ -58,6 +58,7 @@ typedef struct {
 	size_t	  size;		/* mapping size in bytes */
 	size_t	  n_pages;	/* mapping size in pages */
 	int prot;		/* protection STRESS_MMAP_PROT_* */
+	int flags;		/* stressor specific flags */
 	char *path;		/* mapping file, NULL if none */
 } stress_mmap_t;
 
