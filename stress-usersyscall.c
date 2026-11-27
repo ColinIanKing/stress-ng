@@ -19,6 +19,7 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 #include "core-builtin.h"
+#include "core-mmap.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"usersyscall N",	"start N workers exercising a userspace system call handler" },
@@ -122,55 +123,40 @@ static inline long int x86_64_syscall0(const long int number)
  *  stress_sigsys_libc_mapping()
  *	find address of libc text segment by scanning /proc/self/maps
  */
-static int stress_sigsys_libc_mapping(uintptr_t *begin, uintptr_t *end)
+static int stress_sigsys_libc_mapping(
+	const size_t page_size,
+	uintptr_t *begin,
+	uintptr_t *end)
 {
-	char libc_path[PATH_MAX + 1];
-	char buf[1024] ALIGN64;
-	char perm[5];
-	FILE *fp;
-	uint64_t offset;
-	uint64_t dev_major;
-	uint64_t dev_minor;
-	uint64_t inode;
+	const int prot_mask = STRESS_MMAP_READ | STRESS_MMAP_EXEC | STRESS_MMAP_PRIVATE;
+	int ret;
+	size_t i;
+	stress_mmaps_t mmaps;
 
-	fp = fopen("/proc/self/maps", "r");
-	if (UNLIKELY(!fp))
+	ret = stress_mmaps_get(-1, page_size, prot_mask, false, true, &mmaps);
+	if (ret < 0)
 		goto err;
 
 	*begin = ~(uintptr_t)0;
 	*end = 0;
 
-	while (fgets(buf, sizeof(buf), fp)) {
-		int n;
-		uintptr_t map_begin;
-		uintptr_t map_end;
+	for (i = 0; i < mmaps.n_mmaps; i++) {
+		const char *path = mmaps.mmaps[i].path;
 
-		n = sscanf(buf, "%" SCNxPTR "-%" SCNxPTR "%4s %" SCNx64 " %" SCNx64
-			":%" SCNx64 " %" SCNu64 "%" X_STR(PATH_MAX) "s\n",
-			&map_begin, &map_end, perm, &offset, &dev_major, &dev_minor,
-			&inode, libc_path);
-
-		/*
-		 *  name /libc-*.so or /libc.so found?
-		 */
-		if ((n == 8) && !shim_strncmp(perm, "r-xp", 4) &&
-		    shim_strstr(libc_path, ".so")) {
-			if (shim_strstr(libc_path, "/libc-") ||
-			    shim_strstr(libc_path, "/libc.so")) {
-				if (*begin > map_begin)
-					*begin = map_begin;
-				if (*end < map_end)
-					*end = map_end;
+		if ((path != NULL) && shim_strstr(path, ".so")) {
+			if (shim_strstr(path, "/libc-") ||
+			    shim_strstr(path, "/libc.so")) {
+				if (*begin > mmaps.mmaps[i].mmap_begin)
+					*begin = mmaps.mmaps[i].mmap_begin;
+				if (*end < mmaps.mmaps[i].mmap_end)
+					*end = mmaps.mmaps[i].mmap_end;
 			}
 		}
 	}
-	(void)fclose(fp);
+	stress_mmaps_free(&mmaps);
 
-	if ((*begin == ~(uintptr_t)0) || (*end == 0))
-		goto err;
-
-	return 0;
-
+	if ((*begin != ~(uintptr_t)0) && (*end != 0))
+		return 0;
 err:
 	*begin = 0;
 	*end = 0;
@@ -212,7 +198,7 @@ static int OPTIMIZE3 stress_usersyscall(stress_args_t *args)
 	uintptr_t begin;
 	uintptr_t end;
 	const pid_t pid = getpid();
-	const bool libc_ok = (stress_sigsys_libc_mapping(&begin, &end) == 0);
+	const bool libc_ok = (stress_sigsys_libc_mapping(args->page_size, &begin, &end) == 0);
 #endif
 	double duration = 0.0;
 	double count = 0.0;
