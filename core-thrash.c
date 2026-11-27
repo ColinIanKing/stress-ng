@@ -32,23 +32,6 @@
     defined(HAVE_PTRACE)
 
 #define KSM_RUN_MERGE		"1"
-#define MAX_PROC_MAPS	(512)
-
-#define STRESS_PROC_MAP_READ		(0x0001)
-#define STRESS_PROC_MAP_WRITE		(0x0002)
-#define STRESS_PROC_MAP_EXEC		(0x0004)
-#define STRESS_PROC_MAP_PRIVATE		(0x0008)
-#define STRESS_PROC_MAP_SHARED		(0x0010)
-#define STRESS_PROC_MAP_ANON		(0x0020)
-#define STRESS_PROC_MAP_ANON_PRIVATE	(STRESS_PROC_MAP_ANON | \
-					 STRESS_PROC_MAP_PRIVATE)
-
-typedef struct {
-	uintmax_t 	begin;	/* mmap beginning */
-	uintmax_t	end;	/* mmap end */
-	uintmax_t	len;	/* mmap size */
-	int		flags;	/* mmap flags */
-} stress_proc_maps_t;
 
 static pid_t thrash_pid;
 static pid_t parent_pid;
@@ -91,89 +74,12 @@ static void stress_thrash_state(const char *state)
 }
 
 /*
- *  stress_thrash_read_proc_maps()
- *  	read up to max_maps worth of proc_map mapping info
- */
-static size_t stress_thrash_read_proc_maps(
-	const pid_t pid,
-	stress_proc_maps_t *proc_maps,
-	const size_t max_maps)
-{
-	FILE *fp;
-	size_t n = 0;
-	char buffer[4096];
-	const size_t page_size = stress_memory_page_size_get();
-	const uintmax_t end_max = (~(uintmax_t)0) - (page_size - 1);
-
-	if (pid == (pid_t)-1) {
-		fp = fopen("/proc/self/maps", "r");
-	} else {
-		(void)snprintf(buffer, sizeof(buffer), "/proc/%" PRIdMAX "/maps", (intmax_t)pid);
-		fp = fopen(buffer, "r");
-	}
-	if (!fp)
-		return 0;
-
-	/*
-	 * Look for field 0060b000-0060c000 r--p 0000b000 08:01 1901726
-	 */
-	while (fgets(buffer, sizeof(buffer), fp)) {
-		uintmax_t begin;
-		uintmax_t end;
-		uintmax_t len;
-		char tmppath[1024];
-		char prot[6];
-
-		if (sscanf(buffer, "%" SCNx64 "-%" SCNx64
-		           " %5s %*x %*x:%*x %*d %1023s", &begin, &end, prot, tmppath) != 4)
-			continue;
-
-		/* Avoid vdso and vvar.. */
-		if (shim_strncmp("[v", tmppath, 2) == 0)
-			continue;
-
-		/* Ensure end look sane */
-		if (end > end_max)
-			continue;
-
-		len = end - begin;
-
-		/* Ignore bad range */
-		if ((begin >= end) || (len == 0) || (begin == 0))
-			continue;
-		/* Skip huge ranges more than 2GB */
-		if (len > 0x80000000UL)
-			continue;
-
-		proc_maps[n].begin = begin;
-		proc_maps[n].end = end;
-		proc_maps[n].len = len;
-		proc_maps[n].flags =
-			((prot[0] == 'r') ? STRESS_PROC_MAP_READ : 0) |
-			((prot[1] == 'w') ? STRESS_PROC_MAP_WRITE : 0) |
-			((prot[2] == 'x') ? STRESS_PROC_MAP_EXEC : 0) |
-			((prot[3] == 'p') ? STRESS_PROC_MAP_PRIVATE : 0) |
-			((prot[3] == 's') ? STRESS_PROC_MAP_SHARED : 0) |
-			((*tmppath == '\0') ? STRESS_PROC_MAP_ANON : 0);
-		n++;
-		if (n >= max_maps)
-			break;
-	}
-	(void)fclose(fp);
-
-	return n;
-}
-
-/*
  *  stress_thrash_pagein_self()
  *	force pages into memory for current process
  */
-static void stress_thrash_pagein_self(
-	const stress_proc_maps_t *proc_maps,
-	const size_t n_maps)
+static void stress_thrash_pagein_self(const stress_mmaps_t *mmaps, const size_t page_size)
 {
 	int ret;
-	const size_t page_size = stress_memory_page_size_get();
 	struct sigaction bus_action;
 	struct sigaction segv_action;
 	size_t i;
@@ -190,17 +96,18 @@ static void stress_thrash_pagein_self(
 
 	stress_thrash_state("pagein");
 
-	for (i = 0; thrash_run && (i < n_maps); i++) {
+	for (i = 0; thrash_run && (i < mmaps->n_mmaps); i++) {
+		const stress_mmap_t *mmap = &mmaps->mmaps[i];
 		bool writeable;
-		uintmax_t off;
+		uintptr_t off;
 
 		/* ignore non-readable mappings */
-		if (!(proc_maps[i].flags & STRESS_PROC_MAP_READ))
+		if (!(mmap->prot & STRESS_MMAP_READ))
 			continue;
 		/* ignore non-writeable mappings */
-		writeable = !!(proc_maps[i].flags & STRESS_PROC_MAP_WRITE);
+		writeable = !!(mmaps->mmaps[i].prot & STRESS_MMAP_WRITE);
 
-		for (off = proc_maps[i].begin; thrash_run && (off < proc_maps[i].end); off += page_size) {
+		for (off = mmap->mmap_begin; thrash_run && (off < mmap->mmap_end); off += page_size) {
 			volatile uint8_t *ptr = (volatile uint8_t *)(uintptr_t)off;
 			const uint8_t value = *ptr;
 
@@ -219,51 +126,43 @@ err:
  *  stress_pagein_proc()
  *	force pages into memory for a given process
  */
-static int stress_pagein_proc(const pid_t pid)
+static void stress_pagein_proc(const pid_t pid, const size_t page_size)
 {
 	char path[PATH_MAX];
-	stress_proc_maps_t proc_maps[MAX_PROC_MAPS];
 	int fdmem;
-	int rc = 0;
+	int ret;
 	size_t i;
-	size_t n_maps;
-	const size_t page_size = stress_memory_page_size_get();
+	stress_mmaps_t mmaps;
+	const size_t prot_mask = STRESS_MMAP_READ | STRESS_MMAP_PRIVATE;
 
 	if ((pid == parent_pid) || (pid == getpid()))
-		return 0;
+		return;
 
 	(void)snprintf(path, sizeof(path), "/proc/%" PRIdMAX "/mem", (intmax_t)pid);
 	fdmem = open(path, O_RDONLY);
 	if (fdmem < 0)
-		return -errno;
+		return;
 
-	n_maps = stress_thrash_read_proc_maps(pid, proc_maps, SIZEOF_ARRAY(proc_maps));
+	ret = stress_mmaps_get(pid, page_size, prot_mask, false, true, &mmaps);
+	if (ret < 0) {
+		(void)close(fdmem);
+		return;
+	}
 
-	/*
-	 * Look for field 0060b000-0060c000 r--p 0000b000 08:01 1901726
-	 */
-	for (i = 0; thrash_run && (i < n_maps); i++) {
-		uintmax_t off;
-		uintmax_t end;
-		const uintmax_t max_off = ((uintmax_t)~(off_t)0) - (page_size - 1);
+	for (i = 0; thrash_run && (i < mmaps.n_mmaps); i++) {
+		uintptr_t off;
+		uintptr_t end;
+		const uintptr_t max_off = ((uintptr_t)~(off_t)0) - (page_size - 1);
+		const stress_mmap_t *mmap = &mmaps.mmaps[i];
 
-		/* ignore non-readable mappings */
-		if (!(proc_maps[i].flags & STRESS_PROC_MAP_READ))
-			continue;
-		/* ignore non-private mappings */
-		if (!(proc_maps[i].flags & STRESS_PROC_MAP_PRIVATE))
-			continue;
-
-		end = proc_maps[i].end;
+		end = mmap->mmap_end;
 		if (end >= max_off)
 			end = max_off;
 
-		for (off = proc_maps[i].begin; thrash_run && (off < end); off += page_size) {
+		for (off = mmap->mmap_begin; thrash_run && (off < end); off += page_size) {
 			unsigned long int data;
 			off_t ret;
-			off_t pos;
-
-			pos = (off_t)off;
+			off_t pos = (off_t)off;
 
 			ret = lseek(fdmem, pos, SEEK_SET);
 			if (ret != pos)
@@ -272,9 +171,11 @@ static int stress_pagein_proc(const pid_t pid)
 		}
 	}
 
+	stress_mmaps_free(&mmaps);
+
 	(void)close(fdmem);
 
-	return rc;
+	return;
 }
 
 #if defined(__linux__)
@@ -495,14 +396,14 @@ static inline void stress_thrash_merge_memory(void)
  *  stress_thrash_pagein_all_procs()
  *	force pages into memory for all processes
  */
-static int stress_thrash_pagein_all_procs(void)
+static void stress_thrash_pagein_all_procs(const size_t page_size)
 {
 	DIR *dp;
 	const struct dirent *d;
 
 	dp = opendir("/proc");
 	if (!dp)
-		return -1;
+		return;
 
 	while (thrash_run && ((d = readdir(dp)) != NULL)) {
 		intmax_t pid;
@@ -519,18 +420,15 @@ static int stress_thrash_pagein_all_procs(void)
 			if (statbuf.st_uid == 0)
 				continue;
 
-			stress_pagein_proc((pid_t)pid);
+			stress_pagein_proc((pid_t)pid, page_size);
 		}
 	}
 	(void)closedir(dp);
-
-	return 0;
 }
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 static void stress_thrash_move_pages(
-	const stress_proc_maps_t *proc_maps,
-	const size_t n_maps,
+	const stress_mmaps_t *mmaps,
 	stress_numa_mask_t *numa_nodes)
 {
 	const size_t page_size = stress_memory_page_size_get();
@@ -544,10 +442,11 @@ static void stress_thrash_move_pages(
 
 	stress_thrash_state("movepages");
 
-	for (i = 0; thrash_run && (i < n_maps); i++) {
+	for (i = 0; thrash_run && (i < mmaps->n_mmaps); i++) {
 		uintptr_t off;
+		const stress_mmap_t *mmap = &mmaps->mmaps[i];
 
-		for (off = proc_maps[i].begin; thrash_run && (off < proc_maps[i].end); off += page_size) {
+		for (off = mmap->mmap_begin; thrash_run && (off < mmap->mmap_end); off += page_size) {
 			node = stress_numa_next_node(node, numa_nodes);
 			if (LIKELY(node < INT_MAX)) {
 				void *pages[1];
@@ -569,32 +468,26 @@ static void stress_thrash_move_pages(
 }
 #endif
 
-static void stress_thrash_fragment_mappings(
-	const stress_proc_maps_t *proc_maps,
-	const size_t n_maps)
+static void stress_thrash_fragment_mappings(const stress_mmaps_t *mmaps)
 {
 	size_t i;
 
 	stress_thrash_state("fragment");
 
-	for (i = 0; thrash_run && (i < n_maps); i++) {
-		void *addr;
-		size_t len;
+	for (i = 0; thrash_run && (i < mmaps->n_mmaps); i++) {
+		const stress_mmap_t *mmap = &mmaps->mmaps[i];
 
 		/* ignore non-readable mappings */
-		if (!(proc_maps[i].flags & STRESS_PROC_MAP_READ))
+		if (!(mmap->prot & STRESS_MMAP_READ))
 			continue;
 		/* ignore non-writeable mappings */
-		if (!(proc_maps[i].flags & STRESS_PROC_MAP_WRITE))
+		if (!(mmap->prot & STRESS_MMAP_WRITE))
 			continue;
 		/* ignore private mappings */
-		if (proc_maps[i].flags & STRESS_PROC_MAP_PRIVATE)
+		if (mmap->prot & STRESS_MMAP_PRIVATE)
 			continue;
 
-		addr = (void *)(uintptr_t)proc_maps[i].begin;
-		len = (size_t)proc_maps[i].len;
-
-		stress_mmap_discontiguous(addr, len);
+		stress_mmap_discontiguous((void *)mmap->mmap_begin, mmap->size);
 
 	}
 }
@@ -628,6 +521,8 @@ int COLD stress_thrash_start(void)
 			errno, strerror(errno));
 		return -1;
 	} else if (thrash_pid == 0) {
+		const size_t page_size = stress_memory_page_size_get();
+
 #if defined(SCHED_RR)
 		VOID_RET(int, stress_sched_set(getpid(), SCHED_RR, 10, true));
 #endif
@@ -640,18 +535,16 @@ int COLD stress_thrash_start(void)
 						"NUMA thrashing", &thrash_numa);
 #endif
 		while (thrash_run) {
-			stress_proc_maps_t proc_maps[MAX_PROC_MAPS];
-			size_t n_maps;
+			stress_mmaps_t mmaps;
 
-			n_maps = stress_thrash_read_proc_maps(-1, proc_maps, SIZEOF_ARRAY(proc_maps));
+			(void)stress_mmaps_get(-1, page_size, 0, false, true, &mmaps);
 
 			if ((stress_mwc8() & 0x3) == 0) {
 				stress_thrash_slab_shrink();
-				stress_thrash_pagein_all_procs();
+				stress_thrash_pagein_all_procs(page_size);
 			}
-			if ((stress_mwc8() & 0x7) == 0) {
+			if ((stress_mwc8() & 0x7) == 0)
 				stress_thrash_drop_caches();
-			}
 
 			stress_thrash_compact_memory();
 
@@ -663,16 +556,18 @@ int COLD stress_thrash_start(void)
 
 			stress_thrash_proc_memory();
 
-			stress_thrash_fragment_mappings(proc_maps, n_maps);
+			stress_thrash_fragment_mappings(&mmaps);
 
-			stress_thrash_pagein_self(proc_maps, n_maps);
+			stress_thrash_pagein_self(&mmaps, page_size);
 
 			stress_thrash_sys_memory();
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-			stress_thrash_move_pages(proc_maps, n_maps, numa_nodes);
+			stress_thrash_move_pages(&mmaps, numa_nodes);
 #endif
 			stress_thrash_state("sleep");
+
+			stress_mmaps_free(&mmaps);
 
 			(void)sleep(1);
 		}
