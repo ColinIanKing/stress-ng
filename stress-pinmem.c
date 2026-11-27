@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-capabilities.h"
 #include "core-madvise.h"
 #include "core-mmap.h"
 #include "core-out-of-memory.h"
@@ -291,12 +292,43 @@ static void OPTIMIZE3 stress_pinmem_mincore(
 	context->mincore_pages_total += (double)context->buf_size / page_size;
 }
 
+/*
+ * stress_pinmem_handle_sigsegv_parent()
+ *	older pre-4.19 kernels may get killed by SIGSEGV, this is fixed
+ *	in Linux kernel commit 29ef680ae7c2 ("memcg, oom: move
+ *	out_of_memory back to the charge path"). The best way forward is
+ *	to just terminate prematurely.
+ */
+static void MLOCKED_TEXT stress_pinmem_handle_sigsegv_parent(int signum)
+{
+	(void)signum;
+
+	_exit(0);
+}
+
+/*
+ *  stress_pinmem_handle_sigsegv_child()
+ *	child may SIGSEGV, in which case just make OOM killer think this
+ *	is a kernel OOM killed child process by killing the child with
+ *	a SIGKILL. This will get respawned if --oomable is not set.
+ */
+static void MLOCKED_TEXT stress_pinmem_handle_sigsegv_child(int signum)
+{
+	(void)signum;
+
+	/* Pretend to be OOM killed */
+	(void)kill(getpid(), SIGKILL);
+	_exit(0);
+}
+
 static int stress_pinmem_child(stress_args_t *args, void *child_context)
 {
 	stress_pinmem_context_t *context = (stress_pinmem_context_t *)child_context;
 	int rc = EXIT_SUCCESS;
 	const size_t page_size = args->page_size;
 	const bool was_oomed = context->count > 0;
+
+	VOID_RET(int, stress_signal_handler(args->name, SIGSEGV, stress_pinmem_handle_sigsegv_child, NULL));
 
 	stress_set_oom_adjustment(args, true);
 	context->count++;
@@ -339,6 +371,8 @@ static int stress_pinmem_child(stress_args_t *args, void *child_context)
 		}
 	}
 #endif
+	VOID_RET(int, stress_capabilities_drop(args->name));
+
 	stress_proc_state_set(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
@@ -434,6 +468,31 @@ static int stress_pinmem(stress_args_t *args)
 	size_t pinmem_bytes;
 	int rc;
 	double pc;
+#if defined(MCL_CURRENT) || 	\
+    defined(MCL_FUTURE) ||	\
+    defined(MCL_ONFAULT)
+	int mlock_flags = 0;
+#endif
+
+	if (stress_signal_handler(args->name, SIGSEGV, stress_pinmem_handle_sigsegv_parent, NULL))
+		return EXIT_NO_RESOURCE;
+
+#if defined(MCL_CURRENT)
+	mlock_flags |= MCL_CURRENT;
+#endif
+#if defined(MCL_FUTURE)
+	mlock_flags |= MCL_FUTURE;
+#endif
+#if defined(MCL_ONFAULT)
+	mlock_flags |= MCL_ONFAULT;
+#endif
+
+#if defined(MCL_CURRENT) || 	\
+    defined(MCL_FUTURE) ||	\
+    defined(MCL_ONFAULT)
+	/* Try to mlock all allocations */
+	(void)shim_mlockall(mlock_flags);
+#endif
 
 	if (mem_info.availablemem == 0) {
 		pr_inf("%s: failed to determine memory sizes, skipping stressor\n",
