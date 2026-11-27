@@ -21,6 +21,7 @@
 #include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-madvise.h"
+#include "core-mmap.h"
 #include "core-out-of-memory.h"
 #include "core-pragma.h"
 #include "core-thrash.h"
@@ -113,7 +114,6 @@ static void stress_force_bind(void)
 static const char * const stress_fork_shlibs[] = {
 	"libacl.so",
 	"libapparmor.so",
-	"libbsd.so",
 	"libcrypt.so",
 	"libdrm.so",
 	"libEGL.so",
@@ -145,81 +145,48 @@ static const char * const stress_fork_shlibs[] = {
  */
 static void stress_fork_maps_reduce(const size_t page_size, const int reduce_mode)
 {
-	char buffer[4096];
-	FILE *fp;
-	const uintmax_t max_addr = UINTMAX_MAX - (UINTMAX_MAX >> 1);
+	stress_mmaps_t mmaps;
+	int ret;
+	const int mask = STRESS_MMAP_EXEC | STRESS_MMAP_WRITE;
+	size_t i;
 
-	fp = fopen("/proc/self/maps", "r");
-	if (!fp)
+	ret = stress_mmaps_get(-1, page_size, 0, false, true, &mmaps);
+	if (ret < 0)
 		return;
 
-	/*
-	 * Look for field 0060b000-0060c000 r--p 0000b000 08:01 1901726
-	 */
-	while (fgets(buffer, sizeof(buffer), fp)) {
-		uint64_t begin;
-		uint64_t end;
-		uint64_t len;
-		uint64_t offset;
-		uintptr_t begin_ptr;
-		uintptr_t end_ptr;
-		char tmppath[1024];
-		char prot[6];
-		size_t i;
+	for (i = 0; i < mmaps.n_mmaps; i++) {
+		stress_mmap_t *mmap = &mmaps.mmaps[i];
+		size_t j;
 
-		tmppath[0] = '\0';
-		if (sscanf(buffer, "%" SCNx64 "-%" SCNx64
-		           " %5s %" SCNx64 " %*x:%*x %*d %1023s", &begin, &end, prot, &offset, tmppath) != 5) {
-			continue;
-		}
-
-		if ((prot[2] != 'x') && (prot[1] != 'w'))
+		if (((mmap->prot & mask) == 0) ||
+		    ((mmap->prot & mask) == mask))
 			continue;
 
-		if (tmppath[0] == '\0')
+		if (mmap->path[0] == '\0')
 			continue;
-
-		/* Avoid vdso and vvar */
-		if (shim_strncmp("[v", tmppath, 2) == 0)
-			continue;
-
-		if ((begin > UINTPTR_MAX) || (end > UINTPTR_MAX))
-			continue;
-
-		/* Ignore bad ranges */
-		if ((begin >= end) || (begin == 0) || (end == 0) || (end >= max_addr))
-			continue;
-
-		len = end - begin;
-
-		/* Skip invalid ranges */
-		if ((len < page_size) || (len > 0x80000000UL))
-			continue;
-
-		begin_ptr = (uintptr_t)begin;
-		end_ptr = (uintptr_t)end;
 
 #if defined(MADV_PAGEOUT)
 		if (reduce_mode & STRESS_MODE_PAGEOUT)
-			(void)madvise((void *)begin_ptr, len, MADV_PAGEOUT);
+			(void)madvise((void *)mmap->mmap_begin, mmap->size, MADV_PAGEOUT);
 #endif
 
-		for (i = 0; i < SIZEOF_ARRAY(stress_fork_shlibs); i++) {
-			if (shim_strstr(tmppath, stress_fork_shlibs[i])) {
+		for (j = 0; j < SIZEOF_ARRAY(stress_fork_shlibs); j++) {
+			if (shim_strstr(mmap->path, stress_fork_shlibs[j])) {
 				if (reduce_mode & STRESS_MODE_DONTNEED) {
-					(void)madvise((void *)begin_ptr, len, MADV_DONTNEED);
-				} else if (reduce_mode & STRESS_MODE_UNMAP) {
+					(void)madvise((void *)mmap->mmap_begin, mmap->size, MADV_DONTNEED);
+				}
+				if (reduce_mode & STRESS_MODE_UNMAP) {
 					unsigned char *vec;
 					uint8_t *ptr;
 					uint8_t *unmap_start = NULL;
 					size_t unmap_len = 0;
-					size_t j;
+					size_t k;
 
-					vec = (unsigned char *)calloc(len / page_size, sizeof(*vec));
+					vec = (unsigned char *)calloc(mmap->n_pages, sizeof(*vec));
 					if (!vec)
 						continue;
 
-					if (shim_mincore((void *)begin_ptr, (size_t)len, vec) < 0) {
+					if (shim_mincore((void *)mmap->mmap_begin, mmap->size, vec) < 0) {
 						free(vec);
 						continue;
 					}
@@ -228,8 +195,8 @@ static void stress_fork_maps_reduce(const size_t page_size, const int reduce_mod
 					 *  find longest run of pages that can be
 					 *  forcibly unmapped.
 					 */
-					for (j = 0, ptr = (uint8_t *)begin_ptr; ptr < (uint8_t *)end_ptr; ptr += page_size, j++) {
-						if (vec[j]) {
+					for (k = 0, ptr = (uint8_t *)mmap->mmap_begin; ptr < (uint8_t *)mmap->mmap_end; ptr += page_size, k++) {
+						if (vec[k]) {
 							if (unmap_len == 0) {
 								unmap_start = ptr;
 								unmap_len = page_size;
@@ -251,7 +218,6 @@ static void stress_fork_maps_reduce(const size_t page_size, const int reduce_mod
 			}
 		}
 	}
-	(void)fclose(fp);
 }
 #endif
 
@@ -471,6 +437,7 @@ static int stress_fork_fn(
 #if defined(__linux__)
 		{
 			int reduced_mode = mode & STRESS_MODE_PAGEOUT;
+
 			if ((mode & STRESS_MODE_UNMAP) && !remove_reduced) {
 				reduced_mode |= STRESS_MODE_UNMAP;
 				remove_reduced = true;
