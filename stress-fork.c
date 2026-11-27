@@ -218,6 +218,7 @@ static void stress_fork_maps_reduce(const size_t page_size, const int reduce_mod
 			}
 		}
 	}
+	stress_mmaps_free(&mmaps);
 }
 #endif
 
