@@ -155,7 +155,7 @@ static void stress_fork_maps_reduce(const size_t page_size, const int reduce_mod
 		return;
 
 	for (i = 0; i < mmaps.n_mmaps; i++) {
-		stress_mmap_t *mmap = &mmaps.mmaps[i];
+		const stress_mmap_t *mmap = &mmaps.mmaps[i];
 		size_t j;
 
 		if (((mmap->prot & mask) == 0) ||
