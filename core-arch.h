@@ -100,7 +100,10 @@ extern WARN_UNUSED const char *stress_arch_get(void);
 #if defined(__m68k__) ||	\
     defined(__mc68000__) ||	\
     defined(__mc68010__) ||	\
-    defined(__mc68020__)
+    defined(__mc68020__) ||	\
+    defined(__mc68030__) ||	\
+    defined(__mc68040__) ||	\
+    defined(__mc68060__)
 #define STRESS_ARCH_M68K	(1)
 #define STRESS_OPCODE_SIZE	(16)
 #define STRESS_OPCODE_MASK	(0xffffUL)
