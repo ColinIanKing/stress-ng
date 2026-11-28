@@ -35,9 +35,9 @@
 #define STRESS_STRINGIFY(s)	#s
 
 typedef struct stress_load_average_info {
-	double min1;
-	double min5;
-	double min15;
+	double min1;	/* 1 minute load average */
+	double min5;	/* 5 minute load average */
+	double min15;	/* 15 minute load average */
 } stress_load_average_info_t;
 
 extern const char ALIGN64 stress_ascii64[64];
