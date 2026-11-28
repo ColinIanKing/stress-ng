@@ -24,7 +24,7 @@
 #if defined(__linux__)
 
 #if !defined(CLOCK_AUX)
-#define CLOCK_AUX 16
+#define CLOCK_AUX	(16)
 #endif
 
 #endif
