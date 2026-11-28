@@ -82,7 +82,7 @@ static void OPTIMIZE3 stress_readpages_mapping_prefetch(
 	const stress_mmap_t *mmap)
 {
 	register size_t i;
-	uintptr_t *addrs = mmap->addrs;
+	register const uintptr_t *addrs = mmap->addrs;
 
 	for (i = 0; i < mmap->n_pages; i++) {
 		register volatile const __uint128_t *ptr = (__uint128_t *)addrs[i];
@@ -117,7 +117,7 @@ static void OPTIMIZE3 stress_readpages_mapping(
 	const stress_mmap_t *mmap)
 {
 	register size_t i;
-	uintptr_t *addrs = mmap->addrs;
+	register const uintptr_t *addrs = mmap->addrs;
 
 	for (i = 0; i < mmap->n_pages; i++) {
 		register volatile const __uint128_t *ptr = (__uint128_t *)addrs[i];
@@ -148,7 +148,7 @@ static void OPTIMIZE3 stress_readpages_mapping_prefetch(
 	const stress_mmap_t *mmap)
 {
 	register size_t i;
-	uintptr_t *addrs = mmap->addrs;
+	register const uintptr_t *addrs = mmap->addrs;
 
 	for (i = 0; i < mmap->n_pages; i++) {
 		register volatile const uint64_t *ptr = (uint64_t *)addrs[i];
@@ -191,7 +191,7 @@ static void OPTIMIZE3 stress_readpages_mapping(
 	const stress_mmap_t *mmap)
 {
 	register size_t i;
-	uintptr_t *addrs = mmap->addrs;
+	register const uintptr_t *addrs = mmap->addrs;
 
 	for (i = 0; i < mmap->n_pages; i++) {
 		register volatile const uint64_t *ptr = (uint64_t *)addrs[i];
