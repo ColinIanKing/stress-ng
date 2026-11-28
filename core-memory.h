@@ -21,15 +21,16 @@
 
 #include "stress-ng.h"
 
+/* Memory sizes in bytes */
 typedef struct stress_memory_info {
-	size_t totalmem;
-	size_t freemem;
-	size_t sharedmem;
-	size_t buffermem;
-	size_t availablemem;
-	size_t totalswap;
-	size_t freeswap;
-	size_t shmall;
+	size_t totalmem;	/* Total physical memory */
+	size_t freemem;		/* Free memory */
+	size_t sharedmem;	/* Shared memory */
+	size_t buffermem;	/* Buffer file/dentry cache memory */
+	size_t availablemem;	/* Maximum available memory */
+	size_t totalswap;	/* Total swap */
+	size_t freeswap;	/* Free swap */
+	size_t shmall;		/* Shared memory */
 } stress_memory_info_t;
 
 extern size_t stress_memory_page_size_get(void);
