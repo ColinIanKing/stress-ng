@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-madvise.h"
+#include "core-mmap.h"
 #include "core-sort.h"
 
 static uint32_t stress_madvise_flags;
@@ -379,49 +380,30 @@ int stress_madvise_randomize(void *addr, const size_t length)
 
 /*
  *  stress_madvise_pid_all_pages()
- *	apply madvise advise to all pages in a progress
+ *	apply madvise advise to all pages in a process
  */
 void stress_madvise_pid_all_pages(
 	const pid_t pid,
 	const int *advice,
 	const size_t n_advice)
 {
-#if defined(HAVE_MADVISE) &&	\
-    defined(__linux__)
-	FILE *fp;
-	char path[4096];
-	char buf[4096];
+#if defined(HAVE_MADVISE)
 	const size_t page_size = stress_memory_page_size_get();
+	stress_mmaps_t mmaps;
+	size_t i;
 
-	(void)snprintf(path, sizeof(path), "/proc/%" PRIdMAX "/maps", (intmax_t)pid);
-
-	fp = fopen(path, "r");
-	if (!fp)
+	if (stress_mmaps_get(pid, page_size, 0, false, true, &mmaps) < 0)
 		return;
-	while (fgets(buf, sizeof(buf), fp)) {
-		void *start;
-		void *end;
-		void *offset;
-		int n;
-		unsigned int major;
-		unsigned int minor;
-		uint64_t inode;
-		char prot[5];
 
-		n = sscanf(buf, "%p-%p %4s %p %x:%x %" PRIu64 " %4095s\n",
-			&start, &end, prot, &offset, &major, &minor,
-			&inode, path);
-		if (n < 7)
-			continue;	/* bad sscanf data */
-		if (start >= end)
-			continue;	/* invalid address range */
+	for (i = 0; i < mmaps.n_mmaps; i++) {
+		stress_mmap_t *mmap = &mmaps.mmaps[i];
 
 		if (n_advice == 1) {
-			VOID_RET(int, madvise(start, (size_t)((uint8_t *)end - (uint8_t *)start), advice[0]));
+			VOID_RET(int, madvise((void *)mmap->mmap_begin, mmap->size, advice[0]));
 		} else {
 			register uint8_t *ptr;
 
-			for (ptr = (uint8_t *)start; ptr < (uint8_t *)end; ptr += page_size) {
+			for (ptr = (uint8_t *)mmap->mmap_begin; ptr < (uint8_t *)mmap->mmap_end; ptr += page_size) {
 				size_t idx = stress_mwc8modn((uint8_t)n_advice);
 				const int new_advice = advice[idx];
 
@@ -432,17 +414,17 @@ void stress_madvise_pid_all_pages(
 		/*
 		 *  Readable protection? read pages
 		 */
-		if ((prot[0] == 'r') && (path[0] != '[')) {
-			register volatile uint8_t *vptr = (volatile uint8_t *)start;
+		if ((mmap->prot & STRESS_MMAP_READ) && (mmap->path[0] != '[')) {
+			register volatile uint8_t *vptr = (volatile uint8_t *)mmap->mmap_begin;
 
-			while (vptr < (uint8_t *)end) {
+			while (vptr < (uint8_t *)mmap->mmap_end) {
 				(*vptr);
 				vptr += page_size;
 			}
 		}
 	}
 
-	(void)fclose(fp);
+	stress_mmaps_free(&mmaps);
 #else
 	(void)pid;
 	(void)advice;
