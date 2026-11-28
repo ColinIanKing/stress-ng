@@ -244,46 +244,31 @@ static void stress_dump_readable_data(const uint8_t *fault_addr)
  */
 static void stress_dump_map_info(uint8_t *fault_addr)
 {
-#if defined(__linux__)
-	FILE *fp;
-	char buf[1024];
+	stress_mmaps_t mmaps;
+	size_t i;
+	const size_t page_size = stress_memory_page_size_get();
 
-	fp = fopen("/proc/self/maps", "r");
-	if (UNLIKELY(!fp))
+	if (stress_mmaps_get(-1, page_size, 0, false, true, &mmaps) < 0)
 		return;
-	while ((fgets(buf, sizeof(buf), fp)) != NULL) {
-		uintptr_t begin;
-		uintptr_t end;
 
-		if (sscanf(buf, "%" SCNxPTR "-%" SCNxPTR, &begin, &end) == 2) {
-			if (((uintptr_t)fault_addr >= begin) &&
-			    ((uintptr_t)fault_addr <= end)) {
-				char *ptr1;
-				char *ptr2;
+	for (i = 0; i < mmaps.n_mmaps; i++) {
+		const stress_mmap_t *mmap = &mmaps.mmaps[i];
 
-				/* truncate to first \n found */
-				ptr1 = shim_strchr(buf, (int)'\n');
-				if (ptr1)
-					*ptr1 = '\0';
-
-				/* squeeze out duplicated spaces */
-				for (ptr1 = buf, ptr2 = buf; *ptr1; ptr1++) {
-					if ((*ptr1 == ' ') && (*(ptr1 + 1) == ' '))
-						continue;
-					*ptr2 = *ptr1;
-					ptr2++;
-
-				}
-				*ptr2 = '\0';
-				stress_dbg("stress-ng: info: %s\n", buf);
-				break;
-			}
+		if (((uintptr_t)fault_addr >= mmap->mmap_begin) &&
+		    ((uintptr_t)fault_addr <= mmap->mmap_end)) {
+			stress_dbg("stress-ng: info: %" PRIxPTR "-%" PRIxPTR " %c%c%c%c %8.8zx %zu %s\n",
+				mmap->mmap_begin, mmap->mmap_end,
+				(mmap->prot & STRESS_MMAP_READ) ? 'r' : '-',
+				(mmap->prot & STRESS_MMAP_WRITE) ? 'w' : '-',
+				(mmap->prot & STRESS_MMAP_EXEC) ? 'x' : '-',
+				(mmap->prot & STRESS_MMAP_PRIVATE) ? 'p' :
+				(mmap->prot & STRESS_MMAP_SHARED) ? 's' : '-',
+				mmap->mmap_offset,
+				mmap->size,
+				mmap->path);
 		}
 	}
-	(void)fclose(fp);
-#else
-	(void)fault_addr;
-#endif
+	stress_mmaps_free(&mmaps);
 }
 
 /*
