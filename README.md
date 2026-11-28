@@ -653,6 +653,7 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
  * [sched_ext: Don't leave balance callbacks queued across a pick retry](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=ff0545e0c263727b200f60af47d0364e4d041bde)
  * [mm/madvise: add cond_resched() in THP branch of madvise_cold_or_pageout_pte_range()](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=f5cfc8e3b20ad71949a1e5623ff45882c063a71b)
  * [pinmem in ubuntu_stress_smoke_test failed on focal](https://bugs.launchpad.net/ubuntu-kernel-tests/+bug/2178215)
+ * [sched_ext: Attach fair_server before tasks fall back to fair on disable](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=97e1c7d467d07734f8f5c8c64730e1f7c415bd46)
 
 ## Kernel improvements that used stress-ng
 
