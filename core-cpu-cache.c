@@ -63,6 +63,10 @@ static inline ALWAYS_INLINE void stress_cpu_cache_line_size_set(const uint32_t s
  *	get cache line size, used cached version or default
  *	to arch specific L1 cache size found on modern variants
  *	of the architecture.
+ *
+ *	These are default best case initial default guesses, if
+ *	the cache L1 line size can be obtained then this is
+ *	used instead.
  */
 uint32_t stress_cpu_cache_line_size_get(void)
 {
@@ -82,6 +86,7 @@ uint32_t stress_cpu_cache_line_size_get(void)
 #elif defined(STRESS_ARCH_LOONG64)
 	stress_cpu_cache_line_size = 64;
 #elif defined(STRESS_ARCH_M68K)
+	/* pre-68020 don't have a cache, default to 4 bytes */
 	stress_cpu_cache_line_size = 4;
 #elif defined(STRESS_ARCH_MIPS)
 	/* older MIPS32 4Kc have 16 byte L1 cache line size */
