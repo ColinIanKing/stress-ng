@@ -19,7 +19,6 @@
 #include "stress-ng.h"
 #include "core-sort.h"
 #include "core-pragma.h"
-#include "core-target-clones.h"
 
 #define THRESH			(63)
 #define FISHER_YATES_SHUFFLE
@@ -342,7 +341,7 @@ PRAGMA_UNROLL_N(4)
  *  Bentley and MacIlroy’s quicksort, v2
  *  https://web.ecs.syr.edu/~royer/cis675/slides/07engSort.pdf
  */
-void TARGET_CLONES OPTIMIZE3 HOT qsort_bm(
+void OPTIMIZE3 HOT qsort_bm(
 	void *base,
 	const size_t n,
 	const size_t es,
