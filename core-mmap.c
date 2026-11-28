@@ -760,6 +760,9 @@ static int stress_mmap_get(
 		return -1;
 
 	n_pages = (int64_t)(end / page_size) - (int64_t)(begin / page_size);
+	/* Extra paranoid */
+	if (n_pages <= 0)
+		return -1;
 	mmap->n_pages = (size_t)n_pages;
 
 	/* Skip invalid or huge ranges */
