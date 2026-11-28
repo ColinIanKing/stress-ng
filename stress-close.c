@@ -151,6 +151,61 @@ static const int close_range_flags[] = {
 };
 
 /*
+ *  stress_close_check()
+ *	perform close and check for unexpected close
+ *	error failures. EINTR is a special case, retry
+ *	these a couple of times. EBADF is an exepcted
+ *	error condition because the multi-threaded
+ *	closing of shared fds is being exercised.
+ */
+static int stress_close_check(stress_args_t *args, int fd)
+{
+	int ret;
+	int saved_errno;
+	int retry = 2;
+
+	do {
+		ret = close(fd);
+		saved_errno = errno;
+
+		if (ret == 0)
+			break;
+
+		switch (errno) {
+		case EBADF:
+			/*
+			 *  This is expected since we're racing
+			 *  on closing file descriptors, so
+			 *  silently ignore these
+			 */
+			retry = 0;
+			break;
+		case EINTR:
+			/*
+			 *  If close() is interrupted by a signal the
+			 *  state of fd is unspecified, to avoid
+			 *  potential fd leaks, close again
+			 */
+			retry--;
+			break;
+		case ENOSPC:
+		case EDQUOT:
+			/* NFS failures, ignore reporting these */
+			retry = 0;
+			break;
+		default:
+			retry = 0;
+			pr_fail("%s: close(%d) failed, errno=%d (%s)\n",
+				args->name, fd, errno, strerror(errno));
+			break;
+		}
+	} while (retry > 0);
+
+	errno = saved_errno;
+	return ret;
+}
+
+/*
  *  stress_close_func()
  *	pthread that close file descriptors
  */
@@ -200,9 +255,9 @@ static void *stress_close_func(void *arg)
 
 		(void)shim_usleep_interruptible(delay);
 		if (fd != -1)
-			(void)close(fd);
+			(void)stress_close_check(args, fd);
 		if (dupfd != -1)
-			(void)close(dupfd);
+			(void)stress_close_check(args, dupfd);
 
 #if defined(F_SETLK)
 		{
@@ -240,7 +295,7 @@ static void *stress_close_func(void *arg)
 		 *  close a valid fd
 		 */
 		if (valid_fd >= 0)
-			VOID_RET(int, close(valid_fd));
+			(void)stress_close_check(args, valid_fd);
 
 #if defined(CLOSE_RANGE_EXCEPT)
 		VOID_RET(int, shim_close_range(0, FDS_START - 1, CLOSE_RANGE_EXCEPT));
@@ -258,7 +313,7 @@ static void *stress_close_func(void *arg)
 		if (ret < 0) {
 			/* failed for some reason, redo close to ensure all fds are closed */
 			for (i = 0; i < FDS_TO_DUP; i++)
-				(void)close(fds[i]);
+				(void)stress_close_check(args, fds[i]);
 		}
 		/*
 		 *  close an invalid range of fds
@@ -507,9 +562,9 @@ static int stress_close(stress_args_t *args)
 			if (UNLIKELY(ret >= 0)) {
 				pr_fail("%s: faccessat opened file descriptor succeeded unexpectedly, "
 					"errno=%d (%s)\n", args->name, errno, strerror(errno));
-				(void)close(fd);
+				(void)stress_close_check(args, fd);
 				if (dupfd != -1)
-					(void)close(dupfd);
+					(void)stress_close_check(args, dupfd);
 				rc = EXIT_FAILURE;
 				goto tidy;
 			}
@@ -520,7 +575,7 @@ static int stress_close(stress_args_t *args)
 
 			ret = dup(STDOUT_FILENO);
 			if (LIKELY(ret != -1))
-				(void)close(ret);
+				(void)stress_close_check(args, ret);
 
 			t = stress_time_now();
 			if (LIKELY(close(fd) == 0)) {
@@ -544,7 +599,7 @@ static int stress_close(stress_args_t *args)
 				}
 			}
 			if (dupfd != -1)
-				(void)close(dupfd);
+				(void)stress_close_check(args, dupfd);
 		}
 		t2 = stress_time_now();
 		dt = t2 - t1;
