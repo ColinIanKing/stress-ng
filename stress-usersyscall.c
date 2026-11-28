@@ -128,12 +128,12 @@ static int stress_sigsys_libc_mapping(
 	uintptr_t *begin,
 	uintptr_t *end)
 {
-	const int prot_mask = STRESS_MMAP_READ | STRESS_MMAP_EXEC | STRESS_MMAP_PRIVATE;
+	const int mask = STRESS_MMAP_READ | STRESS_MMAP_EXEC | STRESS_MMAP_PRIVATE;
 	int ret;
 	size_t i;
 	stress_mmaps_t mmaps;
 
-	ret = stress_mmaps_get(-1, page_size, prot_mask, false, true, &mmaps);
+	ret = stress_mmaps_get(-1, page_size, mask, false, true, &mmaps);
 	if (ret < 0)
 		goto err;
 
@@ -141,9 +141,10 @@ static int stress_sigsys_libc_mapping(
 	*end = 0;
 
 	for (i = 0; i < mmaps.n_mmaps; i++) {
-		const char *path = mmaps.mmaps[i].path;
+		const stress_mmap_t *mmap = &mmaps.mmaps[i];
+		const char *path = mmap->path;
 
-		if ((path != NULL) && shim_strstr(path, ".so")) {
+		if (((mmap->prot & mask) == mask) && (path != NULL) && shim_strstr(path, ".so")) {
 			if (shim_strstr(path, "/libc-") ||
 			    shim_strstr(path, "/libc.so")) {
 				if (*begin > mmaps.mmaps[i].mmap_begin)

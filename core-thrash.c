@@ -133,7 +133,7 @@ static void stress_pagein_proc(const pid_t pid, const size_t page_size)
 	int ret;
 	size_t i;
 	stress_mmaps_t mmaps;
-	const size_t prot_mask = STRESS_MMAP_READ | STRESS_MMAP_PRIVATE;
+	const size_t mask = STRESS_MMAP_READ | STRESS_MMAP_PRIVATE;
 
 	if ((pid == parent_pid) || (pid == getpid()))
 		return;
@@ -143,7 +143,7 @@ static void stress_pagein_proc(const pid_t pid, const size_t page_size)
 	if (fdmem < 0)
 		return;
 
-	ret = stress_mmaps_get(pid, page_size, prot_mask, false, true, &mmaps);
+	ret = stress_mmaps_get(pid, page_size, mask, false, true, &mmaps);
 	if (ret < 0) {
 		(void)close(fdmem);
 		return;
@@ -154,6 +154,9 @@ static void stress_pagein_proc(const pid_t pid, const size_t page_size)
 		uintptr_t end;
 		const uintptr_t max_off = ((uintptr_t)~(off_t)0) - (page_size - 1);
 		const stress_mmap_t *mmap = &mmaps.mmaps[i];
+
+		if ((mmap->prot & mask) != mask)
+			continue;
 
 		end = mmap->mmap_end;
 		if (end >= max_off)

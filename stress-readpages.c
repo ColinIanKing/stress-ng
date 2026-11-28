@@ -290,10 +290,6 @@ static size_t OPTIMIZE3 stress_readpages_exercise(
 	for (i = 0; i < mmaps->n_mmaps; i++) {
 		stress_mmap_t *mmap = &mmaps->mmaps[i];
 
-
-		if ((mmap->prot & STRESS_MMAP_READ) == 0)
-			continue;
-
 #if defined(HAVE_SIGLONGJMP)
 		if (mmap->flags & STRESS_READPAGE_SIGSEGV)
 			continue;
@@ -357,7 +353,7 @@ static int stress_readpages(stress_args_t *args)
 	(void)stress_setting_get("readpages-order", &readpages_order);
 
 	stress_readpages_current_mmap = NULL;
-	if (stress_mmaps_get(-1, page_size, 0, true, true, &mmaps) < 0) {
+	if (stress_mmaps_get(-1, page_size, STRESS_MMAP_READ, true, true, &mmaps) < 0) {
 		pr_inf_skip("%s: failed to read process mappings, skipping stressor\n",
 			args->name);
 		return EXIT_NO_RESOURCE;

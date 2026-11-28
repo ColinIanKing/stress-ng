@@ -748,7 +748,7 @@ static int stress_mmap_get(
 	       ((perms[3] == 's') ? STRESS_MMAP_SHARED: 0) |
 	       ((tmppath[0] == '\0') ? STRESS_MMAP_ANON : 0);
 
-	if ((prot_mask != 0) && (prot & prot_mask) != prot_mask)
+	if ((prot_mask != 0) && (prot & prot_mask) == 0)
 		return -1;
 
 	/* Avoid vdso and vvar */
